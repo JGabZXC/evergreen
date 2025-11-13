@@ -1,0 +1,13 @@
+export interface Staff {
+  firstName: string;
+  lastName: string;
+  middleName?: string;
+  birthday: Date;
+  gender?: "male" | "female" | "other";
+  address?: string;
+  position?: string;
+  contactNumber?: string;
+  email?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
