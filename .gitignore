@@ -1,0 +1,32 @@
+# Node
+node_modules/
+dist/
+build/
+npm-debug.log
+.env
+.env.*
+.DS_Store
+*.local
+
+# Logs
+logs
+*.log
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+
+# Docker
+mongo-data/
+Dockerfile*
+.dockerignore
+
+# Misc
+*.swp
+
+prompt.md
+.github
