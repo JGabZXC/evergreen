@@ -22,7 +22,6 @@ Thumbs.db
 
 # Docker
 mongo-data/
-.dockerignore
 
 # Misc
 *.swp

@@ -1,0 +1,14 @@
+node_modules
+npm-debug.log
+dist
+build
+.env
+Dockerfile*
+.git
+.gitignore
+.vscode
+frontend/node_modules
+backend/node_modules
+frontend/dist
+backend/dist
+mongo-data
