@@ -2,6 +2,8 @@ import { useNavigate, useSearchParams } from "react-router";
 import { useEffect } from "react";
 import { DashboardStudent } from "../../dashboard-student/pages/DashboardStudent";
 import { DashboardTeacher } from "../../dashboard-teacher/pages/DashboardTeacher";
+import DashboardRegistrar from "../../dashboard-registrar/pages/DashboardRegistrar";
+import DashboardAppointer from "../../dashboard-appointer/pages/DashboardAppointer";
 
 export default function DashboardMain() {
   const [searchParams] = useSearchParams();
@@ -11,7 +13,12 @@ export default function DashboardMain() {
   // TODO: We will based on user role, query params for now
 
   useEffect(() => {
-    if (type !== "student" && type !== "teacher") {
+    if (
+      type !== "student" &&
+      type !== "teacher" &&
+      type !== "registrar" &&
+      type !== "appointer"
+    ) {
       navigate("/", { replace: true });
     }
   }, [type, navigate]);
@@ -23,6 +30,14 @@ export default function DashboardMain() {
   if (type === "teacher") {
     return <DashboardTeacher />;
   }
-  // Render nothing while redirecting
+
+  if (type === "registrar") {
+    return <DashboardRegistrar />;
+  }
+
+  if (type === "appointer") {
+    return <DashboardAppointer />;
+  }
+
   return null;
 }
