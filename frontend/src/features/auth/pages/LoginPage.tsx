@@ -1,12 +1,19 @@
 import { useSearchParams } from "react-router";
+import { useEffect } from "react";
 
 export default function LoginPage() {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const type = searchParams.get("type") || "student";
+
+  useEffect(() => {
+    if (!searchParams.get("type")) {
+      setSearchParams({ type: "student" }, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-base-200">
-      <div className="card w-full max-w-md bg-base-100 shadow-xl">
+      <div className="card w-full max-w-md bg-base-100 shadow-xl border border-base-200 dark:border-white/10">
         <div className="card-body">
           <h2 className="card-title justify-center text-2xl mb-4">
             Login as {type === "teacher" ? "Teacher" : "Student"}
