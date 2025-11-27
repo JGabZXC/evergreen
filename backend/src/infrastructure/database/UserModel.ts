@@ -1,5 +1,5 @@
 import { Schema, model, Document } from "mongoose";
-import { User } from "../../domain/User";
+import { Role, User } from "../../domain/User";
 
 interface UserDocument extends User, Document {}
 
@@ -9,9 +9,11 @@ const UserSchema = new Schema<UserDocument>(
     password: { type: String, required: true },
     role: {
       type: String,
-      enum: ["student", "teacher", "admin", "staff"],
+      enum: Object.values(Role),
+      default: Role.Student,
       required: true,
     },
+    active: { type: Boolean, default: true },
   },
   { timestamps: true }
 );

@@ -5,16 +5,20 @@ export interface ParentContact {
   address?: string;
 }
 
-export interface Student {
-  firstName: string;
-  lastName: string;
-  middleName?: string;
-  birthday: Date;
-  gender?: "male" | "female" | "other";
-  address?: string;
-  gradeLevel?: string;
+import { Teacher } from "./Teacher";
+import { User, UserDetail, Role } from "./User";
+
+export interface EnrollmentRecord {
+  gradeLevel: string;
   section?: string;
-  parentContact: ParentContact;
-  createdAt?: Date;
-  updatedAt?: Date;
+  enrollmentDate: Date;
+  schoolYear: string;
+  adviser?: Teacher;
+}
+
+export interface Student extends User {
+  role: Role.Student;
+  studentId: string;
+  details: UserDetail;
+  enrollments: EnrollmentRecord[];
 }

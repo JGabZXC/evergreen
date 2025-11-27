@@ -1,13 +1,23 @@
-export interface Teacher {
-  firstName: string;
-  lastName: string;
-  middleName?: string;
-  birthday: Date;
-  gender?: "male" | "female" | "other";
-  address?: string;
-  subjectSpecialization?: string[];
-  contactNumber?: string;
-  email?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
+import { User, UserDetail, Role } from "./User";
+
+export interface Teacher extends User {
+  role: Role.Teacher;
+  details: UserDetail;
+  department: string;
+  hireDate: Date;
+  specializations?: string[];
+  masteralDegree?: [
+    {
+      field: string;
+      institution: string;
+      yearCompleted: number;
+    },
+  ];
+  doctoralDegree?: [
+    {
+      field: string;
+      institution: string;
+      yearCompleted: number;
+    },
+  ];
 }

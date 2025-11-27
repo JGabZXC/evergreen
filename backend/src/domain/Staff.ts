@@ -1,13 +1,9 @@
-export interface Staff {
-  firstName: string;
-  lastName: string;
-  middleName?: string;
-  birthday: Date;
-  gender?: "male" | "female" | "other";
-  address?: string;
+import { User, UserDetail, Role } from "./User";
+
+export interface Staff extends User {
+  role: Role.Staff;
+  details?: UserDetail;
   position?: string;
-  contactNumber?: string;
-  email?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
+  department?: string;
+  hireDate?: Date;
 }

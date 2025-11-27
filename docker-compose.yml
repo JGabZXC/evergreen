@@ -15,10 +15,12 @@ services:
     env_file:
       - ./frontend/.env
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      target: development
     container_name: evergreen_backend
     ports:
-      - "5000:5000"
+      - "3000:3000"
     volumes:
       - ./backend:/app
     env_file:
@@ -29,7 +31,10 @@ services:
     image: mongo:6
     container_name: evergreen_mongo
     ports:
-      - "27017:27017"
+      - "27018:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: rootpassword
     volumes:
       - mongo-data:/data/db
 volumes:
