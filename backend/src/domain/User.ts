@@ -1,3 +1,5 @@
+import { Schema } from "mongoose";
+
 export enum Role {
   Student = "student",
   Teacher = "teacher",
@@ -8,6 +10,7 @@ export enum Role {
 }
 
 export interface UserDetail {
+  userId?: Schema.Types.ObjectId;
   profilePictureUrl?: string;
   firstName?: string;
   lastName?: string;

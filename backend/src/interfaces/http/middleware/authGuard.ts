@@ -1,11 +1,16 @@
+import { AuthService } from "../../../application/services/authService";
 import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
 import { HttpStatus } from "../../../domain/HttpStatus";
+import { AuthPayload } from "../../../domain/types/AuthPayload";
 
-const JWT_SECRET = process.env.JWT_SECRET || "changeme";
+export interface AuthenticatedRequest extends Request {
+  user?: AuthPayload;
+}
 
-export function authenticateToken(
-  req: Request,
+const authService = new AuthService();
+
+export function authGuard(
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
 ) {
@@ -17,13 +22,12 @@ export function authenticateToken(
       .status(HttpStatus.UNAUTHORIZED)
       .json({ error: "No access token provided" });
   }
-  try {
-    const payload = jwt.verify(token, JWT_SECRET);
-    (req as any).user = payload;
-    next();
-  } catch {
+  const payload = authService.verifyAccessToken(token);
+  if (!payload) {
     return res
       .status(HttpStatus.UNAUTHORIZED)
       .json({ error: "Invalid or expired access token" });
   }
+  req.user = payload;
+  next();
 }

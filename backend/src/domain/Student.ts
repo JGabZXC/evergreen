@@ -4,21 +4,29 @@ export interface ParentContact {
   email?: string;
   address?: string;
 }
+import { Schema } from "mongoose";
 
-import { Teacher } from "./Teacher";
-import { User, UserDetail, Role } from "./User";
-
-export interface EnrollmentRecord {
-  gradeLevel: string;
-  section?: string;
-  enrollmentDate: Date;
-  schoolYear: string;
-  adviser?: Teacher;
+export enum EnrollmentStatus {
+  Enrolled = "Enrolled",
+  Passed = "Passed",
+  Failed = "Failed",
+  Dropped = "Dropped",
+  Transferred = "Transferred",
+  Graduated = "Graduated",
 }
 
-export interface Student extends User {
-  role: Role.Student;
+export interface EnrollmentRecord {
   studentId: string;
-  details: UserDetail;
-  enrollments: EnrollmentRecord[];
+  gradeLevel: string; // e,g "Grade 10", "Grade 11"
+  section?: string;
+  enrollmentDate: Date;
+  status: EnrollmentStatus;
+  schoolYear: string;
+  adviser?: Schema.Types.ObjectId; // Teacher reference
+}
+
+export interface Student {
+  userId: Schema.Types.ObjectId;
+  studentId: string;
+  enrollments?: EnrollmentRecord[];
 }

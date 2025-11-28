@@ -1,9 +1,7 @@
 import { Schema, model, Document } from "mongoose";
 import { Role, User } from "../../domain/User";
 
-interface UserDocument extends User, Document {}
-
-const UserSchema = new Schema<UserDocument>(
+const UserSchema = new Schema<User & Document>(
   {
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
@@ -18,4 +16,4 @@ const UserSchema = new Schema<UserDocument>(
   { timestamps: true }
 );
 
-export const UserModel = model<UserDocument>("User", UserSchema);
+export const UserModel = model<User>("User", UserSchema);

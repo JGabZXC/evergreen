@@ -1,8 +1,8 @@
-import { User, UserDetail, Role } from "./User";
+import { Schema } from "mongoose";
 
-export interface Teacher extends User {
-  role: Role.Teacher;
-  details: UserDetail;
+export interface Teacher {
+  userId: Schema.Types.ObjectId;
+  teacherId: string;
   department: string;
   hireDate: Date;
   specializations?: string[];

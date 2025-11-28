@@ -1,10 +1,10 @@
 import express from "express";
-import userRoutes from "./interfaces/http/routes/userRoutes";
 import authRoutes from "./interfaces/http/routes/authRoutes";
 import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import morgan from "morgan";
+import { errorHandler } from "./interfaces/http/middleware/errorHandler";
 
 dotenv.config({
   path: "../.env",
@@ -17,8 +17,9 @@ if (process.env.NODE_ENV !== "production") {
 app.use(express.json());
 app.use(cookieParser());
 
-app.use("/api", userRoutes);
 app.use("/api/auth", authRoutes);
+
+app.use(errorHandler);
 
 mongoose
   .connect(process.env.MONGO_URI || "mongodb://mongo:27017/evergreen")
