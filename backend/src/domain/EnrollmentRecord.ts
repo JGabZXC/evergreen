@@ -17,6 +17,8 @@ export interface BaseEnrollmentRecord {
   status: EnrollmentStatus;
   schoolYear: string;
   adviser?: Schema.Types.ObjectId; // Teacher reference
+  subjectTaken?: string;
+  semester?: number;
 }
 
 export interface EnrollmentRecord extends BaseEnrollmentRecord {

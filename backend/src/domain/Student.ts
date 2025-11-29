@@ -6,7 +6,7 @@ export interface ParentContact {
 }
 import { Schema } from "mongoose";
 
-interface GuardianDetails {
+export interface GuardianDetails {
   name: string;
   contact: string;
   relation: string;

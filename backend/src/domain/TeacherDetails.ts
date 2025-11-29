@@ -1,4 +1,4 @@
-interface Degree {
+export interface Degree {
   field: string;
   institution: string;
   yearCompleted: number;

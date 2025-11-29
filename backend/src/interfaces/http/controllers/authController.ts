@@ -58,29 +58,34 @@ export const register = async (
 
 export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
-  if (!email || !password) {
-    return res
-      .status(HttpStatus.BAD_REQUEST)
-      .json({ error: "Missing credentials" });
+  const errors: { [key: string]: string } = {};
+
+  if (!email) {
+    errors["email"] = "Email is required";
   }
 
-  const user = await UserModel.findOne({ email });
+  if (!password) {
+    errors["password"] = "Password is required";
+  }
+
+  if (Object.keys(errors).length > 0) {
+    throw new BadRequestError("Validation errors", errors);
+  }
+
+  const user = await UserModel.findOne({ email }).select("+password");
 
   if (!user) {
-    return res
-      .status(HttpStatus.UNAUTHORIZED)
-      .json({ error: "Invalid email or password" });
+    throw new BadRequestError("User not found", { email });
   }
 
   if (!(await authService.comparePasswords(password, user.password))) {
-    return res
-      .status(HttpStatus.UNAUTHORIZED)
-      .json({ error: "Invalid email or password" });
+    throw new BadRequestError("Invalid email or password");
   }
 
   const { accessToken, refreshToken } = await authService.generateTokens(user);
   authService.setAuthCookies(res, accessToken, refreshToken);
-  return res.status(HttpStatus.OK).json({ message: "Login successful" });
+
+  return res.status(HttpStatus.OK).json({ user });
 };
 
 export const logout = async (req: Request, res: Response) => {
