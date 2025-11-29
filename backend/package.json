@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "main": "dist/index.js",
   "scripts": {
-    "dev": "ts-node-dev --poll --respawn --transpile-only src/server.ts",
+    "dev": "ts-node-dev --poll --respawn src/server.ts",
     "build": "tsc",
+    "seed-users": "node dist/infrastructure/database/scripts/seed.js",
     "start": "node dist/server.js",
     "lint": "eslint \"src/**/*.{ts,js}\" --max-warnings=0"
   },

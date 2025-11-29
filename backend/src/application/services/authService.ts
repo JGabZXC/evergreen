@@ -8,15 +8,19 @@ export class AuthService {
   private JWT_SECRET = process.env.JWT_SECRET || "changeme";
   private ACCESS_TOKEN_EXPIRES_IN = 1000 * 60 * 10; // 10 minutes
   private REFRESH_TOKEN_EXPIRES_IN = 1000 * 60 * 30; // 30 minutes
+  // private ACCESS_TOKEN_EXPIRES_IN = 1000 * 5; // 5 seconds
+  // private REFRESH_TOKEN_EXPIRES_IN = 1000 * 60 * 30; // 30 minutes
 
   private generateAccessToken(payload: AuthPayload) {
-    return jwt.sign(payload, this.JWT_SECRET, {
+    const { exp, iat, ...cleanPayload } = payload;
+    return jwt.sign(cleanPayload, this.JWT_SECRET, {
       expiresIn: this.ACCESS_TOKEN_EXPIRES_IN / 1000,
     });
   }
 
   private generateRefreshToken(payload: AuthPayload) {
-    return jwt.sign(payload, this.JWT_SECRET, {
+    const { exp, iat, ...cleanPayload } = payload;
+    return jwt.sign(cleanPayload, this.JWT_SECRET, {
       expiresIn: this.REFRESH_TOKEN_EXPIRES_IN / 1000,
     });
   }

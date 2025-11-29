@@ -1,5 +1,3 @@
-import { Schema } from "mongoose";
-
 export enum Role {
   Student = "student",
   Teacher = "teacher",
@@ -9,27 +7,14 @@ export enum Role {
   Approver = "approver",
 }
 
-export interface UserDetail {
-  userId?: Schema.Types.ObjectId;
-  profilePictureUrl?: string;
-  firstName?: string;
-  lastName?: string;
-  phoneNumber?: string;
-  address?: string;
-  gender?: "male" | "female" | "other";
-  dateOfBirth?: Date;
-  emergencyContact?: {
-    name: string;
-    relationship: string;
-    phoneNumber: string;
-  };
-}
-
-export interface User {
+export interface BaseUser {
   email: string;
   password: string;
   role: Role;
-  createdAt?: Date;
-  updatedAt?: Date;
-  active?: boolean;
+}
+
+export interface User extends BaseUser {
+  active: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }

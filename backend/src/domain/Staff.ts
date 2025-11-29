@@ -1,13 +1,30 @@
-import { User, UserDetail, Role } from "./User";
+import { Schema } from "mongoose";
 
-export interface Staff extends User {
-  role: Role;
-  details?: UserDetail;
-  position?: string;
-  department?: string;
-  hireDate?: Date;
+interface Address {
+  street: string;
+  city: string;
+  state: string;
+  zipCode: number;
 }
 
-export interface Registrar extends Staff {
-  role: Role.Registrar;
+export interface BaseStaffProfile {
+  employeeId: string;
+  firstName: string;
+  lastName: string;
+  dateOfBirth: Date;
+  phoneNumber?: string;
+  address?: Address;
+  position: string;
+  department: string;
+  hireDate: Date;
+}
+
+export interface StaffProfile extends BaseStaffProfile {
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Staff {
+  userId: Schema.Types.ObjectId;
+  employeeId: string;
 }

@@ -1,6 +1,5 @@
 import { Response, NextFunction } from "express";
 import { AuthenticatedRequest } from "./authGuard";
-import { HttpStatus } from "../../../domain/HttpStatus";
 import { ForbiddenError } from "./HttpErrors";
 
 export function requireRole(...roles: string[]) {

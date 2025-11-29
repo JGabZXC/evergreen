@@ -6,27 +6,28 @@ export interface ParentContact {
 }
 import { Schema } from "mongoose";
 
-export enum EnrollmentStatus {
-  Enrolled = "Enrolled",
-  Passed = "Passed",
-  Failed = "Failed",
-  Dropped = "Dropped",
-  Transferred = "Transferred",
-  Graduated = "Graduated",
+interface GuardianDetails {
+  name: string;
+  contact: string;
+  relation: string;
 }
 
-export interface EnrollmentRecord {
+export interface BaseStudentProfile {
   studentId: string;
-  gradeLevel: string; // e,g "Grade 10", "Grade 11"
-  section?: string;
-  enrollmentDate: Date;
-  status: EnrollmentStatus;
-  schoolYear: string;
-  adviser?: Schema.Types.ObjectId; // Teacher reference
+  firstName: string;
+  lastName: string;
+  dateOfBirth: Date;
+  phoneNumber?: string;
+  address?: string;
+  guardianDetails?: GuardianDetails;
+}
+
+export interface StudentProfile extends BaseStudentProfile {
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface Student {
   userId: Schema.Types.ObjectId;
   studentId: string;
-  enrollments?: EnrollmentRecord[];
 }

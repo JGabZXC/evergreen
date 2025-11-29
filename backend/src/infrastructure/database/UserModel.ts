@@ -1,4 +1,4 @@
-import { Schema, model, Document } from "mongoose";
+import { Schema, model } from "mongoose";
 import { Role, User } from "../../domain/User";
 
 const UserSchema = new Schema<User & Document>(
@@ -16,4 +16,4 @@ const UserSchema = new Schema<User & Document>(
   { timestamps: true }
 );
 
-export const UserModel = model<User>("User", UserSchema);
+export const UserModel = model<User & Document>("User", UserSchema);
