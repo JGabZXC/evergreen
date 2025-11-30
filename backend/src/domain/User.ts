@@ -1,13 +1,5 @@
 import { Schema } from "mongoose";
-
-export enum Role {
-  Student = "student",
-  Teacher = "teacher",
-  Admin = "admin",
-  Staff = "staff",
-  Registrar = "registrar",
-  Approver = "approver",
-}
+import { Role } from "./types/Role";
 
 export interface BaseUser {
   email: string;

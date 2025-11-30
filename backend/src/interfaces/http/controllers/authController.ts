@@ -1,12 +1,15 @@
 import { Request, Response } from "express";
-import { Role, BaseUser } from "../../../domain/User";
+import { BaseUser } from "../../../domain/User";
 import { HttpStatus } from "../../../domain/HttpStatus";
 import { UserModel } from "../../../infrastructure/database/UserModel";
 import { AuthService } from "../../../application/services/authService";
 import { BadRequestError } from "../middleware/HttpErrors";
 import { AuthenticatedRequest } from "../middleware/authGuard";
+import { UserCreationService } from "../../../application/services/userCreationService";
+import { StaffRole, StudentRole, type Role } from "../../../domain/types/Role";
 
 const authService = new AuthService();
+const userCreationService = new UserCreationService();
 
 export const register = async (
   req: Request & AuthenticatedRequest,
@@ -23,11 +26,15 @@ export const register = async (
   if (!password) {
     errors["password"] = "Password is required";
   }
-  if (!role || !Object.values(Role).includes(role)) {
+  const validRoles: Role[] = [
+    ...Object.values(StudentRole),
+    ...Object.values(StaffRole),
+  ];
+  if (!role || !validRoles.includes(role)) {
     errors["role"] = "Invalid role specified";
   }
 
-  if (role === "admin" && req.user && req.user.role !== Role.Admin) {
+  if (role === "admin" && req.user && req.user.role !== StaffRole.Admin) {
     errors["role"] = "Only admins can create admin users";
   }
 
@@ -44,12 +51,8 @@ export const register = async (
   let user;
 
   try {
-    user = await UserModel.create(newUser);
+    user = await userCreationService.createUserWithRole(newUser);
   } catch (err: any) {
-    if (err.code === 11000) {
-      throw new BadRequestError("Email already exists", err.keyValue);
-    }
-
     throw err;
   }
 

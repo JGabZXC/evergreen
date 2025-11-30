@@ -1,5 +1,6 @@
 import { Schema, model } from "mongoose";
-import { Role, User } from "../../domain/User";
+import { User } from "../../domain/User";
+import { StaffRole, StudentRole } from "../../domain/types/Role";
 
 const UserSchema = new Schema<User & Document>(
   {
@@ -7,8 +8,8 @@ const UserSchema = new Schema<User & Document>(
     password: { type: String, required: true, select: false },
     role: {
       type: String,
-      enum: Object.values(Role),
-      default: Role.Student,
+      enum: [...Object.values(StudentRole), ...Object.values(StaffRole)],
+      default: StudentRole.Student,
       required: true,
     },
     active: { type: Boolean, default: true },

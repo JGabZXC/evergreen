@@ -1,12 +1,12 @@
 import mongoose from "mongoose";
 import { UserModel } from "../UserModel";
-import { Role } from "../../../domain/User";
 import { AuthService } from "../../../application/services/authService";
 import { StaffModel } from "../StaffModel";
 import { StudentModel } from "../StudentModel";
 import { StaffProfileModel } from "../StaffProfileModel";
 import { StudentProfileModel } from "../StudentProfileModel";
 import { TeacherDetailsModel } from "../TeacherDetailsModel";
+import { StaffRole, StudentRole } from "../../../domain/types/Role";
 
 const authService = new AuthService();
 
@@ -14,34 +14,34 @@ const users = [
   {
     email: "admin@school.com",
     password: "adminpass",
-    role: Role.Admin,
+    role: StaffRole.Admin,
     active: true,
   },
   {
     email: "registrar@school.com",
     password: "registrarpass",
-    role: Role.Registrar,
+    role: StaffRole.Registrar,
     active: true,
     employeeId: "EMP-2",
   },
   {
     email: "teacher@school.com",
     password: "teacherpass",
-    role: Role.Teacher,
+    role: StaffRole.Teacher,
     active: true,
     employeeId: "EMP-3",
   },
   {
     email: "student@school.com",
     password: "studentpass",
-    role: Role.Student,
+    role: StudentRole.Student,
     active: true,
     studentId: "STU-1",
   },
   {
     email: "staff@school.com",
     password: "staffpass",
-    role: Role.Staff,
+    role: StaffRole.Staff,
     active: true,
     employeeId: "EMP-1",
   },
