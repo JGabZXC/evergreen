@@ -12,6 +12,12 @@ const StudentModelSchema = new Schema<Student & Document>(
   },
   {
     timestamps: true,
+    toJSON: {
+      virtuals: true,
+    },
+    toObject: {
+      virtuals: true,
+    },
   }
 );
 

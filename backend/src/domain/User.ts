@@ -1,3 +1,5 @@
+import { Schema } from "mongoose";
+
 export enum Role {
   Student = "student",
   Teacher = "teacher",
@@ -14,6 +16,7 @@ export interface BaseUser {
 }
 
 export interface User extends BaseUser {
+  _id: Schema.Types.ObjectId;
   active: boolean;
   createdAt: Date;
   updatedAt: Date;

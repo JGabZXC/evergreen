@@ -1,5 +1,5 @@
 import mongoose, { Document, Schema } from "mongoose";
-import { BaseStudentProfile, GuardianDetails } from "../../domain/Student";
+import { GuardianDetails, StudentProfile } from "../../domain/Student";
 import { Address } from "../../domain/Staff";
 
 const GuardianDetailsSchema = new Schema<GuardianDetails & Document>({
@@ -15,7 +15,7 @@ const AddressSchema = new Schema<Address & Document>({
   zipCode: { type: Number },
 });
 
-const StudentProfilesSchema = new Schema<BaseStudentProfile & Document>(
+const StudentProfilesSchema = new Schema<StudentProfile & Document>(
   {
     studentId: { type: String, required: true, unique: true },
     firstName: { type: String, required: true },
@@ -30,6 +30,7 @@ const StudentProfilesSchema = new Schema<BaseStudentProfile & Document>(
   }
 );
 
-export const StudentProfileModel = mongoose.model<
-  BaseStudentProfile & Document
->("StudentProfile", StudentProfilesSchema);
+export const StudentProfileModel = mongoose.model<StudentProfile & Document>(
+  "StudentProfile",
+  StudentProfilesSchema
+);

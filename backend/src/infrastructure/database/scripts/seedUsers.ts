@@ -22,40 +22,40 @@ const users = [
     password: "registrarpass",
     role: Role.Registrar,
     active: true,
-    employeeId: "EMP-00000002",
+    employeeId: "EMP-2",
   },
   {
     email: "teacher@school.com",
     password: "teacherpass",
     role: Role.Teacher,
     active: true,
-    employeeId: "EMP-00000003",
+    employeeId: "EMP-3",
   },
   {
     email: "student@school.com",
     password: "studentpass",
     role: Role.Student,
     active: true,
-    studentId: "STU-00000001",
+    studentId: "STU-1",
   },
   {
     email: "staff@school.com",
     password: "staffpass",
     role: Role.Staff,
     active: true,
-    employeeId: "EMP-00000001",
+    employeeId: "EMP-1",
   },
 ];
 
 const staff = [
-  { employeeId: "EMP-00000001", userEmail: "staff@school.com" },
-  { employeeId: "EMP-00000002", userEmail: "registrar@school.com" },
-  { employeeId: "EMP-00000003", userEmail: "teacher@school.com" },
+  { employeeId: "EMP-1", userEmail: "staff@school.com" },
+  { employeeId: "EMP-2", userEmail: "registrar@school.com" },
+  { employeeId: "EMP-3", userEmail: "teacher@school.com" },
 ];
 
 const staffProfiles = [
   {
-    employeeId: "EMP-00000001",
+    employeeId: "EMP-1",
     firstName: "Alice",
     lastName: "Smith",
     dateOfBirth: new Date("1980-01-01"),
@@ -71,7 +71,7 @@ const staffProfiles = [
     hireDate: new Date("2020-01-01"),
   },
   {
-    employeeId: "EMP-00000002",
+    employeeId: "EMP-2",
     firstName: "Regina",
     lastName: "Registrar",
     dateOfBirth: new Date("1985-01-01"),
@@ -87,7 +87,7 @@ const staffProfiles = [
     hireDate: new Date("2015-01-01"),
   },
   {
-    employeeId: "EMP-00000003",
+    employeeId: "EMP-3",
     firstName: "Bob",
     lastName: "Johnson",
     dateOfBirth: new Date("1975-01-01"),
@@ -104,13 +104,11 @@ const staffProfiles = [
   },
 ];
 
-const students = [
-  { studentId: "STU-00000001", userEmail: "student@school.com" },
-];
+const students = [{ studentId: "STU-1", userEmail: "student@school.com" }];
 
 const studentProfiles = [
   {
-    studentId: "STU-00000001",
+    studentId: "STU-1",
     firstName: "John",
     lastName: "Doe",
     dateOfBirth: new Date("2005-01-01"),
@@ -131,7 +129,7 @@ const studentProfiles = [
 
 const teacherDetails = [
   {
-    employeeId: "EMP-00000003",
+    employeeId: "EMP-3",
     specializations: ["Math", "Science"],
     masteralDegree: [
       {

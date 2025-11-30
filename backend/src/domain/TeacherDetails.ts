@@ -1,3 +1,5 @@
+import { Schema } from "mongoose";
+
 export interface Degree {
   field: string;
   institution: string;
@@ -12,6 +14,7 @@ export interface BaseTeacherDetails {
 }
 
 export interface TeacherDetails extends BaseTeacherDetails {
+  _id: Schema.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }

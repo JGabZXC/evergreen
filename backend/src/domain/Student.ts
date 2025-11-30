@@ -23,11 +23,16 @@ export interface BaseStudentProfile {
 }
 
 export interface StudentProfile extends BaseStudentProfile {
+  _id: Schema.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export interface Student {
+export interface BaseStudent {
   userId: Schema.Types.ObjectId;
   studentId: string;
+}
+
+export interface Student extends BaseStudent {
+  _id: Schema.Types.ObjectId;
 }

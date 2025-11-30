@@ -1,4 +1,7 @@
 import { Schema } from "mongoose";
+import { Semester } from "./types/Semester";
+import { BaseSubjectTaken, SubjectTaken } from "./SubjectTaken";
+import { GradeLevel } from "./Subject";
 
 export enum EnrollmentStatus {
   Enrolled = "Enrolled",
@@ -11,17 +14,19 @@ export enum EnrollmentStatus {
 
 export interface BaseEnrollmentRecord {
   studentId: string;
-  gradeLevel: string; // e,g "Grade 10", "Grade 11"
+  gradeLevel: GradeLevel;
   section?: string;
   enrollmentDate: Date;
   status: EnrollmentStatus;
   schoolYear: string;
   adviser?: Schema.Types.ObjectId; // Teacher reference
-  subjectTaken?: string;
-  semester?: number;
+  subjectTaken?: BaseSubjectTaken[];
+  semester?: Semester;
 }
 
 export interface EnrollmentRecord extends BaseEnrollmentRecord {
+  _id: Schema.Types.ObjectId;
+  subjectTaken?: SubjectTaken[];
   createdAt: Date;
   updatedAt: Date;
 }
