@@ -5,6 +5,7 @@ const StaffSchema = new Schema<Staff & Document>(
   {
     userId: { type: Schema.Types.ObjectId, required: true, ref: "User" },
     employeeId: { type: String, required: true, unique: true },
+    isActive: { type: Boolean, default: true },
   },
   {
     toJSON: {
@@ -16,7 +17,7 @@ const StaffSchema = new Schema<Staff & Document>(
   }
 );
 
-StaffSchema.virtual("formattedEmployeeId").get(function () {
+StaffSchema.virtual("formattedId").get(function () {
   if (
     typeof this.employeeId === "string" &&
     this.employeeId.startsWith("EMP-")

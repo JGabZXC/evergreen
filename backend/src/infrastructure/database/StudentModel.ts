@@ -9,6 +9,7 @@ const StudentSchema = new Schema<Student & Document>(
       required: true,
     },
     studentId: { type: String, required: true, unique: true },
+    isActive: { type: Boolean, default: true }, // Matched this for UserModel
   },
   {
     toJSON: {
@@ -20,13 +21,15 @@ const StudentSchema = new Schema<Student & Document>(
   }
 );
 
-StudentSchema.virtual("formattedStudentId").get(function () {
+StudentSchema.virtual("formattedId").get(function () {
   if (typeof this.studentId === "string" && this.studentId.startsWith("STU-")) {
     const num = this.studentId.split("-")[1] || "1";
     return `STU-${num.padStart(9, "0")}`;
   }
   return this.studentId;
 });
+
+StudentSchema.index({ isActive: 1 });
 
 export const StudentModel = mongoose.model<Student & Document>(
   "Student",

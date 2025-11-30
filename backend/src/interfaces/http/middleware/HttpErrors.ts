@@ -23,3 +23,15 @@ export class ForbiddenError extends Error {
     Error.captureStackTrace(this, ForbiddenError);
   }
 }
+
+export class UnauthorizedError extends Error {
+  status: number;
+  details?: any;
+  constructor(message: string, details?: any) {
+    super(message);
+    this.name = "UnauthorizedError";
+    this.status = HttpStatus.UNAUTHORIZED;
+    this.details = details;
+    Error.captureStackTrace(this, UnauthorizedError);
+  }
+}

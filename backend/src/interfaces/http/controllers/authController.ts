@@ -3,10 +3,12 @@ import { BaseUser } from "../../../domain/User";
 import { HttpStatus } from "../../../domain/HttpStatus";
 import { UserModel } from "../../../infrastructure/database/UserModel";
 import { AuthService } from "../../../application/services/authService";
-import { BadRequestError } from "../middleware/HttpErrors";
+import { BadRequestError, UnauthorizedError } from "../middleware/HttpErrors";
 import { AuthenticatedRequest } from "../middleware/authGuard";
 import { UserCreationService } from "../../../application/services/userCreationService";
 import { StaffRole, StudentRole, type Role } from "../../../domain/types/Role";
+import { StudentModel } from "../../../infrastructure/database/StudentModel";
+import { StaffModel } from "../../../infrastructure/database/StaffModel";
 
 const authService = new AuthService();
 const userCreationService = new UserCreationService();
@@ -44,7 +46,7 @@ export const register = async (
 
   const newUser: BaseUser = {
     email,
-    password: await authService.hashPassword(password),
+    password,
     role: role as Role,
   };
 
@@ -75,7 +77,9 @@ export const login = async (req: Request, res: Response) => {
     throw new BadRequestError("Validation errors", errors);
   }
 
-  const user = await UserModel.findOne({ email }).select("+password");
+  const user = await UserModel.findOne({ email, active: true }).select(
+    "+password"
+  );
 
   if (!user) {
     throw new BadRequestError("User not found", { email });
@@ -85,10 +89,33 @@ export const login = async (req: Request, res: Response) => {
     throw new BadRequestError("Invalid email or password");
   }
 
+  let roleData = {};
+
+  if (user.role === StudentRole.Student) {
+    const student = await StudentModel.findOne({ userId: user._id });
+    if (student) {
+      roleData = {
+        studentId: student.studentId,
+        formattedId: student.formattedId,
+      };
+    }
+  } else if (Object.values(StaffRole).includes(user.role)) {
+    const staff = await StaffModel.findOne({ userId: user._id });
+    if (staff) {
+      roleData = {
+        employeeId: staff.employeeId,
+        formattedId: staff.formattedId,
+      };
+    }
+  }
+
   const { accessToken, refreshToken } = await authService.generateTokens(user);
   authService.setAuthCookies(res, accessToken, refreshToken);
 
-  return res.status(HttpStatus.OK).json({ user });
+  return res.status(HttpStatus.OK).json({
+    user,
+    ...roleData,
+  });
 };
 
 export const logout = async (req: Request, res: Response) => {
@@ -104,16 +131,16 @@ export const logout = async (req: Request, res: Response) => {
 export const refresh = async (req: Request, res: Response) => {
   const oldRefreshToken = req.cookies.refreshToken;
   if (!oldRefreshToken) {
-    return res
-      .status(HttpStatus.UNAUTHORIZED)
-      .json({ error: "No refresh token provided" });
+    throw new UnauthorizedError("No refresh token provided");
   }
   const tokens =
     await authService.validateAndRotateRefreshToken(oldRefreshToken);
   if (!tokens) {
-    return res
-      .status(HttpStatus.UNAUTHORIZED)
-      .json({ error: "Invalid or expired refresh token" });
+    throw new UnauthorizedError("Invalid or expired refresh token");
+  }
+  const user = await UserModel.findOne({ email: tokens.email });
+  if (!user || !user.active) {
+    throw new UnauthorizedError("User is inactive or does not exist");
   }
   authService.setAuthCookies(res, tokens.accessToken, tokens.refreshToken);
   return res.status(HttpStatus.OK).json({ message: "Token refreshed" });

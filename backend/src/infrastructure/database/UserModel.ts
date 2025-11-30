@@ -1,6 +1,8 @@
 import { Schema, model } from "mongoose";
 import { User } from "../../domain/User";
 import { StaffRole, StudentRole } from "../../domain/types/Role";
+import { StudentModel } from "./StudentModel";
+import { StaffModel } from "./StaffModel";
 
 const UserSchema = new Schema<User & Document>(
   {
@@ -22,6 +24,57 @@ UserSchema.set("toJSON", {
     const { __v, password, ...userObject } = ret;
     return userObject;
   },
+});
+
+UserSchema.post("save", async function (doc, next) {
+  if (doc.isModified("active")) {
+    if (doc.role === StudentRole.Student) {
+      await StudentModel.updateOne(
+        {
+          userId: doc._id,
+        },
+        {
+          $set: { isActive: doc.active },
+        }
+      );
+    } else {
+      await StaffModel.updateOne(
+        {
+          userId: doc._id,
+        },
+        {
+          $set: { isActive: doc.active },
+        }
+      );
+    }
+  }
+
+  next();
+});
+
+UserSchema.post("findOneAndUpdate", async function (doc, next) {
+  if (doc) {
+    if (doc.role === StudentRole.Student) {
+      await StudentModel.updateOne(
+        {
+          userId: doc._id,
+        },
+        {
+          $set: { isActive: doc.active },
+        }
+      );
+    } else {
+      await StaffModel.updateOne(
+        {
+          userId: doc._id,
+        },
+        {
+          $set: { isActive: doc.active },
+        }
+      );
+    }
+  }
+  next();
 });
 
 export const UserModel = model<User & Document>("User", UserSchema);

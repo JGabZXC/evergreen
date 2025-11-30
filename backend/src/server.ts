@@ -1,5 +1,6 @@
 import express from "express";
 import authRoutes from "./interfaces/http/routes/authRoutes";
+import registrarRoutes from "./interfaces/http/routes/registrarRoutes";
 import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use("/api/auth", authRoutes);
+app.use("/api/registrar", registrarRoutes);
 
 app.use(errorHandler);
 

@@ -1,10 +1,11 @@
+import mongoose from "mongoose";
 import { UserModel } from "../../infrastructure/database/UserModel";
 import { StudentModel } from "../../infrastructure/database/StudentModel";
 import { StudentProfileModel } from "../../infrastructure/database/StudentProfileModel";
 import { BaseUser, User } from "../../domain/User";
 import { BaseStudentProfile } from "../../domain/Student";
 import { AuthService } from "./authService";
-import { BaseStaffProfile, Staff } from "../../domain/Staff";
+import { BaseStaffProfile } from "../../domain/Staff";
 import { StaffModel } from "../../infrastructure/database/StaffModel";
 import { StaffProfileModel } from "../../infrastructure/database/StaffProfileModel";
 import { BadRequestError } from "../../interfaces/http/middleware/HttpErrors";
@@ -48,20 +49,70 @@ export class UserCreationService {
     userData: BaseUser,
     profileData?: BaseStudentProfile | BaseStaffProfile
   ) {
-    const mongoose = await import("mongoose");
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
-      // Hash password
       userData.password = await this.authService.hashPassword(
         userData.password
       );
 
-      // Create user
       let user: User;
+      let studentId: string | undefined;
+      let employeeId: string | undefined;
       try {
         const createdUsers = await UserModel.create([userData], { session });
         user = createdUsers[0] as User;
+
+        if (user.role === StudentRole.Student) {
+          studentId = await this.generateSudentId();
+          await StudentModel.create(
+            [
+              {
+                userId: user._id,
+                studentId,
+              },
+            ],
+            { session }
+          );
+
+          if (profileData) {
+            await StudentProfileModel.create(
+              [
+                {
+                  ...(profileData as BaseStudentProfile),
+                  studentId,
+                },
+              ],
+              { session }
+            );
+          }
+        }
+
+        const staffRoles = Object.values(StaffRole) as string[];
+        if (staffRoles.includes(user.role as string)) {
+          employeeId = await this.generateEmployeeId();
+          await StaffModel.create(
+            [
+              {
+                userId: user._id,
+                employeeId,
+              },
+            ],
+            { session }
+          );
+
+          if (profileData) {
+            await StaffProfileModel.create(
+              [
+                {
+                  ...(profileData as BaseStaffProfile),
+                  employeeId,
+                },
+              ],
+              { session }
+            );
+          }
+        }
       } catch (err: any) {
         if (err.code === 11000) {
           throw new BadRequestError("Email already exists", err.keyValue);
@@ -69,61 +120,9 @@ export class UserCreationService {
         throw err;
       }
 
-      if (user.role === StudentRole.Student) {
-        const studentId = await this.generateSudentId();
-        await StudentModel.create(
-          [
-            {
-              userId: user._id,
-              studentId,
-            },
-          ],
-          { session }
-        );
-
-        if (profileData) {
-          await StudentProfileModel.create(
-            [
-              {
-                ...(profileData as BaseStudentProfile),
-                studentId,
-              },
-            ],
-            { session }
-          );
-        }
-
-        return { user, studentId };
-      }
-
-      if (Object.values(StaffRole).includes(user.role)) {
-        const employeeId = await this.generateEmployeeId();
-        await StaffModel.create(
-          [
-            {
-              userId: user._id,
-              employeeId,
-            },
-          ],
-          { session }
-        );
-
-        if (profileData) {
-          await StaffProfileModel.create(
-            [
-              {
-                ...(profileData as BaseStaffProfile),
-                employeeId,
-              },
-            ],
-            { session }
-          );
-        }
-
-        return { user, employeeId };
-      }
-
       await session.commitTransaction();
+      if (studentId) return { user, studentId };
+      if (employeeId) return { user, employeeId };
       return { user };
     } catch (err) {
       await session.abortTransaction();
