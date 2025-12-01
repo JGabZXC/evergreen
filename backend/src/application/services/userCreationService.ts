@@ -10,47 +10,34 @@ import { StaffModel } from "../../infrastructure/database/StaffModel";
 import { StaffProfileModel } from "../../infrastructure/database/StaffProfileModel";
 import { BadRequestError } from "../../interfaces/http/middleware/HttpErrors";
 import { StaffRole, StudentRole } from "../../domain/types/Role";
+import { customAlphabet } from "nanoid";
+import { BaseTeacherDetails } from "../../domain/TeacherDetails";
+import { TeacherDetailsModel } from "../../infrastructure/database/TeacherDetailsModel";
+
+const generateNumericId = customAlphabet("0123456789", 10);
 
 export class UserCreationService {
   private authService = new AuthService();
 
-  private async generateId(
-    model: any,
-    fieldName: string,
-    prefix: string
-  ): Promise<string> {
-    const lastDocument = await model.collection.findOne(
-      {},
-      {
-        sort: { [fieldName]: -1 },
-        projection: { [fieldName]: 1 },
-      }
-    );
+  private async generateId(prefix: string): Promise<string> {
+    const id = generateNumericId();
 
-    if (!lastDocument) {
-      return `${prefix}-1`;
-    }
-
-    const lastId = lastDocument[fieldName] as string;
-    const lastSequence = parseInt(lastId.split("-")[1] ?? "");
-
-    return `${prefix}-${lastSequence + 1}`;
+    return `${prefix}-${id}`;
   }
 
   private async generateSudentId(): Promise<string> {
-    return this.generateId(StudentModel, "studentId", "STU");
+    return this.generateId("STU");
   }
 
   private async generateEmployeeId(): Promise<string> {
-    return this.generateId(StaffModel, "employeeId", "EMP");
+    return this.generateId("EMP");
   }
 
   async createUserWithRole(
     userData: BaseUser,
-    profileData?: BaseStudentProfile | BaseStaffProfile
+    profileData?: BaseStudentProfile | BaseStaffProfile,
+    session?: mongoose.ClientSession
   ) {
-    const session = await mongoose.startSession();
-    session.startTransaction();
     try {
       userData.password = await this.authService.hashPassword(
         userData.password
@@ -75,17 +62,13 @@ export class UserCreationService {
             { session }
           );
 
-          if (profileData) {
-            await StudentProfileModel.create(
-              [
-                {
-                  ...(profileData as BaseStudentProfile),
-                  studentId,
-                },
-              ],
-              { session }
+          if (profileData)
+            await this.createProfile(
+              studentId,
+              "student",
+              profileData,
+              session
             );
-          }
         }
 
         const staffRoles = Object.values(StaffRole) as string[];
@@ -101,17 +84,8 @@ export class UserCreationService {
             { session }
           );
 
-          if (profileData) {
-            await StaffProfileModel.create(
-              [
-                {
-                  ...(profileData as BaseStaffProfile),
-                  employeeId,
-                },
-              ],
-              { session }
-            );
-          }
+          if (profileData)
+            await this.createProfile(employeeId, "staff", profileData, session);
         }
       } catch (err: any) {
         if (err.code === 11000) {
@@ -120,15 +94,55 @@ export class UserCreationService {
         throw err;
       }
 
-      await session.commitTransaction();
       if (studentId) return { user, studentId };
       if (employeeId) return { user, employeeId };
       return { user };
     } catch (err) {
-      await session.abortTransaction();
       throw err;
-    } finally {
-      session.endSession();
     }
+  }
+
+  async createProfile(
+    id: string,
+    type: "student" | "staff",
+    profileData: BaseStaffProfile | BaseStudentProfile,
+    session?: mongoose.ClientSession
+  ) {
+    let profile;
+    if (type === "student") {
+      profile = await StudentProfileModel.create(
+        [
+          {
+            ...(profileData as BaseStudentProfile),
+            studentId: id,
+          },
+        ],
+        { session }
+      );
+    }
+
+    if (type === "staff") {
+      profile = await StaffProfileModel.create(
+        [
+          {
+            ...(profileData as BaseStaffProfile),
+            employeeId: id,
+          },
+        ],
+        { session }
+      );
+    }
+
+    return profile;
+  }
+
+  async createTeacherDetails(
+    details: BaseTeacherDetails,
+    session?: mongoose.ClientSession
+  ) {
+    const teacherDetailsArray = await TeacherDetailsModel.create([details], {
+      session,
+    });
+    return teacherDetailsArray[0];
   }
 }

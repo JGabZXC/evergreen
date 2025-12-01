@@ -5,6 +5,7 @@ export interface ParentContact {
   address?: string;
 }
 import { Schema } from "mongoose";
+import { Address } from "./Staff";
 
 export interface GuardianDetails {
   name: string;
@@ -18,7 +19,7 @@ export interface BaseStudentProfile {
   lastName: string;
   dateOfBirth: Date;
   phoneNumber?: string;
-  address?: string;
+  address?: Address;
   guardianDetails?: GuardianDetails;
 }
 

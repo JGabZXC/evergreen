@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import { Address, BaseStaffProfile, StaffProfile } from "../../domain/Staff";
+import { Address, StaffProfile } from "../../domain/Staff";
 
 const AddressSchema = new Schema<Address & Document>({
   street: { type: String },
@@ -8,17 +8,21 @@ const AddressSchema = new Schema<Address & Document>({
   zipCode: { type: Number },
 });
 
-const StaffSchema = new Schema<StaffProfile & Document>({
-  employeeId: { type: String, required: true, unique: true },
-  firstName: { type: String, required: true },
-  lastName: { type: String, required: true },
-  dateOfBirth: { type: Date, required: true },
-  phoneNumber: { type: String },
-  address: { type: AddressSchema },
-  position: { type: String, required: true },
-  department: { type: String, required: true },
-  hireDate: { type: Date, required: true },
-});
+const StaffSchema = new Schema<StaffProfile & Document>(
+  {
+    employeeId: { type: String, required: true, unique: true },
+    firstName: { type: String, required: true },
+    lastName: { type: String, required: true },
+    dateOfBirth: { type: Date, required: true },
+    phoneNumber: { type: String },
+    address: { type: AddressSchema },
+    department: { type: String, required: true },
+    hireDate: { type: Date, required: true },
+  },
+  {
+    timestamps: true,
+  }
+);
 
 export const StaffProfileModel = mongoose.model<StaffProfile & Document>(
   "StaffProfile",

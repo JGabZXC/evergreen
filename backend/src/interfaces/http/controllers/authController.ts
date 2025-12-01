@@ -13,13 +13,14 @@ import { StaffModel } from "../../../infrastructure/database/StaffModel";
 const authService = new AuthService();
 const userCreationService = new UserCreationService();
 
-export const register = async (
-  req: Request & AuthenticatedRequest,
-  res: Response
+const validateAndCreateUser = async (
+  userData: BaseUser,
+  currentUserRole: Role
 ) => {
-  const { email, password, role } = req.body;
   const errors: { [key: string]: string } = {};
+  const { email, password, role } = userData;
 
+  // 1. Validate required fields and format
   if (!email) {
     errors["email"] = "Email is required";
   } else if (!/\S+@\S+\.\S+/.test(email)) {
@@ -28,6 +29,8 @@ export const register = async (
   if (!password) {
     errors["password"] = "Password is required";
   }
+
+  // 2. Validate role
   const validRoles: Role[] = [
     ...Object.values(StudentRole),
     ...Object.values(StaffRole),
@@ -36,29 +39,85 @@ export const register = async (
     errors["role"] = "Invalid role specified";
   }
 
-  if (role === "admin" && req.user && req.user.role !== StaffRole.Admin) {
+  // 3. Admin creation check
+  if (role === StaffRole.Admin && currentUserRole !== StaffRole.Admin) {
     errors["role"] = "Only admins can create admin users";
   }
 
   if (Object.keys(errors).length > 0) {
-    throw new BadRequestError("Validation errors", errors);
+    return { success: false, errors, user: userData };
   }
 
-  const newUser: BaseUser = {
-    email,
-    password,
-    role: role as Role,
-  };
-
-  let user;
-
+  // 4. Create user
   try {
-    user = await userCreationService.createUserWithRole(newUser);
+    const user = await userCreationService.createUserWithRole({
+      email,
+      password,
+      role: role as Role,
+    });
+    return { success: true, user };
   } catch (err: any) {
-    throw err;
+    // This catches errors like email already exists (handled in service layer)
+    return { success: false, errors: { general: err.message }, user: userData };
   }
+};
 
-  return res.status(HttpStatus.CREATED).json({ user });
+export const register = async (
+  req: Request & AuthenticatedRequest,
+  res: Response
+) => {
+  const bulk = req.query.bulk === "true";
+
+  if (bulk) {
+    if (!Array.isArray(req.body)) {
+      throw new BadRequestError("Bulk registration requires an array of users");
+    }
+
+    const usersToRegister: BaseUser[] = req.body;
+    const results = await Promise.all(
+      usersToRegister.map((user) =>
+        validateAndCreateUser(user, req.user!.role!)
+      )
+    );
+
+    const successfulCreations = results
+      .filter((r) => r.success)
+      .map((r) => (r as { success: true; user: any }).user);
+
+    const failedCreations = results
+      .filter((r) => !r.success)
+      .map((r) => ({
+        user: (r as { success: false; errors: any; user: any }).user,
+        errors: (r as { success: false; errors: any; user: any }).errors,
+      }));
+
+    if (successfulCreations.length === 0) {
+      // If NO users were created successfully, return a 400 with all errors
+      throw new BadRequestError("All bulk registrations failed", {
+        failedUsers: failedCreations,
+      });
+    }
+
+    // Return a 207 Multi-Status if there were partial failures, or 201 if all succeeded
+    const status =
+      failedCreations.length > 0 ? HttpStatus.MULTI_STATUS : HttpStatus.CREATED;
+
+    return res.status(status).json({
+      message: `${successfulCreations.length} user(s) created successfully.`,
+      successfulCreations,
+      failedCreations: failedCreations.length > 0 ? failedCreations : undefined,
+    });
+  } else {
+    let user;
+    try {
+      const userData: BaseUser = req.body;
+      user = await validateAndCreateUser(userData, req.user!.role!);
+    } catch (err: any) {
+      throw err;
+    }
+
+    return res.status(HttpStatus.CREATED).json({ user });
+  }
 };
 
 export const login = async (req: Request, res: Response) => {
