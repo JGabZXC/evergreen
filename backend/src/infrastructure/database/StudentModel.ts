@@ -29,7 +29,7 @@ StudentSchema.virtual("formattedId").get(function () {
   return this.studentId;
 });
 
-StudentSchema.index({ isActive: 1 });
+StudentSchema.index({ studentId: 1, isActive: 1 });
 
 export const StudentModel = mongoose.model<Student & Document>(
   "Student",

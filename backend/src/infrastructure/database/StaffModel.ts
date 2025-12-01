@@ -17,6 +17,8 @@ const StaffSchema = new Schema<Staff & Document>(
   }
 );
 
+StaffSchema.index({ employeeId: 1, isActive: 1 });
+
 StaffSchema.virtual("formattedId").get(function () {
   if (
     typeof this.employeeId === "string" &&

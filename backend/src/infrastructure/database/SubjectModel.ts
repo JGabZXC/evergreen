@@ -10,12 +10,14 @@ const SubjectSchema = new Schema<Subject & Document>({
     type: [String],
     enum: Object.values(GradeLevel),
     required: true,
-    semesterAvailable: {
-      type: [Number],
-      enum: Object.values(Semester),
-      required: true,
-    },
   },
+  semesterAvailable: {
+    type: [Number],
+    enum: Object.values(Semester).map(Number),
+    required: true,
+  },
+  active: { type: Boolean, default: true },
+  createdBy: { type: String, required: true },
 });
 
 export const SubjectModel = mongoose.model<Subject & Document>(

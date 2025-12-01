@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { BaseUser } from "../../../domain/User";
+import { BaseUser, User } from "../../../domain/User";
 import { HttpStatus } from "../../../domain/HttpStatus";
 import { UserModel } from "../../../infrastructure/database/UserModel";
 import { AuthService } from "../../../application/services/authService";
@@ -30,7 +30,6 @@ const validateAndCreateUser = async (
     errors["password"] = "Password is required";
   }
 
-  // 2. Validate role
   const validRoles: Role[] = [
     ...Object.values(StudentRole),
     ...Object.values(StaffRole),
@@ -39,7 +38,6 @@ const validateAndCreateUser = async (
     errors["role"] = "Invalid role specified";
   }
 
-  // 3. Admin creation check
   if (role === StaffRole.Admin && currentUserRole !== StaffRole.Admin) {
     errors["role"] = "Only admins can create admin users";
   }
@@ -48,7 +46,6 @@ const validateAndCreateUser = async (
     return { success: false, errors, user: userData };
   }
 
-  // 4. Create user
   try {
     const user = await userCreationService.createUserWithRole({
       email,
@@ -57,7 +54,6 @@ const validateAndCreateUser = async (
     });
     return { success: true, user };
   } catch (err: any) {
-    // This catches errors like email already exists (handled in service layer)
     return { success: false, errors: { general: err.message }, user: userData };
   }
 };
@@ -82,23 +78,21 @@ export const register = async (
 
     const successfulCreations = results
       .filter((r) => r.success)
-      .map((r) => (r as { success: true; user: any }).user);
+      .map((r) => (r as { success: true; user: BaseUser }).user);
 
     const failedCreations = results
       .filter((r) => !r.success)
       .map((r) => ({
-        user: (r as { success: false; errors: any; user: any }).user,
-        errors: (r as { success: false; errors: any; user: any }).errors,
+        user: (r as { success: false; errors: any; user: BaseUser }).user,
+        errors: (r as { success: false; errors: any; user: BaseUser }).errors,
       }));
 
     if (successfulCreations.length === 0) {
-      // If NO users were created successfully, return a 400 with all errors
       throw new BadRequestError("All bulk registrations failed", {
         failedUsers: failedCreations,
       });
     }
 
-    // Return a 207 Multi-Status if there were partial failures, or 201 if all succeeded
     const status =
       failedCreations.length > 0 ? HttpStatus.MULTI_STATUS : HttpStatus.CREATED;
 
@@ -148,7 +142,11 @@ export const login = async (req: Request, res: Response) => {
     throw new BadRequestError("Invalid email or password");
   }
 
-  let roleData = {};
+  let roleData: {
+    studentId?: string;
+    employeeId?: string;
+    formattedId?: string;
+  } = {};
 
   if (user.role === StudentRole.Student) {
     const student = await StudentModel.findOne({ userId: user._id });
@@ -168,7 +166,10 @@ export const login = async (req: Request, res: Response) => {
     }
   }
 
-  const { accessToken, refreshToken } = await authService.generateTokens(user);
+  const { accessToken, refreshToken } = await authService.generateTokens(
+    user,
+    roleData
+  );
   authService.setAuthCookies(res, accessToken, refreshToken);
 
   return res.status(HttpStatus.OK).json({

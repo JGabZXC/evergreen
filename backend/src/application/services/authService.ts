@@ -25,8 +25,16 @@ export class AuthService {
     });
   }
 
-  async generateTokens(user: User) {
-    const payload: AuthPayload = { email: user.email, role: user.role };
+  async generateTokens(
+    user: User,
+    roleId?: { studentId?: string; employeeId?: string }
+  ) {
+    const payload: AuthPayload = {
+      _id: String(user._id!),
+      email: user.email,
+      role: user.role,
+      ...roleId,
+    };
     const accessToken = this.generateAccessToken(payload);
     const refreshToken = this.generateRefreshToken(payload);
     await RefreshTokenModel.findOneAndUpdate(
