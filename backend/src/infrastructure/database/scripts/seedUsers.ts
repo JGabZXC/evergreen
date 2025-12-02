@@ -1,10 +1,17 @@
 import mongoose from "mongoose";
 import { StaffRole, StudentRole } from "../../../domain/types/Role";
-import { UserCreationService } from "../../../application/services/userCreationService";
-import { BaseStudentProfile } from "../../../domain/Student";
-import { BaseStaffProfile } from "../../../domain/Staff";
+import { RegisterStaffUseCase } from "../../../application/use-cases/RegisterStaffUseCase";
+import { RegisterStudentUseCase } from "../../../application/use-cases/RegisterStudentUseCase";
+import { CreateStaffProfileUseCase } from "../../../application/use-cases/user-use-cases/CreateStaffProfileUseCase";
+import { CreateStudentProfileUseCase } from "../../../application/use-cases/user-use-cases/CreateStudentProfileUseCase";
+import { CreateTeacherDetailsUseCase } from "../../../application/use-cases/CreateTeacherDetailsUseCase";
+import { User } from "../../../domain/User";
 
-const userCreationService = new UserCreationService();
+const registerStaff = new RegisterStaffUseCase();
+const registerStudent = new RegisterStudentUseCase();
+const createStaffProfile = new CreateStaffProfileUseCase();
+const createStudentProfile = new CreateStudentProfileUseCase();
+const createTeacherDetails = new CreateTeacherDetailsUseCase();
 
 const users = [
   {
@@ -21,7 +28,7 @@ const users = [
     profiles: {
       firstName: "Regina",
       lastName: "Registrar",
-      dateOfBirth: new Date("1985-01-01"),
+      dateOfBirth: "1985-01-01",
       phoneNumber: "5559876543",
       address: {
         street: "789 Oak St",
@@ -30,7 +37,7 @@ const users = [
         zipCode: 54321,
       },
       department: "Registrar",
-      hireDate: new Date("2015-01-01"),
+      hireDate: "2015-01-01",
     },
   },
   {
@@ -41,7 +48,7 @@ const users = [
     profiles: {
       firstName: "Bob",
       lastName: "Johnson",
-      dateOfBirth: new Date("1975-01-01"),
+      dateOfBirth: "1975-01-01",
       phoneNumber: "5551112222",
       address: {
         street: "321 Pine St",
@@ -50,7 +57,7 @@ const users = [
         zipCode: 67890,
       },
       department: "Faculty",
-      hireDate: new Date("2010-01-01"),
+      hireDate: "2010-01-01",
     },
     details: {
       specializations: ["Math", "Science"],
@@ -73,7 +80,7 @@ const users = [
     profiles: {
       firstName: "John",
       lastName: "Doe",
-      dateOfBirth: new Date("2005-01-01"),
+      dateOfBirth: "2005-01-01",
       phoneNumber: "1234567890",
       address: {
         street: "123 Main St",
@@ -96,7 +103,7 @@ const users = [
     profiles: {
       firstName: "Alice",
       lastName: "Smith",
-      dateOfBirth: new Date("1980-01-01"),
+      dateOfBirth: "1980-01-01",
       phoneNumber: "5551234567",
       address: {
         street: "456 Elm St",
@@ -105,7 +112,7 @@ const users = [
         zipCode: 12345,
       },
       department: "Administration",
-      hireDate: new Date("2020-01-01"),
+      hireDate: "2020-01-01",
     },
   },
 ];
@@ -121,31 +128,41 @@ async function seed() {
 
   try {
     for (const user of users) {
-      const { user: createdUser, employeeId } =
-        await userCreationService.createUserWithRole(
-          user,
-          user.profiles
-            ? user.role === StudentRole.Student
-              ? (user.profiles as BaseStudentProfile)
-              : (user.profiles as BaseStaffProfile)
-            : undefined,
-          session
-        );
+      let userCreated: {
+        createdUser: User;
+        studentId?: string;
+        employeeId?: string;
+      };
+      if (user.role === StudentRole.Student) {
+        userCreated = await registerStudent.execute(user, session);
+      } else {
+        userCreated = await registerStaff.execute(user, session);
+      }
 
-      if (
-        createdUser.role === StaffRole.Teacher &&
-        user.details &&
-        employeeId
-      ) {
-        await userCreationService.createTeacherDetails(
-          {
-            ...user.details,
-            employeeId,
-          },
-          session
-        );
+      if (user.profiles) {
+        if (user.role === StudentRole.Student) {
+          await createStudentProfile.execute(
+            userCreated.studentId!,
+            { ...user.profiles, studentId: userCreated.studentId! },
+            session
+          );
+        } else {
+          await createStaffProfile.execute(
+            userCreated.employeeId!,
+            { ...user.profiles, employeeId: userCreated.employeeId! },
+            session
+          );
+        }
+
+        if (user.details && user.role === StaffRole.Teacher) {
+          await createTeacherDetails.execute(
+            { ...user.details, employeeId: userCreated.employeeId! },
+            session
+          );
+        }
       }
     }
+
     await session.commitTransaction();
     console.log("Seeding complete");
   } catch (err) {

@@ -5,13 +5,15 @@ import { UserModel } from "../../../infrastructure/database/UserModel";
 import { AuthService } from "../../../application/services/authService";
 import { BadRequestError, UnauthorizedError } from "../middleware/HttpErrors";
 import { AuthenticatedRequest } from "../middleware/authGuard";
-import { UserCreationService } from "../../../application/services/userCreationService";
 import { StaffRole, StudentRole, type Role } from "../../../domain/types/Role";
 import { StudentModel } from "../../../infrastructure/database/StudentModel";
 import { StaffModel } from "../../../infrastructure/database/StaffModel";
+import { RegisterStaffUseCase } from "../../../application/use-cases/RegisterStaffUseCase";
+import { RegisterStudentUseCase } from "../../../application/use-cases/RegisterStudentUseCase";
 
 const authService = new AuthService();
-const userCreationService = new UserCreationService();
+const registerStaff = new RegisterStaffUseCase();
+const registerStudent = new RegisterStudentUseCase();
 
 const validateAndCreateUser = async (
   userData: BaseUser,
@@ -47,11 +49,10 @@ const validateAndCreateUser = async (
   }
 
   try {
-    const user = await userCreationService.createUserWithRole({
-      email,
-      password,
-      role: role as Role,
-    });
+    const user =
+      userData.role === StudentRole.Student
+        ? await registerStudent.execute(userData)
+        : await registerStaff.execute(userData);
     return { success: true, user };
   } catch (err: any) {
     return { success: false, errors: { general: err.message }, user: userData };

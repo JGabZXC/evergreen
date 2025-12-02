@@ -14,7 +14,6 @@ export interface BaseStaffProfile {
   dateOfBirth: Date;
   phoneNumber?: string;
   address?: Address;
-  position: string;
   department: string;
   hireDate: Date;
 }

@@ -1,20 +1,27 @@
 import mongoose from "mongoose";
-import e, { Request, Response } from "express";
+import { Request, Response } from "express";
 import { HttpStatus } from "../../../domain/HttpStatus";
 import { StudentModel } from "../../../infrastructure/database/StudentModel";
 import { BadRequestError } from "../middleware/HttpErrors";
 import { UserModel } from "../../../infrastructure/database/UserModel";
 import { StaffModel } from "../../../infrastructure/database/StaffModel";
-import { SubjectService } from "../../../application/services/subjectService";
 import { AuthenticatedRequest } from "../middleware/authGuard";
 import { StaffRole } from "../../../domain/types/Role";
-import { BaseSubject } from "../../../domain/Subject";
+import { CreateSubjectUseCase } from "../../../application/use-cases/CreateSubjectUseCase";
 
-const subjectService = new SubjectService();
+const createSubjectUseCase = new CreateSubjectUseCase();
 
 export const getAllStudents = async (req: Request, res: Response) => {
-  const { page = 1, limit = 10 } = req.query;
+  let { page = 1, limit = 10 } = req.query;
   const skip = (Number(page) - 1) * Number(limit);
+
+  if (Number(page) < 1 || Number(limit) < 1) {
+    throw new BadRequestError("Page and limit must be positive integers");
+  }
+
+  if (Number(limit) > 100) {
+    limit = 100;
+  }
 
   try {
     const [students, totalDocs] = await Promise.all([
@@ -22,6 +29,10 @@ export const getAllStudents = async (req: Request, res: Response) => {
       StudentModel.countDocuments({ isActive: true }),
     ]);
     const totalPages = Math.ceil(totalDocs / Number(limit));
+
+    if (Number(page) > totalPages)
+      throw new BadRequestError("Page number exceeds total pages");
+
     return res.status(HttpStatus.OK).json({
       totalDocs,
       totalPages,
@@ -98,23 +109,45 @@ export const createSubject = async (
         throw new BadRequestError("Bulk creation requires an array body");
       }
 
-      const createdSubjects = await Promise.all(
-        req.body.map((subjectData) =>
-          subjectService.createSubject(subjectData, employeeId)
-        )
+      const results = await Promise.all(
+        req.body.map(async (subjectData) => {
+          try {
+            const subject = await createSubjectUseCase.execute(
+              subjectData,
+              employeeId
+            );
+            return { success: true, subject };
+          } catch (err: any) {
+            return {
+              success: false,
+              subject: subjectData,
+              errors: { general: err.message },
+            };
+          }
+        })
       );
 
-      const successfulCreations = createdSubjects.filter((s) => s !== null);
-      const failedCreations = createdSubjects.filter((s) => s === null);
+      const successfulCreations = results
+        .filter((r) => r.success)
+        .map((r) => (r as any).subject);
+
+      const failedCreations = results
+        .filter((r) => !r.success)
+        .map((r) => ({
+          subject: (r as any).subject,
+          errors: (r as any).errors,
+        }));
 
       if (successfulCreations.length === 0) {
-        throw new BadRequestError("All bulk subject creations failed");
+        throw new BadRequestError("All bulk subject creations failed", {
+          failedSubjects: failedCreations,
+        });
       }
 
       const status =
-        successfulCreations.length === createdSubjects.length
-          ? HttpStatus.CREATED
-          : HttpStatus.PARTIAL_CONTENT;
+        failedCreations.length > 0
+          ? HttpStatus.MULTI_STATUS
+          : HttpStatus.CREATED;
 
       return res.status(status).json({
         message: `${successfulCreations.length} subject(s) created successfully.`,
@@ -124,7 +157,7 @@ export const createSubject = async (
       });
     }
 
-    const subject = await subjectService.createSubject(
+    const subject = await createSubjectUseCase.execute(
       { name, subjectId, description, targetGradeLevels, semesterAvailable },
       employeeId
     );

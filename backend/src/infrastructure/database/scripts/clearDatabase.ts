@@ -6,6 +6,7 @@ import { StaffProfileModel } from "../StaffProfileModel";
 import { StudentProfileModel } from "../StudentProfileModel";
 import { TeacherDetailsModel } from "../TeacherDetailsModel";
 import { RefreshTokenModel } from "../RefreshTokenModel";
+import { SubjectModel } from "../SubjectModel";
 
 async function seed() {
   await mongoose.connect(
@@ -21,6 +22,7 @@ async function seed() {
     StudentProfileModel.deleteMany({}),
     TeacherDetailsModel.deleteMany({}),
     RefreshTokenModel.deleteMany({}),
+    SubjectModel.deleteMany({}),
   ]);
 
   console.log("All collections cleared.");

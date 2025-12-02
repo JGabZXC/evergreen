@@ -12,6 +12,18 @@ export class BadRequestError extends Error {
   }
 }
 
+export class NotFoundError extends Error {
+  status: number;
+  details?: any;
+  constructor(message: string, details?: any) {
+    super(message);
+    this.name = "NotFoundError";
+    this.status = HttpStatus.NOT_FOUND;
+    this.details = details;
+    Error.captureStackTrace(this, NotFoundError);
+  }
+}
+
 export class ForbiddenError extends Error {
   status: number;
   details?: any;
@@ -33,5 +45,17 @@ export class UnauthorizedError extends Error {
     this.status = HttpStatus.UNAUTHORIZED;
     this.details = details;
     Error.captureStackTrace(this, UnauthorizedError);
+  }
+}
+
+export class ConflictError extends Error {
+  status: number;
+  details?: any;
+  constructor(message: string, details?: any) {
+    super(message);
+    this.name = "ConflictError";
+    this.status = HttpStatus.CONFLICT;
+    this.details = details;
+    Error.captureStackTrace(this, ConflictError);
   }
 }
