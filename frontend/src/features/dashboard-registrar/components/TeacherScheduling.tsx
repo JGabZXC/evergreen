@@ -36,6 +36,30 @@ const INITIAL_SCHEDULES: ScheduleItem[] = [
     timeSlot: "",
     room: "",
   }, // Unassigned
+  {
+    id: "S005",
+    subjectCode: "PROG102",
+    subjectName: "Intro to Computing II",
+    teacherId: null,
+    timeSlot: "",
+    room: "",
+  }, // Unassigned
+  {
+    id: "S006",
+    subjectCode: "PROG101",
+    subjectName: "Intro to Computing",
+    teacherId: null,
+    timeSlot: "",
+    room: "",
+  }, // Unassigned
+  {
+    id: "S007",
+    subjectCode: "PROG101",
+    subjectName: "Intro to Computing",
+    teacherId: null,
+    timeSlot: "",
+    room: "",
+  }, // Unassigned
 ];
 
 const MOCK_TEACHERS: Teacher[] = [
@@ -73,11 +97,11 @@ export default function TeacherScheduling() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center bg-base-100 p-4 rounded-xl shadow-sm border border-base-200 dark:border dark:border-white/50">
+      <div className="flex justify-between items-center bg-base-100 p-4 rounded-xl shadow-sm border border-base-200 dark:border dark:border-white/10">
         <div>
           <h2 className="text-lg font-bold">Class Allocator</h2>
           <p className="text-sm text-base-content/60">
-            Assign teachers and rooms to open sections.
+            Assign teachers and rooms to open sections. test
           </p>
         </div>
         <button className="btn btn-sm btn-outline gap-2">

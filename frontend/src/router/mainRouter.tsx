@@ -13,12 +13,14 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <HomePage /> },
       ...authRoutes,
-      ...dashboardRoutes,
       {
         path: "programs",
         element: <ProgramsPage />,
       },
       { path: "*", element: <NotFound404 /> },
     ],
+  },
+  {
+    ...dashboardRoutes[0],
   },
 ]);

@@ -6,26 +6,41 @@ export default function SidebarItem({
   isActive,
   isOpen,
   onClick,
-}: any) {
+}: {
+  icon: any;
+  label: string;
+  isActive: boolean;
+  isOpen: boolean;
+  onClick: () => void;
+}) {
   return (
     <button
       onClick={onClick}
-      className={`w-full flex items-center gap-4 p-3 rounded-xl transition-all duration-200 ${
+      className={`relative flex items-center w-full h-12 transition-colors duration-200 group ${
         isActive
-          ? "bg-primary text-primary-content shadow-md"
-          : "hover:bg-base-200 text-base-content/80"
+          ? "text-primary bg-primary/10 border-r-4 border-primary"
+          : "text-base-content/70 hover:bg-base-200 hover:text-base-content"
       }`}
     >
-      <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
-      {isOpen && (
+      {/* FIXED ICON CONTAINER - Prevents movement */}
+      <div className="min-w-[80px] h-full flex items-center justify-center flex-shrink-0">
+        <Icon
+          size={22}
+          className={`transition-colors ${isActive ? "text-primary" : ""}`}
+        />
+      </div>
+
+      {/* TEXT CONTAINER - Handles fade without layout shift */}
+      <div className="flex-1 overflow-hidden whitespace-nowrap text-left">
         <motion.span
           initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="font-medium whitespace-nowrap"
+          animate={{ opacity: isOpen ? 1 : 0 }}
+          transition={{ duration: 0.2 }} // Smooth fade without unmounting
+          className="text-sm font-medium block"
         >
           {label}
         </motion.span>
-      )}
+      </div>
     </button>
   );
 }

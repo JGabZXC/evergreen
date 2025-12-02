@@ -53,13 +53,13 @@ export default function DashboardOverview() {
             animate="visible"
             transition={{ delay: idx * 0.1 }}
             whileHover={{ y: -5 }}
-            className="card bg-base-100 shadow-md border border-base-200 dark:border-white/50"
+            className="card bg-base-100 shadow-md border border-base-200 dark:border-white/10 dark:bg-white/10"
           >
             <div className="card-body p-6">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-sm font-medium text-base-content/60">
-                    {stat.label}
+                    {stat.label} test
                   </p>
                   <h3 className="text-3xl font-bold mt-2">{stat.value}</h3>
                 </div>

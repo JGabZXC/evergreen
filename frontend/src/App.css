@@ -3,4 +3,4 @@
   themes: caramellatte --default, forest --prefersdark;
 }
 
-@custom-variant dark (&:where([data-theme=forest], [data-theme=forest] *));
+/* @custom-variant dark (&:where([data-theme=forest], [data-theme=forest] *)); */
