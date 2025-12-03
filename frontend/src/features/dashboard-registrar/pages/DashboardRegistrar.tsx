@@ -47,7 +47,7 @@ export default function DashboardRegistrar() {
         className="fixed top-0 left-0 bg-base-100 border-r border-base-300 shadow-xl h-screen flex flex-col z-20 overflow-hidden"
       >
         <div className="h-16 flex items-center shrink-0">
-          <div className="min-w-[80px] h-full flex items-center justify-center flex-shrink-0">
+          <div className="min-w-20 h-full flex items-center justify-center shrink-0">
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
               className="btn btn-square btn-ghost btn-sm"
@@ -106,7 +106,7 @@ export default function DashboardRegistrar() {
         </nav>
 
         <div className="h-16 border-t border-base-300 flex items-center shrink-0 bg-base-100 relative z-10">
-          <div className="min-w-[80px] h-full flex items-center justify-center flex-shrink-0">
+          <div className="min-w-20 h-full flex items-center justify-center shrink-0">
             <div className="avatar placeholder">
               <div className="bg-neutral text-neutral-content rounded-full w-10">
                 <span>JD</span>

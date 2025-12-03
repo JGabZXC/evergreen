@@ -59,7 +59,7 @@ export default function DashboardOverview() {
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-sm font-medium text-base-content/60">
-                    {stat.label} test
+                    {stat.label}
                   </p>
                   <h3 className="text-3xl font-bold mt-2">{stat.value}</h3>
                 </div>
