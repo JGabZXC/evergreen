@@ -14,6 +14,11 @@ import {
   updateCourse,
   updateSubject,
 } from "../controllers/registrarController";
+import {
+  enrollStudent,
+  transferStudentSection,
+} from "../controllers/enrollmentController";
+import { StaffRole, StudentRole } from "../../../domain/types/Role";
 
 const router = Router();
 
@@ -23,34 +28,62 @@ router.post("/deactivate-users", authGuard, isRegistrar, deactivateUser);
 // SUBJECT
 router
   .route("/subject")
-  .get(authGuard, requireRole("registrar", "student"), getSubject)
+  .get(
+    authGuard,
+    requireRole(StaffRole.Registrar, StudentRole.Student),
+    getSubject
+  )
   .post(authGuard, isRegistrar, createSubject);
 
 router
   .route("/subject/:subjectId")
-  .get(authGuard, requireRole("registrar", "student"), getSubject)
+  .get(
+    authGuard,
+    requireRole(StaffRole.Registrar, StudentRole.Student),
+    getSubject
+  )
   .patch(authGuard, isRegistrar, updateSubject);
 
 // COURSE
 router
   .route("/course")
-  .get(authGuard, requireRole("registrar", "student"), getCourse)
+  .get(
+    authGuard,
+    requireRole(StaffRole.Registrar, StudentRole.Student),
+    getCourse
+  )
   .post(authGuard, isRegistrar, createCourse);
 
 router
   .route("/course/:code")
-  .get(authGuard, requireRole("registrar", "student"), getCourse)
+  .get(
+    authGuard,
+    requireRole(StaffRole.Registrar, StudentRole.Student),
+    getCourse
+  )
   .patch(authGuard, isRegistrar, updateCourse);
 
 // CLASSROOM
 router
   .route("/classroom")
-  .get(authGuard, requireRole("registrar", "student"), getClassroom)
+  .get(
+    authGuard,
+    requireRole(StaffRole.Registrar, StudentRole.Student),
+    getClassroom
+  )
   .post(authGuard, isRegistrar, createClassroom);
 
 router
   .route("/classroom/:id")
-  .get(authGuard, requireRole("registrar", "student"), getClassroom)
+  .get(
+    authGuard,
+    requireRole(StaffRole.Registrar, StudentRole.Student),
+    getClassroom
+  )
   .patch(authGuard, isRegistrar, updateClassroom);
+
+// ENROLLMENT
+router.post("/enroll", authGuard, isRegistrar, enrollStudent);
+router.post("/transfer", authGuard, isRegistrar, transferStudentSection);
 
 export default router;

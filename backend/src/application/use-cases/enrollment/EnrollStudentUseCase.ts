@@ -21,7 +21,6 @@ const defaultSchoolYear = `${currentYear}-${nextYear}`;
 
 interface EnrollStudentInput extends BaseEnrollmentRecord {
   courseId?: string;
-  creditedSubjects?: string[]; // List of subject IDs to credit
 }
 
 export class EnrollStudentUseCase {
@@ -116,22 +115,25 @@ export class EnrollStudentUseCase {
         }
       }
 
-      // 4. Handle Credited Subjects (Requirement 2)
-      // If there are credited subjects, we should probably record them.
-      // We can add them to the current enrollment as "Credited" or create a separate record.
-      // Given the flow, if a student is a transferee, they might be enrolling in a specific semester
-      // and getting credit for others.
-      // Let's add them to the `subjectTaken` list if they are NOT already there (avoid duplicates).
-      // However, usually credited subjects are from *previous* years/semesters.
-      // If we add them here, they appear in this semester's record.
-      // A better approach for "Crediting" might be to just ensure they are recorded in the system.
-      // For now, I will append them with status 'Credited' so they appear in the record.
-      if (input.creditedSubjects && input.creditedSubjects.length > 0) {
-        const credited = input.creditedSubjects.map((subId) => ({
-          subjectId: subId,
-          status: SubjectStatus.Credited,
-        }));
-        subjectsToTake = [...subjectsToTake, ...credited];
+      // 4. Handle Manual/Credited Subjects (Requirement 2)
+      // Merge input.subjectTaken with curriculum subjects
+      if (input.subjectTaken && input.subjectTaken.length > 0) {
+        // Create a map of existing subjects for easy lookup/update
+        const subjectMap = new Map(subjectsToTake.map((s) => [s.subjectId, s]));
+
+        for (const sub of input.subjectTaken) {
+          if (subjectMap.has(sub.subjectId)) {
+            // Update existing subject (e.g. change status to Credited)
+            const existing = subjectMap.get(sub.subjectId);
+            existing.status = sub.status;
+          } else {
+            // Add new subject (e.g. extra credited subject)
+            subjectsToTake.push({
+              subjectId: sub.subjectId,
+              status: sub.status,
+            });
+          }
+        }
       }
 
       // 5. Find available classroom (Round Robin / Lowest Capacity)

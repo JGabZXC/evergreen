@@ -1,11 +1,11 @@
 import { Schema } from "mongoose";
 
 export enum SubjectStatus {
-  Enrolled = "Enrolled",
-  Passed = "Passed",
-  Failed = "Failed",
-  Dropped = "Dropped",
-  Credited = "Credited",
+  Enrolled = "enrolled",
+  Passed = "passed",
+  Failed = "failed",
+  Dropped = "dropped",
+  Credited = "credited",
 }
 
 export interface BaseSubjectTaken {
