@@ -1,13 +1,21 @@
 import { Schema } from "mongoose";
 
+export enum SubjectStatus {
+  Enrolled = "Enrolled",
+  Passed = "Passed",
+  Failed = "Failed",
+  Dropped = "Dropped",
+  Credited = "Credited",
+}
+
 export interface BaseSubjectTaken {
   subjectId: string;
-  teacherId: string;
   prelim?: number;
   midterm?: number;
   final?: number;
   finalGrade?: number;
   remarks?: string;
+  status: SubjectStatus;
 }
 
 export interface SubjectTaken extends BaseSubjectTaken {
