@@ -67,6 +67,9 @@ export class AuthService {
       accessToken: newAccessToken,
       refreshToken: newRefreshToken,
       email: payload.email,
+      studentId: payload.studentId,
+      employeeId: payload.employeeId,
+      role: payload.role,
     };
   }
 

@@ -123,6 +123,7 @@ export const register = async (
 
 export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
+  console.log(req.body);
   const errors: { [key: string]: string } = {};
 
   if (!email) {
@@ -152,7 +153,6 @@ export const login = async (req: Request, res: Response) => {
   let roleData: {
     studentId?: string;
     employeeId?: string;
-    formattedId?: string;
   } = {};
 
   if (user.role === StudentRole.Student) {
@@ -160,7 +160,6 @@ export const login = async (req: Request, res: Response) => {
     if (student) {
       roleData = {
         studentId: student.studentId,
-        formattedId: student.formattedId,
       };
     }
   } else if (Object.values(StaffRole).includes(user.role)) {
@@ -168,7 +167,6 @@ export const login = async (req: Request, res: Response) => {
     if (staff) {
       roleData = {
         employeeId: staff.employeeId,
-        formattedId: staff.formattedId,
       };
     }
   }
@@ -210,7 +208,16 @@ export const refresh = async (req: Request, res: Response) => {
     throw new UnauthorizedError("User is inactive or does not exist");
   }
   authService.setAuthCookies(res, tokens.accessToken, tokens.refreshToken);
-  return res.status(HttpStatus.OK).json({ message: "Token refreshed" });
+
+  const responseData: any = {
+    user: user,
+    message: "Token refreshed",
+  };
+
+  if (tokens.studentId) responseData.studentId = tokens.studentId;
+  if (tokens.employeeId) responseData.employeeId = tokens.employeeId;
+
+  return res.status(HttpStatus.OK).json(responseData);
 };
 
 export const testProtected = async (

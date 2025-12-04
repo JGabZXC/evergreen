@@ -22,14 +22,6 @@ const StudentSchema = new Schema<Student & Document>(
   }
 );
 
-StudentSchema.virtual("formattedId").get(function () {
-  if (typeof this.studentId === "string" && this.studentId.startsWith("STU-")) {
-    const num = this.studentId.split("-")[1] || "1";
-    return `STU-${num.padStart(9, "0")}`;
-  }
-  return this.studentId;
-});
-
 StudentSchema.index({ studentId: 1, isActive: 1 });
 
 export const StudentModel = mongoose.model<Student & Document>(
