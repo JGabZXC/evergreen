@@ -2,8 +2,8 @@ import mongoose from "mongoose";
 import { StaffRole, StudentRole } from "../../../domain/types/Role";
 import { RegisterStaffUseCase } from "../../../application/use-cases/RegisterStaffUseCase";
 import { RegisterStudentUseCase } from "../../../application/use-cases/RegisterStudentUseCase";
-import { CreateStaffProfileUseCase } from "../../../application/use-cases/user-use-cases/CreateStaffProfileUseCase";
-import { CreateStudentProfileUseCase } from "../../../application/use-cases/user-use-cases/CreateStudentProfileUseCase";
+import { CreateStaffProfileUseCase } from "../../../application/use-cases/user/CreateStaffProfileUseCase";
+import { CreateStudentProfileUseCase } from "../../../application/use-cases/user/CreateStudentProfileUseCase";
 import { CreateTeacherDetailsUseCase } from "../../../application/use-cases/CreateTeacherDetailsUseCase";
 import { User } from "../../../domain/User";
 

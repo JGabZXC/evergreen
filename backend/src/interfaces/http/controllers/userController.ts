@@ -1,30 +1,70 @@
 import { Response } from "express";
-import { UpdateStaffProfileUseCase } from "../../../application/use-cases/user-use-cases/UpdateStaffProfileUseCase";
-import { UpdateStudentProfileUseCase } from "../../../application/use-cases/user-use-cases/UpdateStudentProfileUseCase";
 import { HttpStatus } from "../../../domain/HttpStatus";
 import { StudentRole } from "../../../domain/types/Role";
 import { AuthenticatedRequest } from "../middleware/authGuard";
-import { GetStudentProfileUseCase } from "../../../application/use-cases/user-use-cases/GetStudentProfileUseCase";
-import { GetStaffProfileUseCase } from "../../../application/use-cases/user-use-cases/GetStaffProfileUseCase";
-import { UpdatePasswordUseCase } from "../../../application/use-cases/user-use-cases/UpdatePasswordUseCase";
 import { BadRequestError } from "../middleware/HttpErrors";
+import {
+  GetStaffProfileUseCase,
+  GetStudentProfileUseCase,
+  UpdateStaffProfileUseCase,
+  UpdateStudentProfileUseCase,
+  UpdatePasswordUseCase,
+  CreateStudentProfileUseCase,
+  CreateStaffProfileUseCase,
+} from "../../../application/use-cases/user/index";
 
-const updateStudentProfile = new UpdateStudentProfileUseCase();
-const getStudentProfile = new GetStudentProfileUseCase();
-const updateStaffProfile = new UpdateStaffProfileUseCase();
-const getStaffProfile = new GetStaffProfileUseCase();
-const updatePassword = new UpdatePasswordUseCase();
+// STUDENT
+const createStudentProfileUseCase = new CreateStudentProfileUseCase();
+const updateStudentProfileUseCase = new UpdateStudentProfileUseCase();
+const getStudentProfileUseCase = new GetStudentProfileUseCase();
+// STAFF
+const createStaffProfileUseCase = new CreateStaffProfileUseCase();
+const updateStaffProfileUseCase = new UpdateStaffProfileUseCase();
+const getStaffProfileUseCase = new GetStaffProfileUseCase();
+const updatePasswordUseCase = new UpdatePasswordUseCase();
 
 export const getProfile = async (req: AuthenticatedRequest, res: Response) => {
   try {
     let profile;
     if (req.user!.role! === StudentRole.Student) {
-      profile = await getStudentProfile.execute(req.user!.studentId!);
+      profile = await getStudentProfileUseCase.execute(req.user!.studentId!);
     } else {
-      profile = await getStaffProfile.execute(req.user!.employeeId!);
+      profile = await getStaffProfileUseCase.execute(req.user!.employeeId!);
     }
 
     return res.status(HttpStatus.OK).json({ profile });
+  } catch (err: any) {
+    throw err;
+  }
+};
+
+export const createProfile = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    let createdProfile;
+    const existingProfile =
+      req.user!.role! === StudentRole.Student
+        ? await getStudentProfileUseCase.execute(req.user!.studentId!)
+        : await getStaffProfileUseCase.execute(req.user!.employeeId!);
+
+    if (existingProfile) {
+      throw new BadRequestError("Profile already exists");
+    }
+
+    if (req.user!.role! === StudentRole.Student) {
+      createdProfile = await createStudentProfileUseCase.execute(
+        req.user!.studentId!,
+        req.body
+      );
+    } else {
+      createdProfile = await createStaffProfileUseCase.execute(
+        req.user!.employeeId!,
+        req.body
+      );
+    }
+    return res.status(HttpStatus.CREATED).json({ profile: createdProfile });
   } catch (err: any) {
     throw err;
   }
@@ -37,12 +77,12 @@ export const updateProfile = async (
   try {
     let updatedProfile;
     if (req.user!.role! === StudentRole.Student) {
-      updatedProfile = await updateStudentProfile.execute(
+      updatedProfile = await updateStudentProfileUseCase.execute(
         req.user!.studentId!,
         req.body
       );
     } else {
-      updatedProfile = await updateStaffProfile.execute(
+      updatedProfile = await updateStaffProfileUseCase.execute(
         req.user!.employeeId!,
         req.body
       );
@@ -70,7 +110,11 @@ export const changePassword = async (
   }
 
   try {
-    await updatePassword.execute(req.user!._id!, currentPassword, newPassword);
+    await updatePasswordUseCase.execute(
+      req.user!._id!,
+      currentPassword,
+      newPassword
+    );
     return res
       .status(HttpStatus.OK)
       .json({ message: "Password updated successfully" });
