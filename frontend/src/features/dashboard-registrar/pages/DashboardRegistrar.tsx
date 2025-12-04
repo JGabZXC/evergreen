@@ -7,6 +7,7 @@ import {
   Users,
   Menu,
   BookA,
+  BookCopy,
 } from "lucide-react";
 import DashboardOverview from "../components/DashboardOverview";
 import ManualEnrollment from "../components/ManualEnrollment";
@@ -16,6 +17,7 @@ import SubjectList from "../components/SubjectList";
 import { pageVariants } from "../../../shared/animations";
 import { Link } from "react-router";
 import SidebarItem from "../components/SidebarItem";
+import CourseList from "../components/CourseList";
 
 export default function DashboardRegistrar() {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -33,6 +35,8 @@ export default function DashboardRegistrar() {
         return <StudentRecords />;
       case "subjects":
         return <SubjectList />;
+      case "courses":
+        return <CourseList />;
       default:
         return <DashboardOverview />;
     }
@@ -103,6 +107,13 @@ export default function DashboardRegistrar() {
             isOpen={isSidebarOpen}
             onClick={() => setActiveTab("subjects")}
           />
+          <SidebarItem
+            icon={BookCopy}
+            label="Course List"
+            isActive={activeTab === "courses"}
+            isOpen={isSidebarOpen}
+            onClick={() => setActiveTab("courses")}
+          />
         </nav>
 
         <div className="h-16 border-t border-base-300 flex items-center shrink-0 bg-base-100 relative z-10">
@@ -143,6 +154,8 @@ export default function DashboardRegistrar() {
                 ? "Student Records"
                 : activeTab === "subjects"
                 ? "Subject List"
+                : activeTab === "courses"
+                ? "Course List"
                 : "Dashboard"}
             </h1>
             <p className="text-base-content/70 mt-1">
