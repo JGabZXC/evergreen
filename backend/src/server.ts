@@ -3,11 +3,13 @@ import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import morgan from "morgan";
+import cors from "cors";
 import { errorHandler } from "./interfaces/http/middleware/errorHandler";
 import authRoutes from "./interfaces/http/routes/authRoutes";
 import registrarRoutes from "./interfaces/http/routes/registrarRoutes";
 import userRoutes from "./interfaces/http/routes/userRoutes";
 import studentRoutes from "./interfaces/http/routes/studentRoutes";
+import { HttpStatus } from "./domain/HttpStatus";
 
 dotenv.config({
   path: "../.env",
@@ -17,6 +19,12 @@ const app = express();
 if (process.env.NODE_ENV !== "production") {
   app.use(morgan("dev"));
 }
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(cookieParser());
 
@@ -27,6 +35,12 @@ app.use("/api/student", studentRoutes);
 
 app.use(errorHandler);
 
+app.use((req, res) => {
+  const route = req.originalUrl;
+  res
+    .status(HttpStatus.NOT_FOUND)
+    .json({ message: `Route not found: ${route}` });
+});
 mongoose
   .connect(process.env.MONGO_URI || "mongodb://mongo:27017/evergreen")
   .then(() => console.log("Connected to MongoDB"))

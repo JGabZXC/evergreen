@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
 import { HttpStatus } from "../../../domain/HttpStatus";
-import { BadRequestError } from "./HttpErrors";
 
 export function errorHandler(
   err: any,
