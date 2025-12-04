@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
-import { BaseSubject, Subject } from "../../domain/Subject";
-import { SubjectModel } from "../../infrastructure/database/SubjectModel";
-import { ConflictError } from "../../interfaces/http/middleware/HttpErrors";
+import { BaseSubject, Subject } from "../../../domain/Subject";
+import { SubjectModel } from "../../../infrastructure/database/SubjectModel";
+import { ConflictError } from "../../../interfaces/http/middleware/HttpErrors";
 
 export class CreateSubjectUseCase {
   async execute(
