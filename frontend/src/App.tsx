@@ -1,11 +1,16 @@
 import { RouterProvider } from "react-router";
 import "./App.css";
 import { router } from "./router/mainRouter";
+import { AuthProvider } from "./features/auth/context/authContext";
+import { ToastContainer } from "react-toastify";
 
 function App() {
   return (
     <>
-      <RouterProvider router={router} />
+      <AuthProvider>
+        <ToastContainer />
+        <RouterProvider router={router} />
+      </AuthProvider>
     </>
   );
 }

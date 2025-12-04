@@ -1,15 +1,38 @@
-import { useSearchParams } from "react-router";
-import { useEffect } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router";
+import { useEffect, useState, useRef } from "react"; // [!code focus]
+import { useAuth } from "../hooks/useAuth";
+import { LoaderCircle } from "lucide-react";
+import { useLogin } from "../hooks/useLogin";
 
 export default function LoginPage() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const type = searchParams.get("type") || "student";
+  const { formData, handleChange, submitLogin, loading, errors } = useLogin();
+
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      navigate("/", { replace: true });
+    }
+  }, [user, navigate]);
 
   useEffect(() => {
     if (!searchParams.get("type")) {
       setSearchParams({ type: "student" }, { replace: true });
     }
-  }, [searchParams, setSearchParams]);
+  }, [searchParams.get("type"), setSearchParams]);
+
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-base-200">
@@ -18,7 +41,7 @@ export default function LoginPage() {
           <h2 className="card-title justify-center text-2xl mb-4">
             Login as {type === "teacher" ? "Teacher" : "Student"}
           </h2>
-          <form className="space-y-6">
+          <form className="space-y-6" onSubmit={submitLogin}>
             <div className="flex flex-col gap-2">
               <label className="label">
                 <span className="label-text">Email</span>
@@ -27,8 +50,15 @@ export default function LoginPage() {
                 type="email"
                 placeholder="email@example.com"
                 className="input input-bordered w-full"
-                required
+                // required
+                value={formData.email}
+                onChange={(e) => {
+                  handleChange("email", e.target.value);
+                }}
               />
+              {errors.email && (
+                <span className="text-sm text-red-400">{errors.email}</span>
+              )}
             </div>
             <div className="flex flex-col gap-2">
               <label className="label">
@@ -38,15 +68,28 @@ export default function LoginPage() {
                 type="password"
                 placeholder="Enter your password"
                 className="input input-bordered w-full"
-                required
+                // required
+                value={formData.password}
+                onChange={(e) => handleChange("password", e.target.value)}
               />
+              {errors.password && (
+                <span className="text-sm text-red-400">{errors.password}</span>
+              )}
             </div>
             <div>
               <button
                 type="submit"
                 className="btn btn-primary w-full hover:bg-secondary"
+                disabled={loading}
               >
-                Login
+                {loading ? (
+                  <>
+                    <LoaderCircle className="animate-spin mr-2 h-5 w-5" />{" "}
+                    Loading...
+                  </>
+                ) : (
+                  "Login"
+                )}
               </button>
             </div>
           </form>
@@ -54,14 +97,12 @@ export default function LoginPage() {
           <div className="text-center">
             <p className="text-sm">
               Login as {type === "teacher" ? "Student" : "Teacher"}?{" "}
-              <a
-                href={`/login?type=${
-                  type === "teacher" ? "student" : "teacher"
-                }`}
+              <Link
+                to={`/login?type=${type === "teacher" ? "student" : "teacher"}`}
                 className="link link-primary"
               >
                 Click here
-              </a>
+              </Link>
             </p>
           </div>
         </div>

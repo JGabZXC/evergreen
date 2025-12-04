@@ -5,6 +5,7 @@ import HomePage from "../features/homepage/HomePage";
 import { authRoutes } from "../features/auth/routes/authRoutes";
 import ProgramsPage from "../features/programs/ProgramsPage";
 import NotFound404 from "../features/notfound404/NotFound404";
+import { PersistLogin } from "../features/auth/components/PersistLogin";
 
 export const router = createBrowserRouter([
   {
@@ -12,12 +13,17 @@ export const router = createBrowserRouter([
     element: <MainLayout />,
     children: [
       { index: true, element: <HomePage /> },
-      ...authRoutes,
       {
-        path: "programs",
-        element: <ProgramsPage />,
+        element: <PersistLogin />,
+        children: [
+          ...authRoutes,
+          {
+            path: "programs",
+            element: <ProgramsPage />,
+          },
+          { path: "*", element: <NotFound404 /> },
+        ],
       },
-      { path: "*", element: <NotFound404 /> },
     ],
   },
   {
