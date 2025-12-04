@@ -63,14 +63,26 @@ async function seedClassrooms() {
       namePrefix: string
     ) => {
       for (let i = 0; i < count; i++) {
+        const assignedTeacher = teachers[teacherIndex];
+
+        // Stop if we run out of unique teachers
+        if (!assignedTeacher) {
+          console.warn(
+            "Not enough teachers to assign advisers! Stopping generation."
+          );
+          return;
+        }
+
         const sectionName = SECTIONS[i];
         classroomsData.push({
-          adviserId: getNextAdviser(),
+          adviserId: assignedTeacher.employeeId, // Use direct index
           name: `${namePrefix} - Block ${sectionName}`,
           gradeLevel: level,
-          capacity: 40, // Default capacity
+          capacity: 40,
           currentCapacity: 0,
         });
+
+        teacherIndex++; // Increment unique counter
       }
     };
 

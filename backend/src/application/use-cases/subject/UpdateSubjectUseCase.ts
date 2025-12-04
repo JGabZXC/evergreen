@@ -14,7 +14,6 @@ export class UpdateSubjectUseCase {
     })
       .findOneAndUpdate(data, { new: true })
       .populate("createdBy")
-      .populate("teacher")
       .lean<SubjectDTO>();
   }
 }

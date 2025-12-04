@@ -4,7 +4,7 @@ import { GradeLevel } from "../../domain/Subject";
 
 const ClassroomSchema = new Schema<Classroom & Document>(
   {
-    adviserId: { type: String, required: true },
+    adviserId: { type: String, required: true, unique: true },
     name: { type: String, required: true },
     gradeLevel: {
       type: String,

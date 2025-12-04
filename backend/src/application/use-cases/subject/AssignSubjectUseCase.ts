@@ -14,7 +14,6 @@ export class AssignSubjectUseCase {
       { new: true, session: session || null }
     )
       .populate("createdBy")
-      .populate("teacher")
       .lean<SubjectDTO>();
   }
 }

@@ -16,7 +16,7 @@ const ClassScheduleSchema = new Schema<ClassSchedule & Document>(
       required: true,
     },
     subjectId: { type: String, required: true }, // Store Subject ID String (e.g., "CC-101")
-    teacherId: { type: String, required: true }, // Store Employee ID (e.g., "EMP-001")
+    teacherId: { type: String, default: "TBA" }, // Store Employee ID (e.g., "EMP-001")
     schedules: [TimeSlotSchema],
     schoolYear: { type: String, required: true },
     semester: { type: Number, required: true },
@@ -24,9 +24,8 @@ const ClassScheduleSchema = new Schema<ClassSchedule & Document>(
   { timestamps: true }
 );
 
-// Compound Index for Conflict Checking
 ClassScheduleSchema.index({ teacherId: 1, schoolYear: 1, semester: 1 });
-ClassScheduleSchema.index({ classroomId: 1, subjectId: 1 }, { unique: true }); // One sched per subject per section
+ClassScheduleSchema.index({ classroomId: 1, subjectId: 1 }, { unique: true });
 
 export const ClassScheduleModel = mongoose.model<ClassSchedule & Document>(
   "ClassSchedule",

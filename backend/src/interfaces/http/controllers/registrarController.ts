@@ -19,12 +19,6 @@ import {
   GetCourseUseCase,
   UpdateCourseUseCase,
 } from "../../../application/use-cases/course/index";
-import {
-  UpdateClassroomUseCase,
-  GetAllClassroomUseCase,
-  GetClassroomUseCase,
-  CreateClassroomUseCase,
-} from "../../../application/use-cases/classroom/index";
 import { EnrollStudentUseCase } from "../../../application/use-cases/enrollment";
 
 // ENROLLMENT
@@ -40,11 +34,6 @@ const createCourseUseCase = new CreateCourseUsecase();
 const updateCourseUseCase = new UpdateCourseUseCase();
 const getCourseUseCase = new GetCourseUseCase();
 const getAllCoursesUseCase = new GetAllCourseUseCase();
-// CLASSROOM
-const getAllClassroomUseCase = new GetAllClassroomUseCase();
-const getClassroomUsecase = new GetClassroomUseCase();
-const createClassroomUseCase = new CreateClassroomUseCase();
-const updateClassroomUseCase = new UpdateClassroomUseCase();
 
 export const getAllStudents = async (req: Request, res: Response) => {
   let { page = 1, limit = 10 } = req.query;
@@ -276,75 +265,6 @@ export const updateSubject = async (
       req.body
     );
     return res.status(HttpStatus.OK).json(updatedSubject);
-  } catch (err) {
-    throw err;
-  }
-};
-
-// CLASSROOM CONTROLLERS
-export const createClassroom = async (
-  req: AuthenticatedRequest,
-  res: Response
-) => {
-  try {
-    const createdClassroom = await createClassroomUseCase.execute(req.body);
-    return res.status(HttpStatus.CREATED).json(createdClassroom);
-  } catch (err) {
-    throw err;
-  }
-};
-
-export const getClassroom = async (req: Request, res: Response) => {
-  let { page = 1, limit = 10 } = req.query;
-  let { id } = req.params;
-
-  if (id && typeof id !== "string") {
-    throw new BadRequestError("Classroom ID must be a string");
-  }
-
-  if ((page && isNaN(Number(page))) || (page && Number(page) < 1)) {
-    throw new BadRequestError("Page must be a positive number");
-  }
-
-  if ((limit && isNaN(Number(limit))) || (limit && Number(limit) < 1)) {
-    throw new BadRequestError("Limit must be a positive number");
-  }
-
-  if (limit && Number(limit) > 100) {
-    limit = 100;
-  }
-  const skip = (Number(page) - 1) * Number(limit);
-
-  try {
-    let classrooms;
-    if (id) {
-      classrooms = await getClassroomUsecase.execute(id as string);
-    } else {
-      classrooms = await getAllClassroomUseCase.execute(skip, Number(limit));
-      if (Number(page) > classrooms.totalPages) {
-        throw new BadRequestError("Page number exceeds total pages");
-      }
-      return res.status(HttpStatus.OK).json({ ...classrooms });
-    }
-    return res.status(HttpStatus.OK).json(classrooms);
-  } catch (err) {
-    throw err;
-  }
-};
-
-export const updateClassroom = async (
-  req: AuthenticatedRequest,
-  res: Response
-) => {
-  try {
-    const { id } = req.params;
-    if (!id || typeof id !== "string") {
-      throw new BadRequestError(
-        "Classroom ID is required and must be a string"
-      );
-    }
-    const updatedClassroom = await updateClassroomUseCase.execute(id, req.body);
-    return res.status(HttpStatus.OK).json(updatedClassroom);
   } catch (err) {
     throw err;
   }

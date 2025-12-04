@@ -2,15 +2,12 @@ import { Router } from "express";
 import { authGuard } from "../middleware/authGuard";
 import { isRegistrar, requireRole } from "../middleware/permissions";
 import {
-  createClassroom,
   createCourse,
   createSubject,
   deactivateUser,
   getAllStudents,
-  getClassroom,
   getCourse,
   getSubject,
-  updateClassroom,
   updateCourse,
   updateSubject,
 } from "../controllers/registrarController";
@@ -19,6 +16,11 @@ import {
   // transferStudentSection,
 } from "../controllers/enrollmentController";
 import { StaffRole, StudentRole } from "../../../domain/types/Role";
+import {
+  createClassroom,
+  getClassroom,
+  updateClassroom,
+} from "../controllers/classroomController";
 
 const router = Router();
 
@@ -64,6 +66,9 @@ router
   )
   .patch(authGuard, isRegistrar, updateCourse);
 
+// ENROLLMENT
+router.post("/enroll", authGuard, isRegistrar, enrollStudent);
+
 // CLASSROOM
 router
   .route("/classroom")
@@ -82,9 +87,5 @@ router
     getClassroom
   )
   .patch(authGuard, isRegistrar, updateClassroom);
-
-// ENROLLMENT
-router.post("/enroll", authGuard, isRegistrar, enrollStudent);
-// router.post("/transfer", authGuard, isRegistrar, transferStudentSection);
 
 export default router;

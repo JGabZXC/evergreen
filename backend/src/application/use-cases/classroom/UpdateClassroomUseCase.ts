@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { BaseClassroom } from "../../../domain/Classroom";
 import { ClassroomModel } from "../../../infrastructure/database/ClassroomModel";
 import { ClassroomDTO } from "../../../interfaces/http/types/ClassroomDTO";
+import { ConflictError } from "../../../interfaces/http/middleware/HttpErrors";
 
 export class UpdateClassroomUseCase {
   async execute(
@@ -9,9 +10,18 @@ export class UpdateClassroomUseCase {
     data: Partial<BaseClassroom>,
     session?: mongoose.ClientSession
   ) {
-    return await ClassroomModel.findByIdAndUpdate(id, data, {
-      new: true,
-      session: session || null,
-    }).lean<ClassroomDTO>();
+    try {
+      return await ClassroomModel.findByIdAndUpdate(id, data, {
+        new: true,
+        session: session || null,
+      }).lean<ClassroomDTO>();
+    } catch (err: any) {
+      if (err.code === 11000) {
+        throw new ConflictError(
+          "A classroom with this adviserId already exists."
+        );
+      }
+      throw err;
+    }
   }
 }

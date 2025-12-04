@@ -26,13 +26,9 @@ export enum GradeLevel {
 export interface BaseSubject {
   name: string;
   subjectId: string;
-  teacherId?: string;
   description?: string;
   targetGradeLevels: GradeLevel[];
   semesterAvailable: Semester[]; // e.g., [1, 2] for both semesters
-
-  // VIRTUALS
-  teacher?: Staff;
 }
 
 export interface Subject extends BaseSubject {

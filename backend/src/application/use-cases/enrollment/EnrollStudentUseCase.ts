@@ -15,6 +15,7 @@ import { ClassroomModel } from "../../../infrastructure/database/ClassroomModel"
 import { CourseModel } from "../../../infrastructure/database/CourseModel";
 import { SubjectModel } from "../../../infrastructure/database/SubjectModel";
 import { SubjectTakenModel } from "../../../infrastructure/database/SubjectTakenModel";
+import { ClassScheduleModel } from "../../../infrastructure/database/ClassScheduleModel";
 
 export class EnrollStudentUseCase {
   async execute(input: BaseEnrollmentRecord) {
@@ -52,16 +53,48 @@ export class EnrollStudentUseCase {
       }
 
       // 3. Validate Classroom (Section)
-      if (!input.classroom) {
-        throw new BadRequestError("Classroom ID is required.");
+      let classroom;
+
+      if (input.classroom) {
+        // [SCENARIO A] Manual Selection
+        classroom = await ClassroomModel.findById(input.classroom).session(
+          session
+        );
+        if (!classroom) throw new NotFoundError("Classroom not found.");
+
+        if (classroom.currentCapacity >= classroom.capacity) {
+          throw new BadRequestError(`Classroom ${classroom.name} is full.`);
+        }
+
+        // Strict grade check for manual selection
+        if (classroom.gradeLevel !== input.gradeLevel) {
+          throw new BadRequestError(
+            `Mismatch: Classroom is ${classroom.gradeLevel}, Student is ${input.gradeLevel}`
+          );
+        }
+      } else {
+        // [SCENARIO B] Auto-Assign (Load Balancing Strategy)
+        // Find sections for this Grade Level that are NOT full
+        // Sort by 'currentCapacity' ascending (0, 1, 2...) to fill evenly
+        const availableSections = await ClassroomModel.find({
+          gradeLevel: input.gradeLevel,
+          $expr: { $lt: ["$currentCapacity", "$capacity"] }, // capacity check
+        })
+          .sort({ currentCapacity: 1 }) // <--- This creates the "Round Robin" effect
+          .limit(1)
+          .session(session);
+
+        if (availableSections.length === 0) {
+          throw new BadRequestError(
+            `No available sections found for ${input.gradeLevel}. All are full.`
+          );
+        }
+
+        classroom = availableSections[0];
       }
 
-      const classroom = await ClassroomModel.findById(input.classroom).session(
-        session
-      );
-
       if (!classroom) {
-        throw new NotFoundError("Classroom not found.");
+        throw new NotFoundError("Classroom assignment failed.");
       }
 
       // 3a. Validate Classroom Capacity
@@ -149,9 +182,21 @@ export class EnrollStudentUseCase {
         finalLoadMap.set(sub.subjectId, { ...sub.toObject(), isRetake: true });
       });
 
+      const classSchedules = await ClassScheduleModel.find({
+        classroomId: classroom._id,
+        semester: input.semester,
+        schoolYear: input.schoolYear,
+      }).session(session);
+
+      // Create a quick lookup map: SubjectID -> TeacherID
+      const scheduleMap = new Map<string, string>();
+      classSchedules.forEach((sched) => {
+        scheduleMap.set(sched.subjectId, sched.teacherId);
+      });
+
       // --- PERSISTENCE LAYER ---
 
-      // 10. Create Enrollment Record (Header)
+      // 10. Create Enrollment Record (Header) - NO CHANGE HERE
       const [enrollment] = await EnrollmentRecordModel.create(
         [
           {
@@ -167,22 +212,28 @@ export class EnrollStudentUseCase {
         { session }
       );
 
-      // 11. Bulk Create SubjectTaken Records (Lines)
+      // 11. Bulk Create SubjectTaken Records (Lines) - UPDATED LOGIC
       const subjectTakenDocs = Array.from(finalLoadMap.values()).map(
-        (subject: any) => ({
-          studentId: input.studentId,
-          subjectId: subject.subjectId,
-          classroomId: classroom._id,
-          teacherId: "TBA",
-          schoolYear: input.schoolYear,
-          semester: input.semester,
-          status: SubjectStatus.Enrolled,
-          // remarks: subject.isRetake ? "Retake" : "Regular",
-          prelim: 0,
-          midterm: 0,
-          final: 0,
-          finalGrade: 0,
-        })
+        (subject: any) => {
+          // LOOKUP LOGIC:
+          // Check if there is a schedule defined for this subject in this section.
+          // If yes, use that teacher. If no, default to "TBA".
+          const assignedTeacher = scheduleMap.get(subject.subjectId) || "TBA";
+
+          return {
+            studentId: input.studentId,
+            subjectId: subject.subjectId,
+            classroomId: classroom._id,
+            teacherId: assignedTeacher, // <--- NOW DYNAMIC
+            schoolYear: input.schoolYear,
+            semester: input.semester,
+            status: SubjectStatus.Enrolled,
+            prelim: 0,
+            midterm: 0,
+            final: 0,
+            finalGrade: 0,
+          };
+        }
       );
 
       if (subjectTakenDocs.length > 0) {
