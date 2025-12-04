@@ -15,8 +15,14 @@ const authService = new AuthService();
 const registerStaff = new RegisterStaffUseCase();
 const registerStudent = new RegisterStudentUseCase();
 
+interface StudentRegistrationData extends BaseUser {
+  course: string;
+}
+
+type UserRegistratationType = StudentRegistrationData | BaseUser;
+
 const validateAndCreateUser = async (
-  userData: BaseUser,
+  userData: UserRegistratationType,
   currentUserRole: Role
 ) => {
   const errors: { [key: string]: string } = {};
@@ -51,7 +57,7 @@ const validateAndCreateUser = async (
   try {
     const user =
       userData.role === StudentRole.Student
-        ? await registerStudent.execute(userData)
+        ? await registerStudent.execute(userData as StudentRegistrationData)
         : await registerStaff.execute(userData);
     return { success: true, user };
   } catch (err: any) {

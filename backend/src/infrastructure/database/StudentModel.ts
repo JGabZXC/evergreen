@@ -9,6 +9,7 @@ const StudentSchema = new Schema<Student & Document>(
       required: true,
     },
     studentId: { type: String, required: true, unique: true },
+    course: { type: Schema.Types.ObjectId, ref: "Course", required: true },
     isActive: { type: Boolean, default: true }, // Matched this for UserModel
   },
   {

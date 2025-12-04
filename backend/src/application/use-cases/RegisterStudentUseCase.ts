@@ -10,7 +10,7 @@ export class RegisterStudentUseCase {
   private idGeneratorService = new IdGeneratorService();
 
   async execute(
-    data: BaseUser,
+    data: BaseUser & { course: string },
     session?: mongoose.ClientSession
   ): Promise<{ createdUser: User; studentId: string }> {
     try {
@@ -22,7 +22,13 @@ export class RegisterStudentUseCase {
       if (!createdUser) throw new Error("User creation failed");
 
       await StudentModel.create(
-        [{ userId: createdUser._id, studentId: studentId }],
+        [
+          {
+            userId: createdUser._id,
+            studentId: studentId,
+            course: data.course,
+          },
+        ],
         {
           session,
         }

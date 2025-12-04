@@ -7,6 +7,9 @@ import { StudentProfileModel } from "../StudentProfileModel";
 import { TeacherDetailsModel } from "../TeacherDetailsModel";
 import { RefreshTokenModel } from "../RefreshTokenModel";
 import { SubjectModel } from "../SubjectModel";
+import { ClassroomModel } from "../ClassroomModel";
+import { CourseModel } from "../CourseModel";
+import { EnrollmentRecordModel } from "../EnrollmentRecordModel";
 
 async function seed() {
   await mongoose.connect(
@@ -15,14 +18,17 @@ async function seed() {
   console.log("Connected to MongoDB");
 
   await Promise.all([
-    UserModel.deleteMany({}),
-    StaffModel.deleteMany({}),
-    StudentModel.deleteMany({}),
-    StaffProfileModel.deleteMany({}),
-    StudentProfileModel.deleteMany({}),
-    TeacherDetailsModel.deleteMany({}),
+    ClassroomModel.deleteMany({}),
+    CourseModel.deleteMany({}),
+    EnrollmentRecordModel.deleteMany({}),
     RefreshTokenModel.deleteMany({}),
+    StaffProfileModel.deleteMany({}),
+    StaffModel.deleteMany({}),
+    StudentProfileModel.deleteMany({}),
+    StudentModel.deleteMany({}),
     SubjectModel.deleteMany({}),
+    TeacherDetailsModel.deleteMany({}),
+    UserModel.deleteMany({}),
   ]);
 
   console.log("All collections cleared.");

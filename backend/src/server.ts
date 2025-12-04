@@ -7,6 +7,7 @@ import { errorHandler } from "./interfaces/http/middleware/errorHandler";
 import authRoutes from "./interfaces/http/routes/authRoutes";
 import registrarRoutes from "./interfaces/http/routes/registrarRoutes";
 import userRoutes from "./interfaces/http/routes/userRoutes";
+import studentRoutes from "./interfaces/http/routes/studentRoutes";
 
 dotenv.config({
   path: "../.env",
@@ -22,6 +23,7 @@ app.use(cookieParser());
 app.use("/api/auth", authRoutes);
 app.use("/api/registrar", registrarRoutes);
 app.use("/api/user", userRoutes);
+app.use("/api/student", studentRoutes);
 
 app.use(errorHandler);
 

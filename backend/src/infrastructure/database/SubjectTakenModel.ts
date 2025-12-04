@@ -13,7 +13,11 @@ export const SubjectTakenSchema = new Schema<BaseSubjectTaken & Document>(
       required: true,
     },
     schoolYear: { type: String, required: true },
-    semester: { type: Number, enum: Object.values(Semester), required: true },
+    semester: {
+      type: Number,
+      enum: Object.values(Semester).map(Number),
+      required: true,
+    },
     prelim: { type: Number },
     midterm: { type: Number },
     final: { type: Number },
@@ -56,6 +60,14 @@ SubjectTakenSchema.virtual("classroom", {
   ref: "Classroom",
   localField: "classroomId",
   foreignField: "_id",
+  justOne: true,
+});
+
+SubjectTakenSchema.virtual("scheduleDetails", {
+  ref: "ClassSchedule",
+  localField: "classroomId", // Match Section...
+  foreignField: "classroomId",
+  match: (doc: any) => ({ subjectId: doc.subjectId }), // ...AND Match Subject
   justOne: true,
 });
 

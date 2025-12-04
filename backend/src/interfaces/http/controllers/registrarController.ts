@@ -25,6 +25,10 @@ import {
   GetClassroomUseCase,
   CreateClassroomUseCase,
 } from "../../../application/use-cases/classroom/index";
+import { EnrollStudentUseCase } from "../../../application/use-cases/enrollment";
+
+// ENROLLMENT
+const enrollStudentUseCase = new EnrollStudentUseCase();
 
 // SUBJECT
 const createSubjectUseCase = new CreateSubjectUseCase();
@@ -72,6 +76,20 @@ export const getAllStudents = async (req: Request, res: Response) => {
       students,
     });
   } catch (err) {
+    throw err;
+  }
+};
+
+export const enrollStudent = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    const enrollmentRecord = await enrollStudentUseCase.execute(req.body);
+    return res
+      .status(HttpStatus.CREATED)
+      .json({ message: "Student enrolled successfully", enrollmentRecord });
+  } catch (err: any) {
     throw err;
   }
 };

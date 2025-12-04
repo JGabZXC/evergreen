@@ -2,6 +2,7 @@ import { Schema } from "mongoose";
 import { Subject } from "./Subject";
 import { Staff } from "./Staff";
 import { Student } from "./Student";
+import { ClassSchedule } from "./ClassSchedule";
 
 export enum SubjectStatus {
   Enrolled = "enrolled",
@@ -29,6 +30,7 @@ export interface BaseSubjectTaken {
   subject: Subject;
   student: Student;
   teacher: Staff;
+  scheduleDetails: ClassSchedule;
 }
 
 export interface SubjectTaken extends BaseSubjectTaken {

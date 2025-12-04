@@ -3,6 +3,7 @@ import {
   Student,
   StudentProfile,
 } from "../../../domain/Student";
+import { CourseDTO } from "./CourseDTO";
 export type BaseStudentProfileDTO = Omit<BaseStudentProfile, "dateOfBirth"> & {
   dateOfBirth: string;
 };
@@ -18,5 +19,6 @@ export type StudentProfileDTO = Omit<
 
 export type StudentDTO = Omit<Student, "_id" | "userId"> & {
   _id: string;
+  course: CourseDTO;
   userId: string;
 };

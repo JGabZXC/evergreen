@@ -16,13 +16,14 @@ import {
 } from "../controllers/registrarController";
 import {
   enrollStudent,
-  transferStudentSection,
+  // transferStudentSection,
 } from "../controllers/enrollmentController";
 import { StaffRole, StudentRole } from "../../../domain/types/Role";
 
 const router = Router();
 
 router.get("/get-all-students", authGuard, isRegistrar, getAllStudents);
+router.post("/enroll-student", authGuard, isRegistrar, enrollStudent);
 router.post("/deactivate-users", authGuard, isRegistrar, deactivateUser);
 
 // SUBJECT
@@ -84,6 +85,6 @@ router
 
 // ENROLLMENT
 router.post("/enroll", authGuard, isRegistrar, enrollStudent);
-router.post("/transfer", authGuard, isRegistrar, transferStudentSection);
+// router.post("/transfer", authGuard, isRegistrar, transferStudentSection);
 
 export default router;
