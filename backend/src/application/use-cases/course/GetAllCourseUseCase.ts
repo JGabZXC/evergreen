@@ -1,4 +1,5 @@
 import { CourseModel } from "../../../infrastructure/database/CourseModel";
+import { CourseDTO } from "../../../interfaces/http/types/CourseDTO";
 
 export class GetAllCourseUseCase {
   async execute(skip: number, limit: number) {
@@ -6,7 +7,8 @@ export class GetAllCourseUseCase {
       CourseModel.find()
         .skip(skip)
         .limit(limit)
-        .populate("subjectToBeTaken.subject"),
+        .populate("subjectToBeTaken.subject")
+        .lean<CourseDTO[]>(),
       CourseModel.countDocuments(),
     ]);
     const totalPages = Math.ceil(totalDocs / limit);

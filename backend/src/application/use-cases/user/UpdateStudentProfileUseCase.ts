@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { BaseStudentProfile } from "../../../domain/Student";
 import { StudentProfileModel } from "../../../infrastructure/database/StudentProfileModel";
 import { flattenObject } from "../../../interfaces/http/utils/flattenObject";
+import { StudentProfileDTO } from "../../../interfaces/http/types/StudentDTO";
 
 export class UpdateStudentProfileUseCase {
   async execute(
@@ -15,10 +16,8 @@ export class UpdateStudentProfileUseCase {
         { studentId },
         { $set: flattenedObject },
         { new: true, session: session ?? null }
-      );
-      if (!updatedProfile) {
-        throw new Error("Profile update failed or profile not found");
-      }
+      ).lean<StudentProfileDTO>();
+
       return updatedProfile;
     } catch (err: any) {
       throw err;

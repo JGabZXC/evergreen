@@ -1,7 +1,10 @@
 import mongoose from "mongoose";
 import { StaffProfileModel } from "../../../infrastructure/database/StaffProfileModel";
 import { flattenObject } from "../../../interfaces/http/utils/flattenObject";
-import { BaseStaffProfileDTO } from "../../../interfaces/http/types/StaffDTO";
+import {
+  BaseStaffProfileDTO,
+  StaffProfileDTO,
+} from "../../../interfaces/http/types/StaffDTO";
 import { formatDateToUTC } from "../../../interfaces/http/utils/date";
 
 export class UpdateStaffProfileUseCase {
@@ -19,7 +22,7 @@ export class UpdateStaffProfileUseCase {
         { employeeId },
         { $set: flattenedObject },
         { new: true, session: session ?? null }
-      );
+      ).lean<StaffProfileDTO>();
 
       if (!updatedProfile) {
         throw new Error("Profile update failed or profile not found");

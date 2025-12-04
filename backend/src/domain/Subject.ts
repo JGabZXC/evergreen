@@ -33,7 +33,7 @@ export interface BaseSubject {
 export interface Subject extends BaseSubject {
   _id: Schema.Types.ObjectId;
   active: boolean;
-  createdBy: string;
+  createdBy: Schema.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }

@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { BaseClassroom } from "../../../domain/Classroom";
 import { ClassroomModel } from "../../../infrastructure/database/ClassroomModel";
+import { ClassroomDTO } from "../../../interfaces/http/types/ClassroomDTO";
 
 export class UpdateClassroomUseCase {
   async execute(
@@ -11,6 +12,6 @@ export class UpdateClassroomUseCase {
     return await ClassroomModel.findByIdAndUpdate(id, data, {
       new: true,
       session: session || null,
-    });
+    }).lean<ClassroomDTO>();
   }
 }
