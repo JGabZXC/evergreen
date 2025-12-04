@@ -5,7 +5,6 @@ import {
 } from "../../domain/EnrollmentRecord";
 import { GradeLevel } from "../../domain/Subject";
 import { Semester } from "../../domain/types/Semester";
-import { SubjectTakenSchema } from "./SubjectTakenModel";
 
 const EnrollmentRecordSchema = new Schema<EnrollmentRecord & Document>(
   {
@@ -21,10 +20,8 @@ const EnrollmentRecordSchema = new Schema<EnrollmentRecord & Document>(
       enum: Object.values(EnrollmentStatus),
       required: true,
     },
-    section: { type: String },
     schoolYear: { type: String, required: true },
-    adviser: { type: Schema.Types.ObjectId, ref: "Staff" },
-    subjectTaken: [SubjectTakenSchema],
+    classroom: { type: Schema.Types.ObjectId, ref: "Classroom" },
     semester: { type: Number, enum: Object.values(Semester), required: true },
   },
   {

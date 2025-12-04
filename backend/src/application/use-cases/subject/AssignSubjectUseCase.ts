@@ -1,18 +1,18 @@
 import mongoose from "mongoose";
-import { BaseSubject } from "../../../domain/Subject";
 import { SubjectModel } from "../../../infrastructure/database/SubjectModel";
 import { SubjectDTO } from "../../../interfaces/http/types/SubjectDTO";
 
-export class UpdateSubjectUseCase {
+export class AssignSubjectUseCase {
   async execute(
+    teacherId: string,
     subjectId: string,
-    data: Partial<BaseSubject>,
     session?: mongoose.ClientSession
   ) {
-    return await SubjectModel.find({ subjectId }, null, {
-      session: session || null,
-    })
-      .findOneAndUpdate(data, { new: true })
+    return await SubjectModel.findOneAndUpdate(
+      { subjectId },
+      { teacherId },
+      { new: true, session: session || null }
+    )
       .populate("createdBy")
       .populate("teacher")
       .lean<SubjectDTO>();

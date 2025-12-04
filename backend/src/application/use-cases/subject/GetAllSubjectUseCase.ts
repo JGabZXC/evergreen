@@ -8,6 +8,7 @@ export class GetAllSubjectUseCase {
         .skip(skip)
         .limit(limit)
         .populate("createdBy")
+        .populate("teacher")
         .lean<SubjectDTO[]>(),
       SubjectModel.countDocuments(),
     ]);

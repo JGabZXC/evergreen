@@ -30,6 +30,13 @@ const StudentProfilesSchema = new Schema<StudentProfile & Document>(
   }
 );
 
+StudentProfilesSchema.virtual("student", {
+  ref: "Student",
+  localField: "studentId",
+  foreignField: "studentId",
+  justOne: true,
+});
+
 export const StudentProfileModel = mongoose.model<StudentProfile & Document>(
   "StudentProfile",
   StudentProfilesSchema

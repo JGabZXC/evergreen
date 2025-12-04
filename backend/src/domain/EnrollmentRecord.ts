@@ -15,18 +15,15 @@ export enum EnrollmentStatus {
 export interface BaseEnrollmentRecord {
   studentId: string;
   gradeLevel: GradeLevel;
-  section?: string;
   enrollmentDate: Date;
   status: EnrollmentStatus;
   schoolYear: string;
-  adviser?: Schema.Types.ObjectId; // Teacher reference
-  subjectTaken?: BaseSubjectTaken[];
-  semester?: Semester;
+  classroom?: Schema.Types.ObjectId; // Classroom reference
+  semester: Semester;
 }
 
 export interface EnrollmentRecord extends BaseEnrollmentRecord {
   _id: Schema.Types.ObjectId;
-  subjectTaken?: SubjectTaken[];
   createdAt: Date;
   updatedAt: Date;
 }

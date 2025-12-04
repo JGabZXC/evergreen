@@ -8,7 +8,7 @@ const AddressSchema = new Schema<Address & Document>({
   zipCode: { type: Number },
 });
 
-const StaffSchema = new Schema<StaffProfile & Document>(
+const StaffProfileSchema = new Schema<StaffProfile & Document>(
   {
     employeeId: { type: String, required: true, unique: true },
     firstName: { type: String, required: true },
@@ -24,7 +24,14 @@ const StaffSchema = new Schema<StaffProfile & Document>(
   }
 );
 
+StaffProfileSchema.virtual("staff", {
+  ref: "Staff",
+  localField: "employeeId",
+  foreignField: "employeeId",
+  justOne: true,
+});
+
 export const StaffProfileModel = mongoose.model<StaffProfile & Document>(
   "StaffProfile",
-  StaffSchema
+  StaffProfileSchema
 );
