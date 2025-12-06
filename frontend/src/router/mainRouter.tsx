@@ -6,16 +6,17 @@ import { authRoutes } from "../features/auth/routes/authRoutes";
 import ProgramsPage from "../features/programs/ProgramsPage";
 import NotFound404 from "../features/notfound404/NotFound404";
 import { PersistLogin } from "../features/auth/components/PersistLogin";
+import ProtectedRoute from "../features/auth/components/ProtectedRoute";
 
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <MainLayout />,
+    element: <PersistLogin />,
     children: [
-      { index: true, element: <HomePage /> },
       {
-        element: <PersistLogin />,
+        element: <MainLayout />,
         children: [
+          { index: true, element: <HomePage /> },
           ...authRoutes,
           {
             path: "programs",
@@ -24,9 +25,12 @@ export const router = createBrowserRouter([
           { path: "*", element: <NotFound404 /> },
         ],
       },
+      {
+        element: (
+          <ProtectedRoute allowedRoles={["student", "teacher", "registrar"]} />
+        ),
+        children: [...dashboardRoutes],
+      },
     ],
-  },
-  {
-    ...dashboardRoutes[0],
   },
 ]);

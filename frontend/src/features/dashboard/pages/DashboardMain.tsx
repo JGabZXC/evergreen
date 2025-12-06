@@ -1,41 +1,44 @@
-import { useNavigate, useSearchParams } from "react-router";
+import { Navigate, useNavigate } from "react-router";
 import { useEffect } from "react";
 import { DashboardStudent } from "../../dashboard-student/pages/DashboardStudent";
 import { DashboardTeacher } from "../../dashboard-teacher/pages/DashboardTeacher";
 import DashboardRegistrar from "../../dashboard-registrar/pages/DashboardRegistrar";
 import DashboardAppointer from "../../dashboard-appointer/pages/DashboardAppointer";
+import { useAuth } from "../../auth/hooks/useAuth";
+import { StaffRole, StudentRole } from "../../auth/types/auth.types";
 
 export default function DashboardMain() {
-  const [searchParams] = useSearchParams();
-  const type = searchParams.get("type");
+  const { user } = useAuth();
   const navigate = useNavigate();
 
-  // TODO: We will based on user role, query params for now
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
 
   useEffect(() => {
     if (
-      type !== "student" &&
-      type !== "teacher" &&
-      type !== "registrar" &&
-      type !== "appointer"
+      user.role !== StudentRole.Student &&
+      user.role !== StaffRole.Teacher &&
+      user.role !== StaffRole.Registrar &&
+      user.role !== StaffRole.Approver
     ) {
       navigate("/", { replace: true });
     }
-  }, [type, navigate]);
+  }, [user.role, navigate]);
 
-  if (type === "student") {
+  if (user.role === StudentRole.Student) {
     return <DashboardStudent />;
   }
 
-  if (type === "teacher") {
+  if (user.role === StaffRole.Teacher) {
     return <DashboardTeacher />;
   }
 
-  if (type === "registrar") {
+  if (user.role === StaffRole.Registrar) {
     return <DashboardRegistrar />;
   }
 
-  if (type === "appointer") {
+  if (user.role === StaffRole.Approver) {
     return <DashboardAppointer />;
   }
 

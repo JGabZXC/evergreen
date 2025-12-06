@@ -3,7 +3,7 @@ import { useAuth } from "../hooks/useAuth";
 import { apiPrivate } from "../../../config/axiosPrivate";
 import { useEffect, useState } from "react";
 import type { RefreshResponse } from "../types/auth.types";
-import { LoaderCircle } from "lucide-react";
+import Loading from "../../../shared/components/Loading";
 
 export function PersistLogin() {
   const [loading, setLoading] = useState(true);
@@ -48,15 +48,5 @@ export function PersistLogin() {
     };
   }, []);
 
-  return (
-    <>
-      {loading ? (
-        <div className="h-screen flex items-center justify-center">
-          <LoaderCircle className="animate-spin h-10 w-10 text-primary" />
-        </div>
-      ) : (
-        <Outlet />
-      )}
-    </>
-  );
+  return <>{loading ? <Loading /> : <Outlet />}</>;
 }
