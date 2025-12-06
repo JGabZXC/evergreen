@@ -1,4 +1,6 @@
 import axios from "axios";
+import { router } from "../router/mainRouter";
+import { toast } from "react-toastify";
 
 export const apiPrivate = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -26,6 +28,8 @@ apiPrivate.interceptors.response.use(
         console.error("Refresh token failed", refreshError);
         await apiPrivate.post("/api/auth/logout");
         localStorage.removeItem("isAuth");
+        await router.navigate("/");
+        toast.error("Session expired. Please log in again.");
         return Promise.reject(refreshError);
       }
     }

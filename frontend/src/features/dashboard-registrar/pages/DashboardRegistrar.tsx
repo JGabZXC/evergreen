@@ -8,12 +8,14 @@ import {
   Menu,
   BookA,
   BookCopy,
+  ClipboardList,
 } from "lucide-react";
 import DashboardOverview from "../components/DashboardOverview";
 import ManualEnrollment from "../components/ManualEnrollment";
 import TeacherScheduling from "../components/TeacherScheduling";
 import StudentRecords from "../components/StudenRecords";
 import SubjectList from "../components/SubjectList";
+import CreateStudent from "../components/CreateStudent";
 import { pageVariants } from "../../../shared/animations";
 import { Link } from "react-router";
 import SidebarItem from "../components/SidebarItem";
@@ -27,6 +29,8 @@ export default function DashboardRegistrar() {
     switch (activeTab) {
       case "dashboard":
         return <DashboardOverview />;
+      case "create-student":
+        return <CreateStudent />;
       case "enrollment":
         return <ManualEnrollment />;
       case "scheduling":
@@ -81,6 +85,13 @@ export default function DashboardRegistrar() {
           />
           <SidebarItem
             icon={UserPlus}
+            label="Create Student"
+            isActive={activeTab === "create-student"}
+            isOpen={isSidebarOpen}
+            onClick={() => setActiveTab("create-student")}
+          />
+          <SidebarItem
+            icon={ClipboardList}
             label="Enrollment"
             isActive={activeTab === "enrollment"}
             isOpen={isSidebarOpen}

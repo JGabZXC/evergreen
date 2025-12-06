@@ -1,38 +1,43 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { Student } from "../types";
-import { Search, Users } from "lucide-react";
+import { Search, Users, Loader2, RefreshCw } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
-
-const INITIAL_STUDENTS: Student[] = [
-  {
-    id: "2023-0001",
-    name: "Juan Dela Cruz",
-    program: "BS Computer Science",
-    yearLevel: "1st Year",
-    status: "Enrolled",
-    dateEnrolled: "2023-08-15",
-  },
-  {
-    id: "2023-0045",
-    name: "Maria Clara",
-    program: "BS Nursing",
-    yearLevel: "2nd Year",
-    status: "Enrolled",
-    dateEnrolled: "2023-08-16",
-  },
-  {
-    id: "2023-0102",
-    name: "Jose Rizal",
-    program: "AB Political Science",
-    yearLevel: "3rd Year",
-    status: "Pending",
-    dateEnrolled: "2023-08-18",
-  },
-];
+import { getStudents } from "../services/studentService";
 
 export default function StudentRecords() {
+  const [students, setStudents] = useState<Student[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const filteredStudents = INITIAL_STUDENTS.filter(
+
+  const fetchStudents = async () => {
+    setLoading(true);
+    try {
+      const data = await getStudents();
+      const mappedStudents: Student[] = data.students.map((s: any) => ({
+        id: s.studentId,
+        name: s.profile
+          ? `${s.profile.lastName}, ${s.profile.firstName}`
+          : "No Profile",
+        program: s.course?.code || "N/A",
+        yearLevel: "-", // TODO: Implement year level logic
+        status: s.isActive ? "Enrolled" : "Dropped",
+        dateEnrolled: s.createdAt
+          ? new Date(s.createdAt).toLocaleDateString()
+          : "-",
+      }));
+      setStudents(mappedStudents);
+    } catch (error) {
+      console.error("Failed to fetch students", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStudents();
+  }, []);
+
+  const filteredStudents = students.filter(
     (s) =>
       s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       s.id.includes(searchTerm)
@@ -52,6 +57,13 @@ export default function StudentRecords() {
           <button className="btn join-item btn-square">
             <Search size={20} />
           </button>
+          <button
+            className="btn join-item btn-square"
+            onClick={fetchStudents}
+            disabled={loading}
+          >
+            <RefreshCw size={20} className={loading ? "animate-spin" : ""} />
+          </button>
         </div>
       </div>
 
@@ -68,38 +80,55 @@ export default function StudentRecords() {
             </tr>
           </thead>
           <tbody>
-            <AnimatePresence>
-              {filteredStudents.map((student) => (
-                <motion.tr
-                  key={student.id}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="odd:bg-base-100 even:bg-base-200 dark:even:bg-white/10"
-                >
-                  <td className="font-mono opacity-70">{student.id}</td>
-                  <td className="font-bold">{student.name}</td>
-                  <td>{student.program}</td>
-                  <td>{student.yearLevel}</td>
-                  <td>
-                    <span
-                      className={`badge ${
-                        student.status === "Enrolled"
-                          ? "badge-success text-white"
-                          : "badge-warning text-white"
-                      } gap-2`}
-                    >
-                      {student.status}
-                    </span>
-                  </td>
-                  <td>
-                    <button className="btn btn-ghost btn-xs text-info">
-                      View
-                    </button>
-                  </td>
-                </motion.tr>
-              ))}
-            </AnimatePresence>
+            {loading ? (
+              <tr>
+                <td colSpan={6} className="text-center py-8">
+                  <div className="flex flex-col items-center gap-2 opacity-50">
+                    <Loader2 className="animate-spin" size={32} />
+                    <span>Loading records...</span>
+                  </div>
+                </td>
+              </tr>
+            ) : filteredStudents.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="text-center py-8 opacity-50">
+                  No students found.
+                </td>
+              </tr>
+            ) : (
+              <AnimatePresence>
+                {filteredStudents.map((student) => (
+                  <motion.tr
+                    key={student.id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="odd:bg-base-100 even:bg-base-200 dark:even:bg-white/10"
+                  >
+                    <td className="font-mono opacity-70">{student.id}</td>
+                    <td className="font-bold">{student.name}</td>
+                    <td>{student.program}</td>
+                    <td>{student.yearLevel}</td>
+                    <td>
+                      <span
+                        className={`badge ${
+                          student.status === "Enrolled"
+                            ? "badge-success text-white"
+                            : "badge-warning text-white"
+                        } gap-2`}
+                      >
+                        {student.status}
+                      </span>
+                    </td>
+                    <td>
+                      <button className="btn btn-ghost btn-xs text-info">
+                        View
+                      </button>
+                    </td>
+                  </motion.tr>
+                ))}
+              </AnimatePresence>
+            )}
           </tbody>
         </table>
 

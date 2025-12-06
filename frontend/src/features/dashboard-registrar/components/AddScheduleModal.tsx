@@ -1,33 +1,22 @@
 import { useState, useEffect, useMemo } from "react";
 import { X, Plus, Trash2, Save, Clock, Loader2, Filter } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  getSectionsOption,
-  getSubjectsOption,
-  getTeachersOption,
-} from "../services/scheduleServices";
-import { apiPrivate } from "../../../config/axiosPrivate";
+import { useScheduleOptions } from "../hooks/useScheduleOptions";
+import type {
+  ScheduleSlot,
+  ScheduleSlotWithId,
+  CreateSchedulePayload,
+} from "../types";
 
 // --- 1. Safe ID Generator ---
 const generateId = () => {
   return Date.now().toString(36) + Math.random().toString(36).substr(2);
 };
 
-interface ScheduleSlot {
-  day: string;
-  startTime: string;
-  endTime: string;
-  room: string;
-}
-
-interface ScheduleSlotWithId extends ScheduleSlot {
-  id: string;
-}
-
 interface AddScheduleModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: any) => void;
+  onSave: (data: CreateSchedulePayload) => void;
 }
 
 export default function AddScheduleModal({
@@ -36,11 +25,8 @@ export default function AddScheduleModal({
   onSave,
 }: AddScheduleModalProps) {
   // --- Data State ---
-  const [sections, setSections] = useState<any[]>([]);
-  const [subjects, setSubjects] = useState<any[]>([]);
-  const [teachers, setTeachers] = useState<any[]>([]);
-  const [courses, setCourses] = useState<any[]>([]); // New Course State
-  const [loadingOptions, setLoadingOptions] = useState(false);
+  const { sections, subjects, teachers, courses, loadingOptions } =
+    useScheduleOptions(isOpen);
 
   // --- Filter State ---
   const [selectedCourseId, setSelectedCourseId] = useState("");
@@ -64,47 +50,20 @@ export default function AddScheduleModal({
     },
   ]);
 
-  // --- Fetch Options on Mount ---
-  useEffect(() => {
-    if (isOpen) {
-      const fetchData = async () => {
-        setLoadingOptions(true);
-        try {
-          const [secData, subData, teachData, courseRes] = await Promise.all([
-            getSectionsOption(),
-            getSubjectsOption(),
-            getTeachersOption(),
-            apiPrivate.get("/api/registrar/course"), // Fetch courses directly
-          ]);
-
-          setSections(secData);
-          setSubjects(subData);
-          setTeachers(teachData);
-          setCourses(courseRes.data.courses || []);
-        } catch (error) {
-          console.error("Failed to load dropdown options", error);
-        } finally {
-          setLoadingOptions(false);
-        }
-      };
-      fetchData();
-    }
-  }, [isOpen]);
-
   // --- Filtering Logic ---
   const filteredSubjects = useMemo(() => {
     if (!selectedCourseId) return subjects;
 
     // Find the selected course object
-    const course = courses.find((c: any) => c._id === selectedCourseId);
+    const course = courses.find((c) => c._id === selectedCourseId);
     if (!course) return subjects;
 
     // Extract all subject IDs from the course curriculum
     // The backend structure is: course.subjectToBeTaken[].subject[] (populated objects)
     const courseSubjectIds = new Set<string>();
 
-    course.subjectToBeTaken?.forEach((term: any) => {
-      term.subject?.forEach((sub: any) => {
+    course.subjectToBeTaken?.forEach((term) => {
+      term.subject?.forEach((sub) => {
         // Handle both populated objects (sub._id) or just IDs (sub)
         const id = typeof sub === "string" ? sub : sub._id;
         if (id) courseSubjectIds.add(id);
@@ -227,7 +186,7 @@ export default function AddScheduleModal({
                       onChange={(e) => setSelectedCourseId(e.target.value)}
                     >
                       <option value="">All Courses (Show All Subjects)</option>
-                      {courses.map((c: any) => (
+                      {courses.map((c) => (
                         <option key={c._id} value={c._id}>
                           {c.code} - {c.name}
                         </option>
