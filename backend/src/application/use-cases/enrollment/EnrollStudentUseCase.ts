@@ -11,13 +11,16 @@ import {
 } from "../../../interfaces/http/middleware/HttpErrors";
 import { StudentModel } from "../../../infrastructure/database/StudentModel";
 import { EnrollmentRecordModel } from "../../../infrastructure/database/EnrollmentRecordModel";
-import { ClassroomModel } from "../../../infrastructure/database/ClassroomModel";
-import { CourseModel } from "../../../infrastructure/database/CourseModel";
-import { SubjectModel } from "../../../infrastructure/database/SubjectModel";
 import { SubjectTakenModel } from "../../../infrastructure/database/SubjectTakenModel";
 import { ClassScheduleModel } from "../../../infrastructure/database/ClassScheduleModel";
+import { ClassroomModel } from "../../../infrastructure/database/ClassroomModel";
+import { StudentAdvisingService } from "../../services/studentAdvisingService";
+import { ClassroomAllocationService } from "../../services/classroomAllocationService";
 
 export class EnrollStudentUseCase {
+  private advisingService = new StudentAdvisingService();
+  private allocationService = new ClassroomAllocationService();
+
   async execute(input: BaseEnrollmentRecord) {
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -52,151 +55,50 @@ export class EnrollStudentUseCase {
         );
       }
 
-      // 3. Validate Classroom (Section)
+      // 3. Delegate: Allocation Service (Find Classroom)
       let classroom;
-
       if (input.classroom) {
-        // [SCENARIO A] Manual Selection
-        classroom = await ClassroomModel.findById(input.classroom).session(
+        classroom = await this.allocationService.validateManualSelection(
+          input.classroom.toString(),
+          input.gradeLevel,
           session
         );
-        if (!classroom) throw new NotFoundError("Classroom not found.");
-
-        if (classroom.currentCapacity >= classroom.capacity) {
-          throw new BadRequestError(`Classroom ${classroom.name} is full.`);
-        }
-
-        // Strict grade check for manual selection
-        if (classroom.gradeLevel !== input.gradeLevel) {
-          throw new BadRequestError(
-            `Mismatch: Classroom is ${classroom.gradeLevel}, Student is ${input.gradeLevel}`
-          );
-        }
       } else {
-        // [SCENARIO B] Auto-Assign (Load Balancing Strategy)
-        // Find sections for this Grade Level that are NOT full
-        // Sort by 'currentCapacity' ascending (0, 1, 2...) to fill evenly
-        const availableSections = await ClassroomModel.find({
-          gradeLevel: input.gradeLevel,
-          $expr: { $lt: ["$currentCapacity", "$capacity"] }, // capacity check
-        })
-          .sort({ currentCapacity: 1 }) // <--- This creates the "Round Robin" effect
-          .limit(1)
-          .session(session);
-
-        if (availableSections.length === 0) {
-          throw new BadRequestError(
-            `No available sections found for ${input.gradeLevel}. All are full.`
-          );
-        }
-
-        classroom = availableSections[0];
+        classroom = await this.allocationService.findBestAvailableSection(
+          input.gradeLevel,
+          session
+        );
       }
 
       if (!classroom) {
-        throw new NotFoundError("Classroom assignment failed.");
-      }
-
-      // 3a. Validate Classroom Capacity
-      if (classroom.currentCapacity >= classroom.capacity) {
-        throw new BadRequestError(`Classroom ${classroom.name} is full.`);
-      }
-
-      // 3b. Validate Grade Level Match
-      if (classroom.gradeLevel !== input.gradeLevel) {
         throw new BadRequestError(
-          `Classroom is for ${classroom.gradeLevel}, but enrollment is for ${input.gradeLevel}`
+          "No suitable classroom found for enrollment."
         );
       }
 
-      // --- CURRICULUM & SUBJECT LOADING LOGIC ---
-
-      // 4. Fetch Course Curriculum based on Student's Assigned Course
-      const course = await CourseModel.findById(student.course).session(
+      // 4. Delegate: Advising Service (Determine Subjects)
+      const subjectsToEnroll = await this.advisingService.determineStudentLoad(
+        input.studentId,
+        student.course.toString(),
+        input.gradeLevel,
+        input.semester,
         session
       );
 
-      if (!course) {
-        throw new NotFoundError("Assigned course curriculum not found.");
-      }
-
-      // 5. Get Standard Subjects for this Year & Semester
-      const curriculumSubjects = course.subjectToBeTaken.filter(
-        (item) =>
-          item.gradeLevel === input.gradeLevel &&
-          item.semester === input.semester
-      );
-
-      const standardSubjectIds = curriculumSubjects.flatMap((c) => c.subject);
-
-      // 6. Fetch Student's Academic History
-      const academicHistory = await SubjectTakenModel.find({
-        studentId: input.studentId,
-      }).session(session);
-
-      const passedSubjectIds = new Set(
-        academicHistory
-          .filter(
-            (h) => h.status === SubjectStatus.Passed || SubjectStatus.Credited
-          )
-          .map((h) => h.subjectId)
-      );
-
-      const failedHistory = academicHistory.filter(
-        (h) =>
-          (h.status === SubjectStatus.Failed ||
-            h.status === SubjectStatus.Dropped) &&
-          !passedSubjectIds.has(h.subjectId)
-      );
-
-      // 7. Calculate "New" Subjects
-      const subjectsToTakeIds = standardSubjectIds.filter(
-        (id) => !passedSubjectIds.has(id.toString())
-      );
-
-      const newSubjectDetails = await SubjectModel.find({
-        _id: { $in: subjectsToTakeIds },
-        active: true,
-      }).session(session);
-
-      // 8. Calculate "Retake" Subjects
-      const potentialRetakeIds = failedHistory.map((h) => h.subjectId);
-
-      const retakeDetails = await SubjectModel.find({
-        subjectId: { $in: potentialRetakeIds },
-        active: true,
-      }).session(session);
-
-      const validRetakes = retakeDetails.filter((sub) =>
-        sub.semesterAvailable.includes(input.semester)
-      );
-
-      // 9. Finalize Load
-      const finalLoadMap = new Map();
-
-      newSubjectDetails.forEach((sub) => {
-        finalLoadMap.set(sub.subjectId, { ...sub.toObject(), isRetake: false });
-      });
-
-      validRetakes.forEach((sub) => {
-        finalLoadMap.set(sub.subjectId, { ...sub.toObject(), isRetake: true });
-      });
-
+      // 5. Fetch Schedule for Teacher Mapping (Persistence Detail)
+      // This maps the Advising result (Subjects) to the Allocation result (Classroom Schedule)
       const classSchedules = await ClassScheduleModel.find({
         classroomId: classroom._id,
         semester: input.semester,
         schoolYear: input.schoolYear,
       }).session(session);
 
-      // Create a quick lookup map: SubjectID -> TeacherID
       const scheduleMap = new Map<string, string>();
       classSchedules.forEach((sched) => {
         scheduleMap.set(sched.subjectId, sched.teacherId);
       });
 
-      // --- PERSISTENCE LAYER ---
-
-      // 10. Create Enrollment Record (Header) - NO CHANGE HERE
+      // 6. Persistence: Create Enrollment Record (Header)
       const [enrollment] = await EnrollmentRecordModel.create(
         [
           {
@@ -212,35 +114,30 @@ export class EnrollStudentUseCase {
         { session }
       );
 
-      // 11. Bulk Create SubjectTaken Records (Lines) - UPDATED LOGIC
-      const subjectTakenDocs = Array.from(finalLoadMap.values()).map(
-        (subject: any) => {
-          // LOOKUP LOGIC:
-          // Check if there is a schedule defined for this subject in this section.
-          // If yes, use that teacher. If no, default to "TBA".
-          const assignedTeacher = scheduleMap.get(subject.subjectId) || "TBA";
+      // 7. Persistence: Bulk Create SubjectTaken Records (Lines)
+      const subjectTakenDocs = subjectsToEnroll.map((subject: any) => {
+        const assignedTeacher = scheduleMap.get(subject.subjectId) || "TBA";
 
-          return {
-            studentId: input.studentId,
-            subjectId: subject.subjectId,
-            classroomId: classroom._id,
-            teacherId: assignedTeacher, // <--- NOW DYNAMIC
-            schoolYear: input.schoolYear,
-            semester: input.semester,
-            status: SubjectStatus.Enrolled,
-            prelim: 0,
-            midterm: 0,
-            final: 0,
-            finalGrade: 0,
-          };
-        }
-      );
+        return {
+          studentId: input.studentId,
+          subjectId: subject.subjectId,
+          classroomId: classroom._id,
+          teacherId: assignedTeacher,
+          schoolYear: input.schoolYear,
+          semester: input.semester,
+          status: SubjectStatus.Enrolled,
+          prelim: 0,
+          midterm: 0,
+          final: 0,
+          finalGrade: 0,
+        };
+      });
 
       if (subjectTakenDocs.length > 0) {
         await SubjectTakenModel.insertMany(subjectTakenDocs, { session });
       }
 
-      // 12. Update Classroom Capacity
+      // 8. Persistence: Update Classroom Capacity
       await ClassroomModel.findByIdAndUpdate(
         classroom._id,
         { $inc: { currentCapacity: 1 } },

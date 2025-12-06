@@ -21,6 +21,7 @@ import {
   getClassroom,
   updateClassroom,
 } from "../controllers/classroomController";
+import { updateSchedule } from "../controllers/scheduleController";
 
 const router = Router();
 
@@ -87,5 +88,8 @@ router
     getClassroom
   )
   .patch(authGuard, isRegistrar, updateClassroom);
+
+// SCHEDULE
+router.post("/schedule", authGuard, isRegistrar, updateSchedule);
 
 export default router;
