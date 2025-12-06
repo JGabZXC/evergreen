@@ -19,6 +19,8 @@ const UserSchema = new Schema<User & Document>(
   { timestamps: true }
 );
 
+UserSchema.index({ role: 1, active: 1 });
+
 UserSchema.set("toJSON", {
   transform: function (doc, ret) {
     const { __v, password, ...userObject } = ret;

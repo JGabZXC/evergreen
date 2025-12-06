@@ -115,7 +115,7 @@ export const deactivateUser = async (req: Request, res: Response) => {
 // COURSE CONTROLLERS
 export const getCourse = async (req: Request, res: Response) => {
   let { page = 1, limit = 10 } = req.query;
-  let { code } = req.params;
+  const { code } = req.params;
 
   if (code && typeof code !== "string") {
     throw new BadRequestError("Course code is required and must be a string");

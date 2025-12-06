@@ -1,4 +1,5 @@
 import { BaseStaffProfile, Staff, StaffProfile } from "../../../domain/Staff";
+import { UserDTO } from "./UserDTO";
 
 export type BaseStaffProfileDTO = Omit<
   BaseStaffProfile,
@@ -20,4 +21,9 @@ export type StaffProfileDTO = Omit<
 export type StaffDTO = Omit<Staff, "_id" | "userId"> & {
   _id: string;
   userId: string;
+};
+
+export type TeacherDTO = Omit<Staff, "_id" | "userId"> & {
+  _id: string;
+  userId: UserDTO;
 };
