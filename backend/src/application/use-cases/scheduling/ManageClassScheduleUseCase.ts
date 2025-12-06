@@ -4,38 +4,46 @@ import { ClassScheduleModel } from "../../../infrastructure/database/ClassSchedu
 import {
   ConflictError,
   BadRequestError,
+  NotFoundError,
 } from "../../../interfaces/http/middleware/HttpErrors";
+import { SubjectModel } from "../../../infrastructure/database/SubjectModel";
 
 export class ManageClassScheduleUseCase {
   async execute(data: BaseClassSchedule, session?: mongoose.ClientSession) {
-    // 1. Validate Time Format & Logic (Basic Sanity Check)
+    // 1. Validate Time Format & Logic
     this.validateTimeSlots(data.schedules);
 
-    // 2. CHECK TEACHER CONFLICTS
-    // "Is this teacher already teaching somewhere else at this time?"
+    // 2. VALIDATE SUBJECT EXISTENCE [NEW]
+    // Check if the subjectId actually exists in the Subject collection
+    const subjectExists = await SubjectModel.findOne({
+      subjectId: data.subjectId,
+    }).session(session || null);
+
+    if (!subjectExists) {
+      throw new NotFoundError(`Subject with ID '${data.subjectId}' not found.`);
+    }
+
+    // 3. CHECK TEACHER CONFLICTS
     if (data.teacherId && data.teacherId !== "TBA") {
       const teacherConflicts = await ClassScheduleModel.find({
         teacherId: data.teacherId,
         schoolYear: data.schoolYear,
         semester: data.semester,
-        // Exclude the current subject we are editing to avoid self-conflict
         subjectId: { $ne: data.subjectId },
       }).session(session || null);
 
       this.checkConflicts(
         data.schedules,
         teacherConflicts,
-        "Teacher is already booked"
+        `Teacher (${data.teacherId}) is already booked`
       );
     }
 
-    // 3. CHECK CLASSROOM (SECTION) CONFLICTS [NEW]
-    // "Is this section (e.g. 1-A) already taking a different class at this time?"
+    // 4. CHECK CLASSROOM (SECTION) CONFLICTS
     const sectionConflicts = await ClassScheduleModel.find({
       classroomId: data.classroomId,
       schoolYear: data.schoolYear,
       semester: data.semester,
-      // Exclude the current subject we are editing to avoid self-conflict
       subjectId: { $ne: data.subjectId },
     }).session(session || null);
 
@@ -45,10 +53,7 @@ export class ManageClassScheduleUseCase {
       "This section already has a class scheduled"
     );
 
-    // 4. CHECK ROOM (PHYSICAL LOCATION) CONFLICTS [OPTIONAL BUT RECOMMENDED]
-    // "Is the physical room (e.g. Lab 1) already occupied by another section?"
-    // This requires a more complex query because 'room' is inside the array.
-    // We iterate through the new slots to check specific rooms.
+    // 5. CHECK ROOM (PHYSICAL LOCATION) CONFLICTS
     for (const newSlot of data.schedules) {
       if (newSlot.room && newSlot.room !== "TBA") {
         const roomConflicts = await ClassScheduleModel.find({
@@ -56,33 +61,29 @@ export class ManageClassScheduleUseCase {
           "schedules.day": newSlot.day,
           schoolYear: data.schoolYear,
           semester: data.semester,
-          // Exclude current subject AND current section (same section staying in same room is fine)
-          // But actually, even same section can't be in same room for DIFFERENT subject at SAME time (already caught by #3)
-          // So we just check if ANYONE is in that room.
           classroomId: { $ne: data.classroomId },
         }).session(session || null);
 
-        // We manually filter because the DB query matches the DOCUMENT, not the specific SLOT
         const flatConflicts = roomConflicts
           .flatMap((c) => c.schedules)
           .filter((s) => s.room === newSlot.room);
 
-        // Check overlap against specific room usage
         for (const existingSlot of flatConflicts) {
           if (this.isOverlap(newSlot, existingSlot)) {
             throw new ConflictError(
-              `Room ${newSlot.room} is already occupied on ${newSlot.day} at ${newSlot.startTime}`
+              `Room ${newSlot.room} is already occupied on ${newSlot.day} between ${existingSlot.startTime} - ${existingSlot.endTime}`
             );
           }
         }
       }
     }
 
-    // 5. Persist Data (Upsert)
+    // 6. Persist Data (Upsert)
     const schedule = await ClassScheduleModel.findOneAndUpdate(
       {
         classroomId: data.classroomId,
         subjectId: data.subjectId,
+        schoolYear: data.schoolYear,
       },
       {
         ...data,
@@ -90,7 +91,6 @@ export class ManageClassScheduleUseCase {
       },
       { new: true, upsert: true, session: session || null }
     );
-
     return schedule;
   }
 

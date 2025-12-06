@@ -5,11 +5,12 @@ import dotenv from "dotenv";
 import morgan from "morgan";
 import cors from "cors";
 import { errorHandler } from "./interfaces/http/middleware/errorHandler";
+import { HttpStatus } from "./domain/HttpStatus";
 import authRoutes from "./interfaces/http/routes/authRoutes";
 import registrarRoutes from "./interfaces/http/routes/registrarRoutes";
 import userRoutes from "./interfaces/http/routes/userRoutes";
 import studentRoutes from "./interfaces/http/routes/studentRoutes";
-import { HttpStatus } from "./domain/HttpStatus";
+import subjectRoutes from "./interfaces/http/routes/subjectRoutes";
 
 dotenv.config({
   path: "../.env",
@@ -32,6 +33,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/registrar", registrarRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/student", studentRoutes);
+app.use("/api/subject", subjectRoutes);
 
 app.use(errorHandler);
 
