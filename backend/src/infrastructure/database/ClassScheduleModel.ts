@@ -29,6 +29,20 @@ ClassScheduleSchema.index(
   { unique: true }
 );
 
+ClassScheduleSchema.virtual("subject", {
+  ref: "Subject",
+  localField: "subjectId",
+  foreignField: "subjectId",
+  justOne: true,
+});
+
+ClassScheduleSchema.virtual("teacher", {
+  ref: "Staff",
+  localField: "teacherId",
+  foreignField: "staffId",
+  justOne: true,
+});
+
 export const ClassScheduleModel = mongoose.model<ClassSchedule & Document>(
   "ClassSchedule",
   ClassScheduleSchema

@@ -67,7 +67,4 @@ router
   )
   .patch(authGuard, isRegistrar, updateClassroom);
 
-// SCHEDULE
-router.post("/schedule", authGuard, isRegistrar, updateSchedule);
-
 export default router;

@@ -11,6 +11,7 @@ import registrarRoutes from "./interfaces/http/routes/registrarRoutes";
 import userRoutes from "./interfaces/http/routes/userRoutes";
 import studentRoutes from "./interfaces/http/routes/studentRoutes";
 import subjectRoutes from "./interfaces/http/routes/subjectRoutes";
+import scheduleRoutes from "./interfaces/http/routes/scheduleRoutes";
 
 dotenv.config({
   path: "../.env",
@@ -34,6 +35,7 @@ app.use("/api/registrar", registrarRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/student", studentRoutes);
 app.use("/api/subject", subjectRoutes);
+app.use("/api/schedule", scheduleRoutes);
 
 app.use(errorHandler);
 
