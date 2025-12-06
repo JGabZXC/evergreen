@@ -1,5 +1,5 @@
 import { Link, useNavigate, useSearchParams } from "react-router";
-import { useEffect, useState, useRef } from "react"; // [!code focus]
+import { useEffect, useRef } from "react"; // [!code focus]
 import { useAuth } from "../hooks/useAuth";
 import { LoaderCircle } from "lucide-react";
 import { useLogin } from "../hooks/useLogin";

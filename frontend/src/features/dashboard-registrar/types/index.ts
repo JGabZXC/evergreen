@@ -1,3 +1,47 @@
+// frontend/src/features/dashboard-registrar/types/index.ts
+
+export interface TimeSlot {
+  day: string;
+  startTime: string;
+  endTime: string;
+  room: string;
+  _id?: string;
+}
+
+// Matching the populated backend response
+export interface ClassSchedule {
+  _id: string;
+  classroomId: {
+    _id: string;
+    name: string;
+    gradeLevel: string;
+  };
+  subjectId: string;
+  subject?: {
+    // Populated virtual
+    name: string;
+    subjectId: string;
+  };
+  teacherId: string;
+  teacher?: {
+    // Populated virtual
+    userId: {
+      firstName: string;
+      lastName: string;
+    };
+    employeeId: string;
+  };
+  schoolYear: string;
+  semester: number;
+  schedules: TimeSlot[];
+}
+
+export interface ScheduleResponse {
+  totalDocs: number;
+  totalPages: number;
+  schedules: ClassSchedule[];
+}
+
 // --- Types ---
 export type Student = {
   id: string;
