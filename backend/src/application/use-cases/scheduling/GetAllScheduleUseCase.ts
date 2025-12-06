@@ -47,6 +47,7 @@ export class GetAllScheduleUseCase {
     ]);
 
     const totalPages = Math.ceil(totalDocs / limit);
+    console.log(schedules, totalDocs, totalPages);
 
     return { totalDocs, totalPages, schedules };
   }

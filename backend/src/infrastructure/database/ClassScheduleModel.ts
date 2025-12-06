@@ -39,7 +39,7 @@ ClassScheduleSchema.virtual("subject", {
 ClassScheduleSchema.virtual("teacher", {
   ref: "Staff",
   localField: "teacherId",
-  foreignField: "staffId",
+  foreignField: "employeeId",
   justOne: true,
 });
 

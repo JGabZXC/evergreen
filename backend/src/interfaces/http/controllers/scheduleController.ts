@@ -61,7 +61,7 @@ export const getSchedule = async (req: AuthenticatedRequest, res: Response) => {
         skip,
         Number(limit)
       );
-      if (Number(page) > schedules.totalPages) {
+      if (Number(page) > schedules.totalPages && schedules.totalPages !== 0) {
         throw new BadRequestError("Page number exceeds total pages");
       }
 
@@ -87,25 +87,36 @@ export const updateSchedule = async (
       schoolYear,
       semester,
     } = req.body;
+    const errors: { [key: string]: string } = {};
 
-    // 1. Basic Input Validation
-    if (
-      !classroomId ||
-      !subjectId ||
-      !schoolYear ||
-      semester === undefined ||
-      !schedules
-    ) {
+    if (!classroomId || !subjectId || !schoolYear || !semester || !schedules) {
       throw new BadRequestError(
         "Missing required fields: classroomId, subjectId, schoolYear, semester, or schedules."
       );
     }
 
-    if (!Array.isArray(schedules)) {
-      throw new BadRequestError("Schedules must be an array of time slots.");
+    if (!Array.isArray(schedules) || schedules.length === 0) {
+      errors.schedules = "Schedules cannot be empty and must be an array.";
     }
 
-    // 2. Construct Data Object
+    if (!classroomId) {
+      errors.classroomId = "Classroom ID is required.";
+    }
+
+    if (!subjectId) {
+      errors.subjectId = "Subject ID is required.";
+    }
+    if (!schoolYear) {
+      errors.schoolYear = "School year is required.";
+    }
+    if (!semester) {
+      errors.semester = "Semester is required.";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      throw new BadRequestError("Validation errors", errors);
+    }
+
     const scheduleData: BaseClassSchedule = {
       classroomId,
       subjectId,

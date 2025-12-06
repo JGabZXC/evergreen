@@ -6,6 +6,7 @@ type RefreshTokenDocument = RefreshToken & Document;
 const RefreshTokenSchema = new Schema<RefreshTokenDocument>({
   userEmail: { type: String, required: true, index: true },
   token: { type: String, required: true },
+  previousToken: { type: String },
   createdAt: { type: Date, default: Date.now },
 });
 

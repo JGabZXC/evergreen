@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { Request, Response } from "express";
 import { HttpStatus } from "../../../domain/HttpStatus";
 import { StudentModel } from "../../../infrastructure/database/StudentModel";
+import { StudentProfileModel } from "../../../infrastructure/database/StudentProfileModel";
 import { BadRequestError } from "../middleware/HttpErrors";
 import { UserModel } from "../../../infrastructure/database/UserModel";
 import { StaffModel } from "../../../infrastructure/database/StaffModel";
@@ -13,6 +14,10 @@ import {
   UpdateCourseUseCase,
 } from "../../../application/use-cases/course/index";
 import { EnrollStudentUseCase } from "../../../application/use-cases/enrollment";
+import {
+  GetAllStudentUseCase,
+  GetStudentUseCase,
+} from "../../../application/use-cases/student";
 
 // ENROLLMENT
 const enrollStudentUseCase = new EnrollStudentUseCase();
@@ -23,35 +28,52 @@ const updateCourseUseCase = new UpdateCourseUseCase();
 const getCourseUseCase = new GetCourseUseCase();
 const getAllCoursesUseCase = new GetAllCourseUseCase();
 
-export const getAllStudents = async (req: Request, res: Response) => {
-  let { page = 1, limit = 10 } = req.query;
+// STUDENT
+const getAllStudentUseCase = new GetAllStudentUseCase();
+const getStudentUseCase = new GetStudentUseCase();
 
-  if (Number(page) < 1 || Number(limit) < 1) {
-    throw new BadRequestError("Page and limit must be positive integers");
+export const getStudents = async (req: Request, res: Response) => {
+  let { page = 1, limit = 10, course, studentId } = req.query;
+  let { id } = req.params;
+
+  if (id && typeof id !== "string") {
+    throw new BadRequestError("Student ID is required and must be a string");
   }
 
-  if (Number(limit) > 100) {
+  if ((page && isNaN(Number(page))) || (page && Number(page) < 1)) {
+    throw new BadRequestError("Page must be a positive number");
+  }
+  if ((limit && isNaN(Number(limit))) || (limit && Number(limit) < 1)) {
+    throw new BadRequestError("Limit must be a positive number");
+  }
+
+  if (limit && Number(limit) > 100) {
     limit = 100;
   }
 
   const skip = (Number(page) - 1) * Number(limit);
 
+  const filter: Record<string, string | number> = {};
+  if (course) filter.course = course as string;
+  if (studentId) filter.studentId = studentId as string;
+
   try {
-    const [students, totalDocs] = await Promise.all([
-      StudentModel.find({ isActive: true }).skip(skip).limit(Number(limit)),
-      StudentModel.countDocuments({ isActive: true }),
-    ]);
-    const totalPages = Math.ceil(totalDocs / Number(limit));
+    let result;
+    if (id) {
+      result = await getStudentUseCase.execute(id as string);
+      return res.status(HttpStatus.OK).json(result);
+    } else {
+      result = await getAllStudentUseCase.execute(filter, skip, Number(limit));
 
-    if (Number(page) > totalPages)
-      throw new BadRequestError("Page number exceeds total pages");
+      if (Number(page) > result.totalPages && result.totalPages !== 0) {
+        throw new BadRequestError("Page number exceeds total pages");
+      }
 
-    return res.status(HttpStatus.OK).json({
-      totalDocs,
-      totalPages,
-      page: Number(page),
-      students,
-    });
+      return res.status(HttpStatus.OK).json({
+        ...result,
+        page: Number(page),
+      });
+    }
   } catch (err) {
     throw err;
   }

@@ -4,7 +4,7 @@ import { isRegistrar, requireRole } from "../middleware/permissions";
 import {
   createCourse,
   deactivateUser,
-  getAllStudents,
+  getStudents,
   getCourse,
   updateCourse,
 } from "../controllers/registrarController";
@@ -22,7 +22,8 @@ import { updateSchedule } from "../controllers/scheduleController";
 
 const router = Router();
 
-router.get("/get-all-students", authGuard, isRegistrar, getAllStudents);
+router.get("/students", authGuard, isRegistrar, getStudents);
+router.get("/students/:id", authGuard, isRegistrar, getStudents);
 router.post("/enroll-student", authGuard, isRegistrar, enrollStudent);
 router.post("/deactivate-users", authGuard, isRegistrar, deactivateUser);
 

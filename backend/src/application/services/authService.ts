@@ -55,11 +55,32 @@ export class AuthService {
     const stored = await RefreshTokenModel.findOne({
       userEmail: payload.email,
     });
+
+    // Grace period check: if the old token matches the previous token
+    // and it was rotated recently (e.g., within 1 minute), allow it.
+    if (stored && stored.previousToken === oldRefreshToken) {
+      const timeDiff = new Date().getTime() - stored.createdAt.getTime();
+      if (timeDiff < 60000) {
+        // 1 minute grace period
+        const newAccessToken = this.generateAccessToken(payload);
+        return {
+          accessToken: newAccessToken,
+          refreshToken: stored.token, // Return the current valid token
+          email: payload.email,
+          studentId: payload.studentId,
+          employeeId: payload.employeeId,
+          role: payload.role,
+        };
+      }
+    }
+
     if (!stored || stored.token !== oldRefreshToken) {
       return null;
     }
     const newAccessToken = this.generateAccessToken(payload);
     const newRefreshToken = this.generateRefreshToken(payload);
+
+    stored.previousToken = stored.token; // Save current as previous
     stored.token = newRefreshToken;
     stored.createdAt = new Date();
     await stored.save();
