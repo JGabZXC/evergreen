@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { parseError } from "../../../utils/parseErrors";
 import { useAuth } from "./useAuth";
 import type { AuthResponse } from "../types/auth.types";
+import { useNavigate } from "react-router";
 
 export function useLogin() {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -12,6 +13,7 @@ export function useLogin() {
     {}
   );
   const { setUser } = useAuth();
+  const navigate = useNavigate();
 
   const abortControllerRef = useRef<AbortController | null>(null);
 
@@ -50,6 +52,7 @@ export function useLogin() {
             : { ...result.data.user, employeeId: result.data.employeeId };
         setUser(user);
         localStorage.setItem("isAuth", "true");
+        navigate("/dashboard");
         toast.success("Login successful!");
       }
     } catch (err: any) {

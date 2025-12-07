@@ -8,5 +8,5 @@ export const parseError = (err: any) => {
       ? details
       : { global: details || "Invalid input." };
   }
-  return { global: "Login failed. Please check your credentials." };
+  return { global: "Something went wrong!" };
 };

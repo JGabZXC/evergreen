@@ -4,18 +4,17 @@ import {
   createOrUpdateSchedule,
 } from "../services/scheduleServices";
 import type { ClassSchedule } from "../types";
+import { toast } from "react-toastify";
 
 export const useTeacherScheduling = () => {
   const [schedules, setSchedules] = useState<ClassSchedule[]>([]);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // --- Helper: Get Current School Year ---
   const getCurrentSchoolYear = () => {
     const now = new Date();
     const year = now.getFullYear();
     const month = now.getMonth(); // 0-11
-    // If it's June (5) or later, start year is current year. Otherwise, previous year.
     const startYear = month >= 5 ? year : year - 1;
     return `${startYear}-${startYear + 1}`;
   };
@@ -23,7 +22,6 @@ export const useTeacherScheduling = () => {
   const [schoolYear, setSchoolYear] = useState(getCurrentSchoolYear());
   const [semester, setSemester] = useState(1);
 
-  // --- Dynamic School Year Options ---
   const schoolYearOptions = useMemo(() => {
     const startYear = 2024;
     const currentYear = new Date().getFullYear();
@@ -59,7 +57,7 @@ export const useTeacherScheduling = () => {
   const handleSaveSchedule = async (payload: any) => {
     try {
       await createOrUpdateSchedule(payload);
-      alert("Schedule saved successfully!");
+      toast.success("Schedule saved successfully");
       setIsModalOpen(false);
       fetchSchedules();
     } catch (error: any) {

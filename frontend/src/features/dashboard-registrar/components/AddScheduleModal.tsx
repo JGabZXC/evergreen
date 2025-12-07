@@ -24,14 +24,9 @@ export default function AddScheduleModal({
   onClose,
   onSave,
 }: AddScheduleModalProps) {
-  // --- Data State ---
   const { sections, subjects, teachers, courses, loadingOptions } =
     useScheduleOptions(isOpen);
-
-  // --- Filter State ---
   const [selectedCourseId, setSelectedCourseId] = useState("");
-
-  // --- Form State ---
   const [formData, setFormData] = useState({
     classroomId: "",
     subjectId: "",
@@ -50,31 +45,24 @@ export default function AddScheduleModal({
     },
   ]);
 
-  // --- Filtering Logic ---
   const filteredSubjects = useMemo(() => {
     if (!selectedCourseId) return subjects;
 
-    // Find the selected course object
     const course = courses.find((c) => c._id === selectedCourseId);
     if (!course) return subjects;
 
-    // Extract all subject IDs from the course curriculum
-    // The backend structure is: course.subjectToBeTaken[].subject[] (populated objects)
     const courseSubjectIds = new Set<string>();
 
     course.subjectToBeTaken?.forEach((term) => {
       term.subject?.forEach((sub) => {
-        // Handle both populated objects (sub._id) or just IDs (sub)
         const id = typeof sub === "string" ? sub : sub._id;
         if (id) courseSubjectIds.add(id);
       });
     });
 
-    // Filter the main subjects list
     return subjects.filter((s) => courseSubjectIds.has(s._id));
   }, [selectedCourseId, subjects, courses]);
 
-  // Reset subject selection if it's no longer valid after filtering
   useEffect(() => {
     if (selectedCourseId && formData.subjectId) {
       const isValid = filteredSubjects.find(
@@ -86,7 +74,6 @@ export default function AddScheduleModal({
     }
   }, [selectedCourseId, filteredSubjects]);
 
-  // --- Handlers ---
   const handleSlotChange = (
     id: string,
     field: keyof ScheduleSlot,

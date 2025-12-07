@@ -10,7 +10,6 @@ import {
 import AddScheduleModal from "./AddScheduleModal";
 import { useTeacherScheduling } from "../hooks/useTeacherScheduling";
 
-// --- Animation Variants ---
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {

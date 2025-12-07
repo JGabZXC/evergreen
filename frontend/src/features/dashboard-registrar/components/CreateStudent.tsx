@@ -11,13 +11,16 @@ import {
 } from "lucide-react";
 import { apiPrivate } from "../../../config/axiosPrivate";
 import type { CourseOption } from "../types";
+import { parseError } from "../../../utils/parseErrors";
+import { toast } from "react-toastify";
 
 export default function CreateStudent() {
   const [courses, setCourses] = useState<CourseOption[]>([]);
   const [loadingCourses, setLoadingCourses] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [success, setSuccess] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null | Record<string, string>>(
+    null
+  );
 
   const [formData, setFormData] = useState({
     email: "",
@@ -44,21 +47,25 @@ export default function CreateStudent() {
     e.preventDefault();
     setSubmitting(true);
     setError(null);
-    setSuccess(null);
 
     try {
       const payload = {
         ...formData,
-        role: "Student",
+        role: "student",
       };
 
       await apiPrivate.post("/api/auth/register", payload);
-      setSuccess("Student account created successfully!");
+      toast.success("Student account created successfully!");
       setFormData({ email: "", password: "", course: "" });
     } catch (err: any) {
-      setError(
-        err.response?.data?.message || "Failed to create student account"
-      );
+      const parsedErrors = parseError(err);
+      if (parsedErrors.global) {
+        setError(parsedErrors.global);
+      } else {
+        setError(parsedErrors);
+      }
+
+      console.error("Error creating student account:", err);
     } finally {
       setSubmitting(false);
     }
@@ -84,14 +91,7 @@ export default function CreateStudent() {
         </div>
 
         <div className="p-8">
-          {success && (
-            <div className="alert alert-success mb-6 shadow-sm">
-              <CheckCircle size={20} />
-              <span>{success}</span>
-            </div>
-          )}
-
-          {error && (
+          {typeof error === "string" && (
             <div className="alert alert-error mb-6 shadow-sm">
               <AlertCircle size={20} />
               <span>{error}</span>
@@ -110,11 +110,19 @@ export default function CreateStudent() {
                 placeholder="student@school.edu"
                 className="input input-bordered w-full focus:input-primary transition-all"
                 value={formData.email}
-                onChange={(e) =>
-                  setFormData({ ...formData, email: e.target.value })
-                }
-                required
+                onChange={(e) => {
+                  setFormData({ ...formData, email: e.target.value });
+                  setError((prev) =>
+                    prev && typeof prev === "object"
+                      ? { ...prev, email: "" }
+                      : prev
+                  );
+                }}
+                // required
               />
+              {error && typeof error !== "string" && error.email && (
+                <span className="text-sm text-red-400 mt-1">{error.email}</span>
+              )}
             </div>
 
             <div className="form-control w-full">
@@ -128,17 +136,29 @@ export default function CreateStudent() {
                 placeholder="••••••••"
                 className="input input-bordered w-full focus:input-primary transition-all"
                 value={formData.password}
-                onChange={(e) =>
-                  setFormData({ ...formData, password: e.target.value })
-                }
-                required
+                onChange={(e) => {
+                  setFormData({ ...formData, password: e.target.value });
+                  setError((prev) =>
+                    prev && typeof prev === "object"
+                      ? { ...prev, password: "" }
+                      : prev
+                  );
+                }}
+                // required
                 minLength={6}
               />
-              <label className="label">
-                <span className="label-text-alt text-base-content/50">
-                  Must be at least 6 characters long
+
+              {error && typeof error !== "string" && error.password ? (
+                <span className="text-sm text-red-400 mt-1">
+                  {error.password}
                 </span>
-              </label>
+              ) : (
+                <label className="label">
+                  <span className="label-text-alt text-base-content/50">
+                    Must be at least 6 characters long
+                  </span>
+                </label>
+              )}
             </div>
 
             <div className="form-control w-full">
@@ -154,7 +174,7 @@ export default function CreateStudent() {
                   onChange={(e) =>
                     setFormData({ ...formData, course: e.target.value })
                   }
-                  required
+                  // required
                   disabled={loadingCourses}
                 >
                   <option value="" disabled>
@@ -172,6 +192,11 @@ export default function CreateStudent() {
                   <div className="absolute right-4 top-1/2 -translate-y-1/2">
                     <Loader2 className="animate-spin text-primary" size={16} />
                   </div>
+                )}
+                {error && typeof error !== "string" && error.course && (
+                  <span className="text-sm text-red-400 mt-1">
+                    {error.course}
+                  </span>
                 )}
               </div>
             </div>
