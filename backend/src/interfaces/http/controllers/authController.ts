@@ -26,7 +26,9 @@ const validateAndCreateUser = async (
   currentUserRole: Role
 ) => {
   const errors: { [key: string]: string } = {};
+
   const { email, password, role } = userData;
+  const course = (userData as Partial<StudentRegistrationData>).course;
 
   // 1. Validate required fields and format
   if (!email) {
@@ -37,11 +39,15 @@ const validateAndCreateUser = async (
   if (!password) {
     errors["password"] = "Password is required";
   }
+  if (role === StudentRole.Student && !course) {
+    errors["course"] = "Course is required for student registration";
+  }
 
   const validRoles: Role[] = [
     ...Object.values(StudentRole),
     ...Object.values(StaffRole),
   ];
+
   if (!role || !validRoles.includes(role)) {
     errors["role"] = "Invalid role specified";
   }
@@ -76,7 +82,8 @@ export const register = async (
       throw new BadRequestError("Bulk registration requires an array of users");
     }
 
-    const usersToRegister: BaseUser[] = req.body;
+    // FIX 3: Update type to allow 'course' property in the array
+    const usersToRegister: UserRegistratationType[] = req.body;
     const results = await Promise.all(
       usersToRegister.map((user) =>
         validateAndCreateUser(user, req.user!.role!)
@@ -111,10 +118,14 @@ export const register = async (
   } else {
     let user;
     try {
-      const userData: BaseUser = req.body;
+      const userData: UserRegistratationType = req.body;
       user = await validateAndCreateUser(userData, req.user!.role!);
     } catch (err: any) {
       throw err;
+    }
+
+    if (!user.success) {
+      throw new BadRequestError("Validation errors", user.errors);
     }
 
     return res.status(HttpStatus.CREATED).json({ user });
@@ -123,7 +134,6 @@ export const register = async (
 
 export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
-  console.log(req.body);
   const errors: { [key: string]: string } = {};
 
   if (!email) {
