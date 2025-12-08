@@ -1,5 +1,7 @@
 // frontend/src/features/dashboard-registrar/types/index.ts
 
+import type { StudentProfile } from "../../dashboard-student/types";
+
 export interface TimeSlot {
   day: string;
   startTime: string;
@@ -41,14 +43,28 @@ export interface ScheduleResponse {
   schedules: ClassSchedule[];
 }
 
+export interface EnrollmentHistory {
+  _id: string;
+  schoolYear: string;
+  semester: number;
+  gradeLevel: string;
+  status: string;
+  enrollmentDate: string;
+}
+
 // --- Types ---
 export type Student = {
-  id: string;
+  id: string; // This is the studentId string (e.g. 2024-001)
+  _id: string; // Mongo ID
   name: string;
   program: string;
-  yearLevel: string;
-  status: "Enrolled" | "Pending" | "Dropped";
+  yearLevel: string; // Derived from latest enrollment
+  status: "Enrolled" | "Dropped" | "Inactive";
   dateEnrolled: string;
+
+  // New Fields from Backend
+  profile?: StudentProfile;
+  latestEnrollment?: EnrollmentHistory;
 };
 
 export type ScheduleItem = {

@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import AddScheduleModal from "./AddScheduleModal";
 import { useTeacherScheduling } from "../hooks/useTeacherScheduling";
+import { getSchoolYearOptions } from "../../../utils/schoolYear";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -35,7 +36,6 @@ export default function TeacherScheduling() {
     setSchoolYear,
     semester,
     setSemester,
-    schoolYearOptions,
     fetchSchedules,
     handleSaveSchedule,
   } = useTeacherScheduling();
@@ -58,7 +58,7 @@ export default function TeacherScheduling() {
               value={schoolYear}
               onChange={(e) => setSchoolYear(e.target.value)}
             >
-              {schoolYearOptions.map((year) => (
+              {getSchoolYearOptions().map((year) => (
                 <option key={year} value={year}>
                   SY {year}
                 </option>

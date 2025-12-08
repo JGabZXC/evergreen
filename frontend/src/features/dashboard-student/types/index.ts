@@ -1,11 +1,27 @@
-export interface StudentProfile {
-  id: string;
+export interface Address {
+  street: string;
+  city: string;
+  state: string;
+  zipCode: number;
+}
+
+export interface GuardianDetails {
   name: string;
+  contact: string;
+  relation: string;
+}
+
+export interface StudentProfile {
+  _id: string;
   studentId: string;
-  program: string;
-  yearLevel: string;
-  avatarUrl: string;
-  gpa: number;
+  firstName: string;
+  lastName: string;
+  dateOfBirth: string;
+  phoneNumber: string;
+  address: Address;
+  guardianDetails: GuardianDetails;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CourseEnrollment {

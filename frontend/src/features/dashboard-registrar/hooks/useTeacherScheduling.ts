@@ -1,38 +1,19 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   getSchedules,
   createOrUpdateSchedule,
 } from "../services/scheduleServices";
 import type { ClassSchedule } from "../types";
 import { toast } from "react-toastify";
+import { getCurrentSchoolYear } from "../../../utils/schoolYear";
 
 export const useTeacherScheduling = () => {
   const [schedules, setSchedules] = useState<ClassSchedule[]>([]);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const getCurrentSchoolYear = () => {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth(); // 0-11
-    const startYear = month >= 5 ? year : year - 1;
-    return `${startYear}-${startYear + 1}`;
-  };
-
   const [schoolYear, setSchoolYear] = useState(getCurrentSchoolYear());
   const [semester, setSemester] = useState(1);
-
-  const schoolYearOptions = useMemo(() => {
-    const startYear = 2024;
-    const currentYear = new Date().getFullYear();
-    const endYear = currentYear + 5;
-    const years = [];
-
-    for (let year = startYear; year <= endYear; year++) {
-      years.push(`${year}-${year + 1}`);
-    }
-    return years.reverse();
-  }, []);
 
   const fetchSchedules = useCallback(async () => {
     setLoading(true);
@@ -74,7 +55,6 @@ export const useTeacherScheduling = () => {
     setSchoolYear,
     semester,
     setSemester,
-    schoolYearOptions,
     fetchSchedules,
     handleSaveSchedule,
   };

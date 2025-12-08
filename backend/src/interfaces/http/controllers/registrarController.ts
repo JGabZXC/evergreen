@@ -14,11 +14,6 @@ import {
   UpdateCourseUseCase,
 } from "../../../application/use-cases/course/index";
 import { EnrollStudentUseCase } from "../../../application/use-cases/enrollment";
-import {
-  GetAllStudentUseCase,
-  GetStudentUseCase,
-} from "../../../application/use-cases/student";
-
 // ENROLLMENT
 const enrollStudentUseCase = new EnrollStudentUseCase();
 
@@ -27,57 +22,6 @@ const createCourseUseCase = new CreateCourseUsecase();
 const updateCourseUseCase = new UpdateCourseUseCase();
 const getCourseUseCase = new GetCourseUseCase();
 const getAllCoursesUseCase = new GetAllCourseUseCase();
-
-// STUDENT
-const getAllStudentUseCase = new GetAllStudentUseCase();
-const getStudentUseCase = new GetStudentUseCase();
-
-export const getStudents = async (req: Request, res: Response) => {
-  let { page = 1, limit = 10, course, studentId } = req.query;
-  let { id } = req.params;
-
-  if (id && typeof id !== "string") {
-    throw new BadRequestError("Student ID is required and must be a string");
-  }
-
-  if ((page && isNaN(Number(page))) || (page && Number(page) < 1)) {
-    throw new BadRequestError("Page must be a positive number");
-  }
-  if ((limit && isNaN(Number(limit))) || (limit && Number(limit) < 1)) {
-    throw new BadRequestError("Limit must be a positive number");
-  }
-
-  if (limit && Number(limit) > 100) {
-    limit = 100;
-  }
-
-  const skip = (Number(page) - 1) * Number(limit);
-
-  const filter: Record<string, string | number> = {};
-  if (course) filter.course = course as string;
-  if (studentId) filter.studentId = studentId as string;
-
-  try {
-    let result;
-    if (id) {
-      result = await getStudentUseCase.execute(id as string);
-      return res.status(HttpStatus.OK).json(result);
-    } else {
-      result = await getAllStudentUseCase.execute(filter, skip, Number(limit));
-
-      if (Number(page) > result.totalPages && result.totalPages !== 0) {
-        throw new BadRequestError("Page number exceeds total pages");
-      }
-
-      return res.status(HttpStatus.OK).json({
-        ...result,
-        page: Number(page),
-      });
-    }
-  } catch (err) {
-    throw err;
-  }
-};
 
 export const enrollStudent = async (
   req: AuthenticatedRequest,

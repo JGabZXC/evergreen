@@ -13,7 +13,7 @@ import {
 import DashboardOverview from "../components/DashboardOverview";
 import ManualEnrollment from "../components/ManualEnrollment";
 import TeacherScheduling from "../components/TeacherScheduling";
-import StudentRecords from "../components/StudenRecords";
+import StudentRecords from "../components/StudentRecords";
 import SubjectList from "../components/SubjectList";
 import CreateStudent from "../components/CreateStudent";
 import { pageVariants } from "../../../shared/animations";
