@@ -125,7 +125,7 @@ export default function TeacherScheduling() {
                   layout
                   key={schedule._id}
                   variants={itemVariants}
-                  className={`card bg-base-100 shadow-sm border-l-4 transition-all ${
+                  className={`card bg-base-100 shadow-sm border-l-4 transition-shadow group ${
                     isAssigned ? "border-l-success" : "border-l-warning"
                   } dark:bg-white/5`}
                 >

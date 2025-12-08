@@ -346,7 +346,7 @@ export default function SubjectList() {
         >
           {currentSubjects.map((subject) => (
             <motion.div
-              layout // Added layout prop for smoother reordering
+              layout
               key={subject._id}
               variants={itemVariants}
               className="card bg-base-100 shadow-md hover:shadow-lg transition-shadow group"
