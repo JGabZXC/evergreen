@@ -1,3 +1,4 @@
+import { StudentAggregate } from "../../../domain/Student";
 import { StudentModel } from "../../../infrastructure/database/StudentModel";
 import { StudentProfileModel } from "../../../infrastructure/database/StudentProfileModel";
 
@@ -8,9 +9,9 @@ export class GetAllStudentUseCase {
     limit: number,
     viewMode: "enrolled" | "all" = "enrolled"
   ): Promise<{
-    students: any[];
     totalDocs: number;
     totalPages: number;
+    students: StudentAggregate[];
   }> {
     const pipeline: any[] = [];
 
@@ -44,7 +45,6 @@ export class GetAllStudentUseCase {
       },
     });
 
-    // 4. Lookup Profile
     pipeline.push({
       $lookup: {
         from: "studentprofiles",
@@ -76,7 +76,6 @@ export class GetAllStudentUseCase {
       },
     });
 
-    // 6. Pagination Facet
     pipeline.push({
       $facet: {
         metadata: [{ $count: "total" }],
@@ -91,9 +90,9 @@ export class GetAllStudentUseCase {
     const totalPages = Math.ceil(totalDocs / limit);
 
     return {
-      students,
       totalDocs,
       totalPages,
+      students,
     };
   }
 }

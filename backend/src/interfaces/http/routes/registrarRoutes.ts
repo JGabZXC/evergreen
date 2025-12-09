@@ -3,14 +3,12 @@ import { authGuard } from "../middleware/authGuard";
 import { isRegistrar, requireRole } from "../middleware/permissions";
 import {
   createCourse,
+  creditSubject,
   deactivateUser,
   getCourse,
   updateCourse,
 } from "../controllers/registrarController";
-import {
-  enrollStudent,
-  // transferStudentSection,
-} from "../controllers/enrollmentController";
+import { enrollStudent } from "../controllers/enrollmentController";
 import { StaffRole, StudentRole } from "../../../domain/types/Role";
 import {
   createClassroom,
@@ -20,7 +18,6 @@ import {
 
 const router = Router();
 
-router.post("/enroll-student", authGuard, isRegistrar, enrollStudent);
 router.post("/deactivate-users", authGuard, isRegistrar, deactivateUser);
 
 // COURSE
@@ -44,6 +41,7 @@ router
 
 // ENROLLMENT
 router.post("/enroll", authGuard, isRegistrar, enrollStudent);
+router.post("/credit-subjects", authGuard, isRegistrar, creditSubject);
 
 // CLASSROOM
 router

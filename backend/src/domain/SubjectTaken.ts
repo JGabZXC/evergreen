@@ -16,7 +16,7 @@ export interface BaseSubjectTaken {
   subjectId: string;
   teacherId: string;
   studentId: string;
-  classroomId: Schema.Types.ObjectId;
+  classroomId?: Schema.Types.ObjectId;
   schoolYear: string;
   semester: number;
   prelim?: number;

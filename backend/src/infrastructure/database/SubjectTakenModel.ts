@@ -10,7 +10,6 @@ export const SubjectTakenSchema = new Schema<BaseSubjectTaken & Document>(
     classroomId: {
       type: Schema.Types.ObjectId,
       ref: "Classroom",
-      required: true,
     },
     schoolYear: { type: String, required: true },
     semester: {

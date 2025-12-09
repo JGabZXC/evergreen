@@ -2,7 +2,6 @@ import mongoose from "mongoose";
 import { Request, Response } from "express";
 import { HttpStatus } from "../../../domain/HttpStatus";
 import { StudentModel } from "../../../infrastructure/database/StudentModel";
-import { StudentProfileModel } from "../../../infrastructure/database/StudentProfileModel";
 import { BadRequestError } from "../middleware/HttpErrors";
 import { UserModel } from "../../../infrastructure/database/UserModel";
 import { StaffModel } from "../../../infrastructure/database/StaffModel";
@@ -14,8 +13,10 @@ import {
   UpdateCourseUseCase,
 } from "../../../application/use-cases/course/index";
 import { EnrollStudentUseCase } from "../../../application/use-cases/enrollment";
-// ENROLLMENT
+import { CreditTransferSubjectsUseCase } from "../../../application/use-cases/registrar/CreditTransferSubjectsUseCase";
+// ENROLLMENT & CREDIT
 const enrollStudentUseCase = new EnrollStudentUseCase();
+const creditTransferSubjectsUseCase = new CreditTransferSubjectsUseCase();
 
 // COURSE
 const createCourseUseCase = new CreateCourseUsecase();
@@ -32,6 +33,25 @@ export const enrollStudent = async (
     return res
       .status(HttpStatus.CREATED)
       .json({ message: "Student enrolled successfully", enrollmentRecord });
+  } catch (err: any) {
+    throw err;
+  }
+};
+
+export const creditSubject = async (req: Request, res: Response) => {
+  const { credits } = req.body;
+
+  if (!Array.isArray(credits) || credits.length === 0) {
+    throw new BadRequestError("credits must be a non-empty array");
+  }
+
+  try {
+    const creditedSubjects =
+      await creditTransferSubjectsUseCase.execute(credits);
+    return res.status(HttpStatus.CREATED).json({
+      message: "Subjects credited successfully",
+      creditedSubjects,
+    });
   } catch (err: any) {
     throw err;
   }

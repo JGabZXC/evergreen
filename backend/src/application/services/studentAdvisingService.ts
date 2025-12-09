@@ -29,8 +29,12 @@ export class StudentAdvisingService {
 
     // 2. Get Standard Subjects for this Year & Semester
     const curriculumSubjects = course.subjectToBeTaken.filter(
-      (item) => item.gradeLevel === gradeLevel && item.semester === semester
+      (item) =>
+        item.gradeLevel === gradeLevel && item.semester === Number(semester)
     );
+
+    console.log(course.subjectToBeTaken);
+    console.log(gradeLevel, semester, typeof semester);
 
     const standardSubjectIds = curriculumSubjects.flatMap((c) => c.subject);
 

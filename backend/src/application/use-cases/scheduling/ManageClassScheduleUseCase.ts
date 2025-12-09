@@ -7,6 +7,7 @@ import {
   NotFoundError,
 } from "../../../interfaces/http/middleware/HttpErrors";
 import { SubjectModel } from "../../../infrastructure/database/SubjectModel";
+import { SubjectTakenModel } from "../../../infrastructure/database/SubjectTakenModel";
 
 export class ManageClassScheduleUseCase {
   async execute(data: BaseClassSchedule, session?: mongoose.ClientSession) {
@@ -91,6 +92,22 @@ export class ManageClassScheduleUseCase {
       },
       { new: true, upsert: true, session: session || null }
     );
+
+    if (schedule) {
+      await SubjectTakenModel.updateMany(
+        {
+          classroomId: data.classroomId,
+          subjectId: data.subjectId,
+          schoolYear: data.schoolYear,
+          semester: data.semester,
+        },
+        {
+          $set: { teacherId: schedule.teacherId },
+        },
+        session ? { session } : undefined
+      );
+    }
+
     return schedule;
   }
 

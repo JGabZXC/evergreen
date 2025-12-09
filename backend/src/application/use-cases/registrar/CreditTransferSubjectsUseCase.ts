@@ -1,3 +1,5 @@
+import { SubjectStatus } from "../../../domain/SubjectTaken";
+import { Semester } from "../../../domain/types/Semester";
 import { SubjectTakenModel } from "../../../infrastructure/database/SubjectTakenModel";
 
 interface CreditInput {
@@ -9,17 +11,15 @@ interface CreditInput {
 
 export class CreditTransferSubjectsUseCase {
   async execute(inputs: CreditInput[]) {
-    // Bulk create "Passed" records
     const creditDocs = inputs.map((input) => ({
       studentId: input.studentId,
       subjectId: input.subjectId,
-      teacherId: "SYSTEM", // Or "CREDITED"
-      section: "N/A",
+      teacherId: "CREDITED",
       classroomId: null, // No physical class attended
       schoolYear: "TRANSFERRED",
-      term: 0,
+      semester: Semester.Zero, // Indicate transfer credit
       finalGrade: input.finalGrade,
-      status: "Passed", // Or add a specific "Credited" enum
+      status: SubjectStatus.Credited,
       remarks: `Credited from ${input.previousSchool}`,
     }));
 

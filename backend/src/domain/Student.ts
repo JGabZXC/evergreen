@@ -6,6 +6,8 @@ export interface ParentContact {
 }
 import { Schema } from "mongoose";
 import { Address } from "./Staff";
+import { EnrollmentRecord } from "./EnrollmentRecord";
+import { Course } from "./Course";
 
 export interface GuardianDetails {
   name: string;
@@ -40,4 +42,10 @@ export interface Student extends BaseStudent {
   _id: Schema.Types.ObjectId;
   formattedId: string;
   isActive: boolean;
+}
+
+export interface StudentAggregate extends Omit<Student, "course"> {
+  course: Course;
+  profile?: StudentProfile;
+  latestEnrollment?: EnrollmentRecord;
 }

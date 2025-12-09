@@ -68,7 +68,6 @@ export const getStudents = async (req: Request, res: Response) => {
 
       return res.status(HttpStatus.OK).json({
         ...result,
-        page: Number(page),
       });
     }
   } catch (err) {
