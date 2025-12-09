@@ -44,10 +44,6 @@ export const getTeacher = async (req: Request, res: Response) => {
         Number(limit)
       );
 
-      if (Number(page) > teachers.totalPages) {
-        throw new BadRequestError("Page number exceeds total pages");
-      }
-
       return res.status(HttpStatus.OK).json({ ...teachers });
     }
 

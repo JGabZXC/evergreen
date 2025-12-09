@@ -61,9 +61,6 @@ export const getSchedule = async (req: AuthenticatedRequest, res: Response) => {
         skip,
         Number(limit)
       );
-      if (Number(page) > schedules.totalPages && schedules.totalPages !== 0) {
-        throw new BadRequestError("Page number exceeds total pages");
-      }
 
       return res.status(HttpStatus.OK).json({ ...schedules });
     }

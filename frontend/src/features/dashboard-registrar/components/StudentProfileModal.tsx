@@ -100,16 +100,22 @@ export default function StudentProfileModal({
           <div className="flex items-center gap-4">
             <div className="avatar placeholder">
               <div className="bg-primary text-primary-content rounded-full w-16 text-2xl">
-                {student.name.charAt(0)}
+                {student.profile?.firstName?.charAt(0) || "?"}
               </div>
             </div>
             <div>
-              <h2 className="text-2xl font-bold">{student.name}</h2>
+              <h2 className="text-2xl font-bold">
+                {student.profile
+                  ? `${student.profile.lastName}, ${student.profile.firstName}`
+                  : "No Profile"}
+              </h2>
               <div className="flex gap-2 mt-1">
                 <span className="badge badge-neutral font-mono">
-                  {student.id}
+                  {student.studentId}
                 </span>
-                <span className="badge badge-outline">{student.program}</span>
+                <span className="badge badge-outline">
+                  {student.course?.code || "N/A"}
+                </span>
                 {student.latestEnrollment && (
                   <span className="badge badge-primary">
                     {student.latestEnrollment.gradeLevel}

@@ -128,10 +128,6 @@ export const getSubject = async (req: Request, res: Response) => {
     } else {
       subjects = await getAllSubjectUseCase.execute(skip, Number(limit));
 
-      if (Number(page) > subjects.totalPages) {
-        throw new BadRequestError("Page number exceeds total pages");
-      }
-
       return res.status(HttpStatus.OK).json({ ...subjects });
     }
 

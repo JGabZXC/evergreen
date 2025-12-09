@@ -1,4 +1,5 @@
 import { apiPrivate } from "../../../config/axiosPrivate";
+import type { StudentResponse, Student } from "../types";
 
 export const getStudents = async (
   page = 1,
@@ -14,13 +15,13 @@ export const getStudents = async (
 
   if (search) queryParams.append("studentId", search); // Basic ID search for now
 
-  const response = await apiPrivate.get(
+  const response = await apiPrivate.get<StudentResponse>(
     `/api/student?${queryParams.toString()}`
   );
   return response.data;
 };
 
 export const getStudent = async (id: string) => {
-  const response = await apiPrivate.get(`/api/student/${id}`);
+  const response = await apiPrivate.get<Student>(`/api/student/${id}`);
   return response.data;
 };

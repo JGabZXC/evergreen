@@ -1,10 +1,11 @@
 import { Navigate, Outlet, useLocation } from "react-router";
 import { useAuth } from "../hooks/useAuth";
+import type { Role } from "../types/auth.types";
 
 export default function ProtectedRoute({
   allowedRoles,
 }: {
-  allowedRoles: string[];
+  allowedRoles: Role[];
 }) {
   console.log("ProtectedRoute checking roles:", allowedRoles);
   const { user } = useAuth();

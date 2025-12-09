@@ -78,9 +78,6 @@ export const getClassroom = async (req: Request, res: Response) => {
       classrooms = await getClassroomUseCase.execute(id as string);
     } else {
       classrooms = await getAllClassroomUseCase.execute(skip, Number(limit));
-      if (Number(page) > classrooms.totalPages) {
-        throw new BadRequestError("Page number exceeds total pages");
-      }
       return res.status(HttpStatus.OK).json({ ...classrooms });
     }
     return res.status(HttpStatus.OK).json(classrooms);

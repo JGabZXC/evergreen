@@ -8,6 +8,9 @@ import NotFound404 from "../features/notfound404/NotFound404";
 import { PersistLogin } from "../features/auth/components/PersistLogin";
 import ProtectedRoute from "../features/auth/components/ProtectedRoute";
 
+import { AxiosInterceptor } from "../features/auth/components/AxiosInterceptor";
+import { StaffRole, StudentRole } from "../features/auth/types/auth.types";
+
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -27,7 +30,15 @@ export const router = createBrowserRouter([
       },
       {
         element: (
-          <ProtectedRoute allowedRoles={["student", "teacher", "registrar"]} />
+          <AxiosInterceptor>
+            <ProtectedRoute
+              allowedRoles={[
+                StudentRole.Student,
+                StaffRole.Registrar,
+                StaffRole.Teacher,
+              ]}
+            />
+          </AxiosInterceptor>
         ),
         children: [...dashboardRoutes],
       },

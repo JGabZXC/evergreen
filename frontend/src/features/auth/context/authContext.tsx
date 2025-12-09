@@ -1,4 +1,4 @@
-import { createContext, useState } from "react";
+import { createContext, useState, useEffect } from "react";
 import type { User, AuthContextType } from "../types/auth.types";
 
 export const AuthContext = createContext<AuthContextType>({
@@ -11,8 +11,16 @@ export const AuthContext = createContext<AuthContextType>({
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isAuth, setIsAuth] = useState<boolean>(
-    localStorage.getItem("isAuth") === "true"
+    () => localStorage.getItem("isAuth") === "true"
   );
+
+  useEffect(() => {
+    if (isAuth) {
+      localStorage.setItem("isAuth", "true");
+    } else {
+      localStorage.removeItem("isAuth");
+    }
+  }, [isAuth]);
 
   return (
     <AuthContext.Provider value={{ user, setUser, isAuth, setIsAuth }}>

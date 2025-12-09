@@ -1,14 +1,6 @@
-// frontend/src/features/dashboard-registrar/components/StudenRecords.tsx
 import { useState, useEffect } from "react";
 import type { Student } from "../types";
-import {
-  Search,
-  Users,
-  Loader2,
-  RefreshCw,
-  Eye,
-  ListFilter,
-} from "lucide-react";
+import { Search, Users, Loader2, RefreshCw, Eye } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { getStudents } from "../services/studentService";
 import StudentProfileModal from "./StudentProfileModal";
@@ -29,23 +21,13 @@ export default function StudentRecords() {
     setLoading(true);
     try {
       const data = await getStudents(page, 10, viewMode, searchTerm);
-      const mappedStudents: Student[] = data.students.map((s: any) => ({
-        id: s.studentId,
-        _id: s._id,
-        name: s.profile
-          ? `${s.profile.lastName}, ${s.profile.firstName}`
-          : "No Profile",
-        program: s.course?.code || "N/A",
-        yearLevel: s.latestEnrollment?.gradeLevel || "-", // [NEW] Grade Level
-        status: s.isActive ? "Active" : "Inactive",
-        dateEnrolled: s.latestEnrollment
-          ? new Date(s.latestEnrollment.enrollmentDate).toLocaleDateString()
-          : "-",
-        profile: s.profile,
-        latestEnrollment: s.latestEnrollment,
-      }));
 
-      setStudents(mappedStudents);
+      if (data.totalPages > 0 && page > data.totalPages) {
+        setPage(1);
+        return;
+      }
+
+      setStudents(data.students);
       setTotalPages(data.totalPages);
     } catch (error) {
       console.error("Failed to fetch students", error);
@@ -152,7 +134,7 @@ export default function StudentRecords() {
                 <th>ID Number</th>
                 <th>Student Name</th>
                 <th>Program</th>
-                <th>Grade Level</th> {/* New Column */}
+                <th>Grade Level</th>
                 <th>Status</th>
                 <th>Enrolled Date</th>
                 <th>Action</th>
@@ -178,45 +160,53 @@ export default function StudentRecords() {
                 <AnimatePresence>
                   {students.map((student) => (
                     <motion.tr
-                      key={student.id}
+                      key={student._id}
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       className="hover:bg-base-200/50"
                     >
                       <td className="font-mono text-xs font-bold">
-                        {student.id}
+                        {student.studentId}
                       </td>
                       <td>
-                        <div className="font-bold">{student.name}</div>
+                        <div className="font-bold">
+                          {student.profile
+                            ? `${student.profile.lastName}, ${student.profile.firstName}`
+                            : "No Profile"}
+                        </div>
                         <div className="text-xs opacity-50">
                           {student.profile?.address?.city || "No City"}
                         </div>
                       </td>
                       <td>
                         <span className="badge badge-ghost badge-sm">
-                          {student.program}
+                          {student.course?.code || "N/A"}
                         </span>
                       </td>
                       <td className="font-medium text-primary">
-                        {student.yearLevel !== "-" ? (
-                          student.yearLevel
-                        ) : (
+                        {student.latestEnrollment?.gradeLevel || (
                           <span className="opacity-30">N/A</span>
                         )}
                       </td>
                       <td>
                         <span
                           className={`badge badge-sm ${
-                            student.status === "Enrolled"
+                            student.isActive
                               ? "badge-success text-white"
                               : "badge-error text-white"
                           } gap-1`}
                         >
-                          {student.status}
+                          {student.isActive ? "Active" : "Inactive"}
                         </span>
                       </td>
-                      <td className="text-xs">{student.dateEnrolled}</td>
+                      <td className="text-xs">
+                        {student.latestEnrollment
+                          ? new Date(
+                              student.latestEnrollment.enrollmentDate
+                            ).toLocaleDateString()
+                          : "-"}
+                      </td>
                       <td>
                         <button
                           onClick={() => openModal(student)}

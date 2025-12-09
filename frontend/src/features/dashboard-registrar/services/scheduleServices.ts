@@ -1,5 +1,13 @@
+import type {
+  ScheduleResponse,
+  SubjectResponse,
+  ClassroomResponse,
+  TeacherResponse,
+  Subject,
+  Classroom,
+  Teacher,
+} from "../types";
 import { apiPrivate } from "../../../config/axiosPrivate";
-import type { ScheduleResponse } from "../types";
 
 export const getSchedules = async (params: {
   page?: number;
@@ -22,20 +30,23 @@ export const createOrUpdateSchedule = async (data: any) => {
 
 // --- Helper Fetchers for Dropdowns ---
 
-export const getSubjectsOption = async () => {
-  const response = await apiPrivate.get("/api/subject?limit=100");
-  console.log(response.data);
+export const getSubjectsOption = async (): Promise<Subject[]> => {
+  const response = await apiPrivate.get<SubjectResponse>(
+    "/api/subject?limit=100"
+  );
   return response.data.subjects;
 };
 
-export const getSectionsOption = async () => {
-  const response = await apiPrivate.get("/api/registrar/classroom?limit=100");
-  console.log(response.data);
+export const getSectionsOption = async (): Promise<Classroom[]> => {
+  const response = await apiPrivate.get<ClassroomResponse>(
+    "/api/registrar/classroom?limit=100"
+  );
   return response.data.classrooms;
 };
 
-export const getTeachersOption = async () => {
-  const response = await apiPrivate.get("/api/teacher?limit=100&isActive=true");
-  console.log(response.data);
+export const getTeachersOption = async (): Promise<Teacher[]> => {
+  const response = await apiPrivate.get<TeacherResponse>(
+    "/api/teacher?limit=100&isActive=true"
+  );
   return response.data.teachers;
 };

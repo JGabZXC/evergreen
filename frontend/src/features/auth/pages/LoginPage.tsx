@@ -22,6 +22,7 @@ export default function LoginPage() {
   const { user } = useAuth();
 
   useEffect(() => {
+    console.log("User state changed:", user);
     if (user) {
       navigate("/dashboard", { replace: true });
     }

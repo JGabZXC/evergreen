@@ -62,10 +62,6 @@ export const getStudents = async (req: Request, res: Response) => {
         view as "enrolled" | "all"
       );
 
-      if (Number(page) > result.totalPages && result.totalPages !== 0) {
-        throw new BadRequestError("Page number exceeds total pages");
-      }
-
       return res.status(HttpStatus.OK).json({
         ...result,
       });

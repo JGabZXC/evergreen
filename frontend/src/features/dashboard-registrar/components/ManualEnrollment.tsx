@@ -20,11 +20,10 @@ import {
   creditStudentSubjects,
   enrollStudent,
   getAllSubjects,
-  GradeLevel,
-  Semester,
-  type Subject,
 } from "../services/enrollmentService";
 import { getStudents } from "../services/studentService";
+import { GradeLevel, Semester } from "../types";
+import type { Subject, Student } from "../types";
 
 // --- Types ---
 type EnrollmentType = "new" | "transferee" | "existing";
@@ -33,7 +32,7 @@ export default function ManualEnrollment() {
   const [enrollmentType, setEnrollmentType] = useState<EnrollmentType>("new");
   const [searchId, setSearchId] = useState("");
   const [isSearching, setIsSearching] = useState(false);
-  const [student, setStudent] = useState<any | null>(null);
+  const [student, setStudent] = useState<Student | null>(null);
 
   // Data for Crediting
   const [allSubjects, setAllSubjects] = useState<Subject[]>([]);
@@ -98,7 +97,7 @@ export default function ManualEnrollment() {
 
     try {
       const payload = selectedCredits.map((subId) => ({
-        studentId: student.id || student.studentId, // Handle DTO naming variations
+        studentId: student.studentId,
         subjectId: subId,
         previousSchool: previousSchool,
         finalGrade: 1.0, // Default passing grade
@@ -123,17 +122,16 @@ export default function ManualEnrollment() {
 
     try {
       const payload = {
-        studentId: student.id || student.studentId,
+        studentId: student.studentId,
         schoolYear,
         semester: selectedSemester,
         gradeLevel,
-        classroom: section || undefined, // Send strictly undefined if empty
+        classroom: section || undefined,
       };
 
       await enrollStudent(payload);
-      toast.success(`Successfully Enrolled ${student.name}!`);
+      toast.success(`Successfully Enrolled ${student.studentId}!`);
 
-      // Reset Form
       setStudent(null);
       setSearchId("");
       setSection("");
@@ -259,17 +257,17 @@ export default function ManualEnrollment() {
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <h2 className="text-2xl font-bold flex items-center gap-2">
-                        {student.name}
+                        {student.profile
+                          ? `${student.profile.lastName}, ${student.profile.firstName}`
+                          : "No Profile"}
                       </h2>
                       <div className="flex gap-2 mt-2">
                         <span className="badge badge-neutral font-mono">
-                          {student.id || student.studentId}
+                          {student.studentId}
                         </span>
                         <span className="badge badge-primary badge-outline flex gap-1 items-center">
                           <GraduationCap size={12} />
-                          {student.program ||
-                            student.course?.code ||
-                            "No Course"}
+                          {student.course?.code || "No Course"}
                         </span>
                       </div>
                     </div>
@@ -413,8 +411,12 @@ export default function ManualEnrollment() {
 
               <p className="text-sm opacity-70 mb-4">
                 Select subjects from the curriculum that{" "}
-                <span className="font-bold">{student?.name}</span> has already
-                passed.
+                <span className="font-bold">
+                  {student?.profile
+                    ? `${student.profile.firstName} ${student.profile.lastName}`
+                    : `${student?.studentId}`}
+                </span>{" "}
+                has already passed.
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
