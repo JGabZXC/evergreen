@@ -6,7 +6,6 @@ import {
   Lock,
   BookOpen,
   Loader2,
-  CheckCircle,
   AlertCircle,
 } from "lucide-react";
 import { apiPrivate } from "../../../config/axiosPrivate";

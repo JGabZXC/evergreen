@@ -1,4 +1,5 @@
-import { useState } from "react";
+// frontend/src/features/dashboard-registrar/components/ManualEnrollment.tsx
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Save,
@@ -6,155 +7,157 @@ import {
   UserCheck,
   AlertCircle,
   CheckCircle2,
-  BookOpen,
   Calendar,
   ArrowRightCircle,
-  RefreshCw,
+  Award,
+  X,
+  School,
+  GraduationCap,
 } from "lucide-react";
+import { toast } from "react-toastify";
+// [FIX] Imports pointed to the correct service file defined previously
+import {
+  creditStudentSubjects,
+  enrollStudent,
+  getAllSubjects,
+  GradeLevel,
+  Semester,
+  type Subject,
+} from "../services/enrollmentService";
+import { getStudents } from "../services/studentService";
 
-// --- Mock Interfaces based on your Backend Models ---
-type EnrollmentType = "new" | "existing";
-
-interface StudentSearchResult {
-  studentId: string;
-  name: string;
-  currentProgram?: string; // specific to existing
-  lastEnrollment?: {
-    gradeLevel: string;
-    semester: number;
-    status: "Enrolled" | "Dropped" | "Completed" | "Failed";
-    failedSubjects: string[]; // List of subject IDs failed
-  };
-}
-
-// --- Mock Data for Dropdowns ---
-const COURSES = [
-  "BS Computer Science",
-  "BS Information Technology",
-  "BS Accountancy",
-  "BS Nursing",
-  "STEM",
-  "ABM",
-];
-
-const SEMESTERS = [
-  { value: 1, label: "1st Semester" },
-  { value: 2, label: "2nd Semester" },
-  { value: 3, label: "Summer" },
-];
+// --- Types ---
+type EnrollmentType = "new" | "transferee" | "existing";
 
 export default function ManualEnrollment() {
   const [enrollmentType, setEnrollmentType] = useState<EnrollmentType>("new");
   const [searchId, setSearchId] = useState("");
   const [isSearching, setIsSearching] = useState(false);
-  const [student, setStudent] = useState<StudentSearchResult | null>(null);
+  const [student, setStudent] = useState<any | null>(null);
+
+  // Data for Crediting
+  const [allSubjects, setAllSubjects] = useState<Subject[]>([]);
+  const [isCreditModalOpen, setIsCreditModalOpen] = useState(false);
+  const [selectedCredits, setSelectedCredits] = useState<string[]>([]);
+
+  // [NEW] Previous School State
+  const [previousSchool, setPreviousSchool] = useState("");
 
   // Form States
-  const [selectedCourse, setSelectedCourse] = useState("");
-  const [selectedSemester, setSelectedSemester] = useState(1);
+  const [selectedSemester, setSelectedSemester] = useState(Semester.First);
+  const [gradeLevel, setGradeLevel] = useState(GradeLevel.Grade11);
   const [schoolYear, setSchoolYear] = useState("2024-2025");
   const [section, setSection] = useState("");
 
-  // Logic State for Existing Students
-  const [eligibility, setEligibility] = useState<{
-    canEnroll: boolean;
-    reason: string;
-    recommendedLevel?: string;
-    recommendedSemester?: number;
-  } | null>(null);
-
-  // --- Handlers ---
+  // Load subjects on mount
+  useEffect(() => {
+    const loadSubjects = async () => {
+      try {
+        const data = await getAllSubjects();
+        // [FIX] Access the .subjects array from the paginated response
+        if (data && Array.isArray(data.subjects)) {
+          setAllSubjects(data.subjects);
+        }
+      } catch (e) {
+        console.error("Failed to load subjects", e);
+      }
+    };
+    loadSubjects();
+  }, []);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchId) return;
-
     setIsSearching(true);
     setStudent(null);
-    setEligibility(null);
 
-    // SIMULATE API CALL TO BACKEND
-    // In real app: await api.get(`/students/${searchId}`)
-    setTimeout(() => {
-      // Mocking results based on input for demonstration
-      if (enrollmentType === "new") {
-        // Scenario: Student Registered but no Enrollment Record yet
-        setStudent({
-          studentId: searchId,
-          name: "Juan Dela Cruz (New)",
-        });
-        setSelectedSemester(1); // Default to 1 for new
+    try {
+      // [FIX] Added missing getStudents import usage
+      const data = await getStudents(1, 1, "all", searchId);
+      if (data.students && data.students.length > 0) {
+        setStudent(data.students[0]);
+        toast.success("Student found!");
       } else {
-        // Scenario: Existing Student Logic
-        // Simulate a student who passed everything
-        if (searchId.endsWith("1")) {
-          setStudent({
-            studentId: searchId,
-            name: "Maria Clara (Regular)",
-            currentProgram: "BS Computer Science",
-            lastEnrollment: {
-              gradeLevel: "1st Year",
-              semester: 1,
-              status: "Completed",
-              failedSubjects: [],
-            },
-          });
-          // Logic: Move to Sem 2
-          setEligibility({
-            canEnroll: true,
-            reason: "Student passed all subjects. Eligible for next semester.",
-            recommendedLevel: "1st Year",
-            recommendedSemester: 2,
-          });
-          setSelectedSemester(2);
-        }
-        // Simulate a student with failures
-        else {
-          setStudent({
-            studentId: searchId,
-            name: "Jose Rizal (Irregular)",
-            currentProgram: "BS Computer Science",
-            lastEnrollment: {
-              gradeLevel: "1st Year",
-              semester: 2,
-              status: "Failed",
-              failedSubjects: ["MATH-101", "PROG-102"],
-            },
-          });
-          // Logic: Cannot move to 2nd Year fully
-          setEligibility({
-            canEnroll: false, // Or true but with restrictions
-            reason:
-              "Student failed 2 subjects (MATH-101, PROG-102). Cannot advance to 2nd Year fully.",
-            recommendedLevel: "1st Year", // Retain
-            recommendedSemester: 2, // Repeat Sem? Or Summer?
-          });
-          setSelectedSemester(3); // Suggest Summer
-        }
+        toast.error("Student ID not found. Register them first.");
       }
+    } catch (error) {
+      toast.error("Error searching for student.");
+    } finally {
       setIsSearching(false);
-    }, 1000);
+    }
   };
 
-  const handleEnroll = (e: React.FormEvent) => {
+  const handleSaveCredits = async () => {
+    if (selectedCredits.length === 0 || !student) return;
+
+    // [FIX] Validate Previous School
+    if (!previousSchool.trim()) {
+      toast.error("Please enter the Previous School name.");
+      return;
+    }
+
+    try {
+      const payload = selectedCredits.map((subId) => ({
+        studentId: student.id || student.studentId, // Handle DTO naming variations
+        subjectId: subId,
+        previousSchool: previousSchool,
+        finalGrade: 1.0, // Default passing grade
+      }));
+
+      await creditStudentSubjects(payload);
+      toast.success(
+        `${selectedCredits.length} subjects credited successfully!`
+      );
+      setIsCreditModalOpen(false);
+      setSelectedCredits([]);
+      // Optional: We keep previousSchool filled in case they want to add more credits from same school
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to save credits.");
+    }
+  };
+
+  const handleEnroll = async (e: React.FormEvent) => {
     e.preventDefault();
-    // CALL API TO CREATE ENROLLMENT RECORD
-    alert(
-      `Successfully Enrolled ${student?.name} for Sem ${selectedSemester}!`
-    );
-    // Reset
-    setStudent(null);
-    setSearchId("");
+    if (!student) return;
+
+    try {
+      const payload = {
+        studentId: student.id || student.studentId,
+        schoolYear,
+        semester: selectedSemester,
+        gradeLevel,
+        classroom: section || undefined, // Send strictly undefined if empty
+      };
+
+      await enrollStudent(payload);
+      toast.success(`Successfully Enrolled ${student.name}!`);
+
+      // Reset Form
+      setStudent(null);
+      setSearchId("");
+      setSection("");
+      setPreviousSchool("");
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Enrollment failed.");
+    }
+  };
+
+  const toggleCreditSubject = (subjectId: string) => {
+    if (selectedCredits.includes(subjectId)) {
+      setSelectedCredits(selectedCredits.filter((id) => id !== subjectId));
+    } else {
+      setSelectedCredits([...selectedCredits, subjectId]);
+    }
   };
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* Header & Type Toggle */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Manual Enrollment</h1>
+          <h1 className="text-2xl font-bold">Enrollment & Assessment</h1>
           <p className="text-base-content/70">
-            Create enrollment records for students.
+            Manage student enrollment and credit transfers.
           </p>
         </div>
 
@@ -163,45 +166,43 @@ export default function ManualEnrollment() {
             className={`join-item btn btn-sm px-6 ${
               enrollmentType === "new" ? "btn-primary" : "btn-ghost"
             }`}
-            onClick={() => {
-              setEnrollmentType("new");
-              setStudent(null);
-            }}
+            onClick={() => setEnrollmentType("new")}
           >
-            New Enrollee
+            New
+          </button>
+          <button
+            className={`join-item btn btn-sm px-6 ${
+              enrollmentType === "transferee" ? "btn-primary" : "btn-ghost"
+            }`}
+            onClick={() => setEnrollmentType("transferee")}
+          >
+            Transferee
           </button>
           <button
             className={`join-item btn btn-sm px-6 ${
               enrollmentType === "existing" ? "btn-primary" : "btn-ghost"
             }`}
-            onClick={() => {
-              setEnrollmentType("existing");
-              setStudent(null);
-            }}
+            onClick={() => setEnrollmentType("existing")}
           >
-            Existing Student
+            Old Student
           </button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Col: Search */}
+        {/* Search Panel */}
         <div className="lg:col-span-1 space-y-4">
-          <div className="card bg-base-100 shadow-md">
+          <div className="card bg-base-100 shadow-md border border-base-200">
             <div className="card-body p-5">
               <h3 className="font-bold text-lg mb-2 flex items-center gap-2">
-                <Search size={20} />
-                Find Student
+                <Search size={20} /> Find Student
               </h3>
               <form onSubmit={handleSearch}>
                 <div className="form-control">
-                  <label className="label">
-                    <span className="label-text">Student ID</span>
-                  </label>
                   <div className="join w-full">
                     <input
                       type="text"
-                      placeholder="e.g. 2024-0001"
+                      placeholder="Student ID..."
                       className="input input-bordered join-item w-full"
                       value={searchId}
                       onChange={(e) => setSearchId(e.target.value)}
@@ -218,44 +219,22 @@ export default function ManualEnrollment() {
                       )}
                     </button>
                   </div>
-                  <label className="label">
-                    <span className="label-text-alt text-base-content/60">
-                      {enrollmentType === "new"
-                        ? "Search for registered applicants."
-                        : "Search for current students."}
-                    </span>
-                  </label>
                 </div>
               </form>
             </div>
           </div>
 
-          {/* Guidelines Panel */}
-          <div className="card bg-base-100/50 border-2 border-dashed border-base-300">
-            <div className="card-body p-5 text-sm">
-              <h4 className="font-bold text-base-content/70">
-                Enrollment Rules
-              </h4>
-              <ul className="list-disc list-inside space-y-1 text-base-content/60 mt-2">
-                {enrollmentType === "new" ? (
-                  <>
-                    <li>Student must be registered in the system first.</li>
-                    <li>Semester defaults to 1st Semester.</li>
-                    <li>Select Program carefully.</li>
-                  </>
-                ) : (
-                  <>
-                    <li>System checks previous grades automatically.</li>
-                    <li>Failed subjects block "Moving Up".</li>
-                    <li>Irregular students must be advised manually.</li>
-                  </>
-                )}
-              </ul>
-            </div>
+          <div className="alert alert-info text-xs shadow-sm">
+            <AlertCircle size={16} />
+            <span>
+              {enrollmentType === "transferee"
+                ? "For transferees, credit their passed subjects BEFORE enrolling."
+                : "Ensure the student is registered in the system before enrolling."}
+            </span>
           </div>
         </div>
 
-        {/* Right Col: Enrollment Form */}
+        {/* Action Panel */}
         <div className="lg:col-span-2">
           <AnimatePresence mode="wait">
             {!student ? (
@@ -266,189 +245,131 @@ export default function ManualEnrollment() {
                 className="h-full flex flex-col items-center justify-center p-12 text-base-content/30 border-2 border-dashed border-base-300 rounded-2xl bg-base-100"
               >
                 <UserCheck size={48} className="mb-4" />
-                <p>Search for a student ID to begin enrollment.</p>
+                <p>Search for a student to proceed.</p>
               </motion.div>
             ) : (
               <motion.div
                 key="form"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="card bg-base-100 shadow-xl"
+                className="card bg-base-100 shadow-xl border border-base-200"
               >
-                {/* Student Profile Header */}
-                <div className="bg-primary/10 p-6 border-b border-base-200">
-                  <div className="flex justify-between items-start">
+                {/* Student Header */}
+                <div className="bg-base-200/50 p-6 border-b border-base-200">
+                  <div className="flex justify-between items-start mb-4">
                     <div>
-                      <h2 className="text-2xl font-bold text-primary">
+                      <h2 className="text-2xl font-bold flex items-center gap-2">
                         {student.name}
                       </h2>
-                      <div className="flex gap-4 mt-2 text-sm">
-                        <span className="badge badge-outline font-mono">
-                          {student.studentId}
+                      <div className="flex gap-2 mt-2">
+                        <span className="badge badge-neutral font-mono">
+                          {student.id || student.studentId}
                         </span>
-                        {student.currentProgram && (
-                          <span className="flex items-center gap-1 opacity-70">
-                            <BookOpen size={14} /> {student.currentProgram}
-                          </span>
-                        )}
+                        <span className="badge badge-primary badge-outline flex gap-1 items-center">
+                          <GraduationCap size={12} />
+                          {student.program ||
+                            student.course?.code ||
+                            "No Course"}
+                        </span>
                       </div>
                     </div>
-                    {/* Status Badge for Existing */}
-                    {enrollmentType === "existing" && eligibility && (
-                      <div
-                        className={`badge badge-lg gap-2 p-4 ${
-                          eligibility.canEnroll
-                            ? "badge-success text-white"
-                            : "badge-error text-white"
-                        }`}
+
+                    {/* Credit Button only shows for Transferee */}
+                    {enrollmentType === "transferee" && (
+                      <button
+                        onClick={() => setIsCreditModalOpen(true)}
+                        className="btn btn-warning btn-sm gap-2 shadow-sm"
                       >
-                        {eligibility.canEnroll ? (
-                          <CheckCircle2 size={16} />
-                        ) : (
-                          <AlertCircle size={16} />
-                        )}
-                        {eligibility.canEnroll ? "Eligible" : "Issues Found"}
-                      </div>
+                        <Award size={16} /> Credit Subjects
+                      </button>
                     )}
                   </div>
 
-                  {/* Existing Student Feedback Alert */}
-                  {enrollmentType === "existing" && eligibility && (
-                    <div
-                      className={`alert mt-4 shadow-sm ${
-                        eligibility.canEnroll
-                          ? "alert-success/20 text-success-content"
-                          : "alert-error/20 text-error-content"
-                      }`}
-                    >
-                      {eligibility.canEnroll ? (
-                        <CheckCircle2 size={20} />
-                      ) : (
-                        <AlertCircle size={20} />
-                      )}
-                      <div className="text-sm">
-                        <span className="font-bold block">
-                          System Evaluation:
-                        </span>
-                        {eligibility.reason}
-                        {eligibility.canEnroll && (
-                          <div className="mt-1 font-mono text-xs opacity-80">
-                            Recommended: {eligibility.recommendedLevel} - Sem{" "}
-                            {eligibility.recommendedSemester}
-                          </div>
-                        )}
+                  {/* Transferee Input Section */}
+                  {enrollmentType === "transferee" && (
+                    <div className="bg-warning/10 border border-warning/20 p-4 rounded-xl">
+                      <div className="flex items-center gap-2 text-warning font-bold text-xs uppercase mb-2">
+                        <School size={14} /> Transferee Requirement
                       </div>
+                      <input
+                        type="text"
+                        placeholder="Enter Previous School Name (Required for crediting)"
+                        className="input input-sm input-bordered w-full bg-white/50"
+                        value={previousSchool}
+                        onChange={(e) => setPreviousSchool(e.target.value)}
+                      />
                     </div>
                   )}
                 </div>
 
                 <form onSubmit={handleEnroll} className="card-body space-y-4">
-                  {/* --- NEW ENROLLMENT FIELDS --- */}
-                  {enrollmentType === "new" && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="form-control">
-                      <label className="label font-bold">
-                        Select Program / Course
-                      </label>
+                      <label className="label font-bold">Grade Level</label>
                       <select
-                        className="select select-bordered w-full"
-                        required
-                        value={selectedCourse}
-                        onChange={(e) => setSelectedCourse(e.target.value)}
+                        className="select select-bordered"
+                        value={gradeLevel}
+                        onChange={(e) =>
+                          setGradeLevel(e.target.value as GradeLevel)
+                        }
                       >
-                        <option value="" disabled>
-                          Select a course...
-                        </option>
-                        {COURSES.map((c) => (
-                          <option key={c} value={c}>
-                            {c}
-                          </option>
-                        ))}
+                        <option value={GradeLevel.Grade11}>Grade 11</option>
+                        <option value={GradeLevel.Grade12}>Grade 12</option>
+                        <option value={GradeLevel.College1}>1st Year</option>
+                        <option value={GradeLevel.College2}>2nd Year</option>
+                        <option value={GradeLevel.College3}>3rd Year</option>
+                        <option value={GradeLevel.College4}>4th Year</option>
                       </select>
                     </div>
-                  )}
-
-                  {/* --- COMMON FIELDS --- */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Semester Selection */}
                     <div className="form-control">
                       <label className="label font-bold">Semester</label>
                       <select
-                        className="select select-bordered w-full"
+                        className="select select-bordered"
                         value={selectedSemester}
                         onChange={(e) =>
                           setSelectedSemester(Number(e.target.value))
                         }
-                        // If existing and eligible, maybe lock this or warn?
                       >
-                        {SEMESTERS.map((sem) => (
-                          <option key={sem.value} value={sem.value}>
-                            {sem.label}
-                          </option>
-                        ))}
+                        <option value={Semester.First}>1st Semester</option>
+                        <option value={Semester.Second}>2nd Semester</option>
+                        <option value={Semester.Third}>Summer</option>
                       </select>
-                      <label className="label">
-                        <span className="label-text-alt text-warning flex items-center gap-1">
-                          {enrollmentType === "new" &&
-                            selectedSemester !== 1 && (
-                              <>
-                                {" "}
-                                <AlertCircle size={12} /> Confirming
-                                non-standard entry?{" "}
-                              </>
-                            )}
-                        </span>
-                      </label>
                     </div>
-
-                    {/* School Year */}
                     <div className="form-control">
                       <label className="label font-bold">School Year</label>
                       <div className="relative">
                         <Calendar
                           className="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/50"
-                          size={18}
+                          size={16}
                         />
                         <input
                           type="text"
-                          className="input input-bordered w-full pl-10"
+                          className="input input-bordered pl-10 w-full"
                           value={schoolYear}
                           onChange={(e) => setSchoolYear(e.target.value)}
                         />
                       </div>
                     </div>
+                    <div className="form-control">
+                      <label className="label font-bold">
+                        Section (Optional)
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Auto-assign if empty"
+                        className="input input-bordered"
+                        value={section}
+                        onChange={(e) => setSection(e.target.value)}
+                      />
+                    </div>
                   </div>
 
-                  {/* Section Assignment */}
-                  <div className="form-control">
-                    <label className="label font-bold">Assign Section</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. BSCS-1A"
-                      className="input input-bordered w-full"
-                      value={section}
-                      onChange={(e) => setSection(e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  <div className="divider"></div>
-
-                  <div className="card-actions justify-end">
-                    <button
-                      type="button"
-                      className="btn btn-ghost"
-                      onClick={() => setStudent(null)}
-                    >
-                      Cancel
-                    </button>
+                  <div className="card-actions justify-end mt-4 pt-4 border-t border-base-100">
                     <button
                       type="submit"
-                      className="btn btn-primary gap-2"
-                      // Disable if existing student has strict block (optional based on rules)
-                      // disabled={enrollmentType === 'existing' && !eligibility?.canEnroll}
+                      className="btn btn-primary gap-2 w-full md:w-auto shadow-lg shadow-primary/20"
                     >
-                      <Save size={18} />
-                      Confirm Enrollment
+                      <Save size={18} /> Process Enrollment
                     </button>
                   </div>
                 </form>
@@ -457,6 +378,93 @@ export default function ManualEnrollment() {
           </AnimatePresence>
         </div>
       </div>
+
+      {/* Credit Transfer Modal */}
+      {isCreditModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-base-100 w-full max-w-3xl rounded-xl shadow-2xl flex flex-col max-h-[80vh] overflow-hidden"
+          >
+            <div className="p-4 border-b border-base-200 flex justify-between items-center bg-base-200/50">
+              <h3 className="font-bold text-lg flex gap-2 items-center">
+                <Award className="text-warning" /> Credit Subjects
+              </h3>
+              <button
+                onClick={() => setIsCreditModalOpen(false)}
+                className="btn btn-sm btn-circle btn-ghost"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="p-4 overflow-y-auto flex-1 bg-base-100">
+              {/* Validation Warning inside Modal */}
+              {!previousSchool && (
+                <div className="alert alert-error text-xs mb-4 shadow-sm">
+                  <AlertCircle size={16} />
+                  <span>
+                    Please enter the Previous School name in the main form
+                    before saving.
+                  </span>
+                </div>
+              )}
+
+              <p className="text-sm opacity-70 mb-4">
+                Select subjects from the curriculum that{" "}
+                <span className="font-bold">{student?.name}</span> has already
+                passed.
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                {allSubjects.map((sub) => (
+                  <div
+                    key={sub._id}
+                    onClick={() => toggleCreditSubject(sub.subjectId)}
+                    className={`p-3 rounded-lg border cursor-pointer transition-all flex justify-between items-center group ${
+                      selectedCredits.includes(sub.subjectId)
+                        ? "border-warning bg-warning/5"
+                        : "border-base-200 hover:border-warning/50 hover:bg-base-200/50"
+                    }`}
+                  >
+                    <div className="overflow-hidden">
+                      <div className="font-bold text-sm text-base-content group-hover:text-primary transition-colors">
+                        {sub.subjectId}
+                      </div>
+                      <div
+                        className="text-xs opacity-70 truncate max-w-[200px]"
+                        title={sub.description}
+                      >
+                        {sub.description || "No description"}
+                      </div>
+                    </div>
+                    {selectedCredits.includes(sub.subjectId) && (
+                      <CheckCircle2
+                        size={18}
+                        className="text-warning shrink-0"
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="p-4 border-t border-base-200 flex justify-between items-center bg-base-200/30">
+              <span className="text-sm font-bold text-base-content/70">
+                {selectedCredits.length} subjects selected
+              </span>
+              <button
+                onClick={handleSaveCredits}
+                className="btn btn-primary btn-sm gap-2"
+                disabled={!previousSchool} // Disable if previous school missing
+              >
+                <Save size={16} /> Save Credits
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }
