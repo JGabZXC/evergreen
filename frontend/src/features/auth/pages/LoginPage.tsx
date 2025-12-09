@@ -1,46 +1,37 @@
-import { Link, useNavigate, useSearchParams } from "react-router";
-import { useEffect, useRef } from "react"; // [!code focus]
+import { useNavigate } from "react-router";
+import { useEffect, useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { LoaderCircle } from "lucide-react";
 import { useLogin } from "../hooks/useLogin";
 
 export default function LoginPage() {
-  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const type = searchParams.get("type") || "student";
-  const { formData, handleChange, submitLogin, loading, errors } = useLogin();
+  const [formData, setFormData] = useState({ email: "", password: "" });
+  const { login, loading, errors, setErrors } = useLogin();
 
-  const abortControllerRef = useRef<AbortController | null>(null);
+  function handleChange(field: "email" | "password", value: string) {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    setErrors((prev) => ({ ...prev, [field]: undefined }));
+  }
+
+  function submitLogin(e: React.FormEvent) {
+    e.preventDefault();
+    login(formData.email, formData.password);
+  }
 
   const { user } = useAuth();
 
   useEffect(() => {
     if (user) {
-      navigate("/", { replace: true });
+      navigate("/dashboard", { replace: true });
     }
   }, [user, navigate]);
-
-  useEffect(() => {
-    if (!searchParams.get("type")) {
-      setSearchParams({ type: "student" }, { replace: true });
-    }
-  }, [searchParams.get("type"), setSearchParams]);
-
-  useEffect(() => {
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-    };
-  }, []);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-base-200">
       <div className="card w-full max-w-md bg-base-100 shadow-xl border border-base-200 dark:border-white/10">
         <div className="card-body">
-          <h2 className="card-title justify-center text-2xl mb-4">
-            Login as {type === "teacher" ? "Teacher" : "Student"}
-          </h2>
+          <h2 className="card-title justify-center text-2xl mb-4">Login</h2>
           <form className="space-y-6" onSubmit={submitLogin}>
             <div className="flex flex-col gap-2">
               <label className="label">
@@ -93,18 +84,6 @@ export default function LoginPage() {
               </button>
             </div>
           </form>
-          <div className="divider">OR</div>
-          <div className="text-center">
-            <p className="text-sm">
-              Login as {type === "teacher" ? "Student" : "Teacher"}?{" "}
-              <Link
-                to={`/login?type=${type === "teacher" ? "student" : "teacher"}`}
-                className="link link-primary"
-              >
-                Click here
-              </Link>
-            </p>
-          </div>
         </div>
       </div>
     </div>

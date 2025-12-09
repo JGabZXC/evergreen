@@ -20,7 +20,8 @@ export default function DashboardMain() {
       user.role !== StudentRole.Student &&
       user.role !== StaffRole.Teacher &&
       user.role !== StaffRole.Registrar &&
-      user.role !== StaffRole.Approver
+      user.role !== StaffRole.Approver &&
+      user.role !== StaffRole.Admin
     ) {
       navigate("/", { replace: true });
     }
@@ -40,6 +41,10 @@ export default function DashboardMain() {
 
   if (user.role === StaffRole.Approver) {
     return <DashboardAppointer />;
+  }
+
+  if (user.role === StaffRole.Admin) {
+    return <div>Admin Dashboard</div>;
   }
 
   return null;

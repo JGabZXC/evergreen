@@ -6,6 +6,7 @@ export default function ProtectedRoute({
 }: {
   allowedRoles: string[];
 }) {
+  console.log("ProtectedRoute checking roles:", allowedRoles);
   const { user } = useAuth();
   const location = useLocation();
 

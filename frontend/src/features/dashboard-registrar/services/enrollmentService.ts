@@ -1,4 +1,4 @@
-import { apiPrivate } from "../../../config/axiosPrivate";
+import { useAxiosPrivate } from "../../auth/hooks/useAxiosPrivate";
 
 export enum GradeLevel {
   Grade1 = "G-1",
@@ -61,6 +61,7 @@ interface SubjectResponse {
 }
 
 export const creditStudentSubjects = async (payloads: CreditPayload[]) => {
+  const apiPrivate = useAxiosPrivate();
   const response = await apiPrivate.post("/api/registrar/credit-subjects", {
     credits: payloads,
   });
@@ -68,11 +69,13 @@ export const creditStudentSubjects = async (payloads: CreditPayload[]) => {
 };
 
 export const enrollStudent = async (payload: EnrollPayload) => {
+  const apiPrivate = useAxiosPrivate();
   const response = await apiPrivate.post("/api/registrar/enroll", payload);
   return response.data;
 };
 
 export const getAllSubjects = async () => {
+  const apiPrivate = useAxiosPrivate();
   const response = await apiPrivate.get<SubjectResponse>("/api/subject/");
   return response.data;
 };

@@ -3,9 +3,13 @@ import logo from "../../assets/evergreen_logo.png";
 import { useLocation } from "react-router";
 import { useEffect, useState } from "react";
 import { Moon, Sun } from "lucide-react";
+import { useAuth } from "../../features/auth/hooks/useAuth";
+import { useLogout } from "../../features/auth/hooks/useLogout";
 
 function Navbar() {
   const location = useLocation();
+  const { user } = useAuth();
+  const { logout } = useLogout();
 
   const isInLoginPage = location.pathname === "/login";
 
@@ -51,9 +55,15 @@ function Navbar() {
         </button>
         {!isInLoginPage && (
           <div>
-            <Link to="/login" className="btn btn-primary">
-              Portal
-            </Link>
+            {user ? (
+              <button onClick={logout} className="btn btn-primary">
+                Logout
+              </button>
+            ) : (
+              <Link to="/login" className="btn btn-primary">
+                Portal
+              </Link>
+            )}
           </div>
         )}
       </div>
