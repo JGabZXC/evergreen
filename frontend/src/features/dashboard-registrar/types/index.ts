@@ -111,6 +111,12 @@ export interface Subject {
   updatedAt: string;
 }
 
+export interface SubjectResponse {
+  subjects: Subject[];
+  totalDocs: number;
+  totalPages: number;
+}
+
 export interface Classroom {
   _id: string;
   name: string; // Section Name

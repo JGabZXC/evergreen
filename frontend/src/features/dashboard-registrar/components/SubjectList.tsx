@@ -7,106 +7,53 @@ import {
   Edit2,
   Filter,
   CheckCircle2,
-} from "lucide-react"; // Added CheckCircle2
-
-// Sample JSON data
-const sampleSubjects = [
-  {
-    _id: "507f1f77bcf86cd799439011",
-    name: "Mathematics",
-    subjectId: "MATH-101",
-    description: "Basic arithmetic and algebra",
-    targetGradeLevels: ["G-7", "G-8", "G-9"],
-    semesterAvailable: [1, 2],
-    active: true,
-  },
-  {
-    _id: "507f1f77bcf86cd799439012",
-    name: "Science",
-    subjectId: "SCI-101",
-    description: "Introduction to physical and natural sciences",
-    targetGradeLevels: ["G-7", "G-8"],
-    semesterAvailable: [1, 2],
-    active: true,
-  },
-  {
-    _id: "507f1f77bcf86cd799439013",
-    name: "English",
-    subjectId: "ENG-101",
-    description: "Grammar, composition, and literature",
-    targetGradeLevels: ["G-7", "G-8", "G-9", "G-10"],
-    semesterAvailable: [1, 2],
-    active: true,
-  },
-  {
-    _id: "507f1f77bcf86cd799439014",
-    name: "Filipino",
-    subjectId: "FIL-101",
-    description: "Wika at Panitikan",
-    targetGradeLevels: ["G-7", "G-8", "G-9"],
-    semesterAvailable: [1, 2],
-    active: true,
-  },
-  {
-    _id: "507f1f77bcf86cd799439015",
-    name: "Physical Education",
-    subjectId: "PE-101",
-    description: "Health and fitness activities",
-    targetGradeLevels: ["G-7", "G-8", "G-9", "G-10"],
-    semesterAvailable: [1, 2],
-    active: true,
-  },
-  {
-    _id: "507f1f77bcf86cd799439016",
-    name: "Computer Science",
-    subjectId: "CS-201",
-    description: "Programming fundamentals and algorithms",
-    targetGradeLevels: ["SHS-11", "SHS-12"],
-    semesterAvailable: [1, 2],
-    active: true,
-  },
-  {
-    _id: "507f1f77bcf86cd799439017",
-    name: "History",
-    subjectId: "HIST-101",
-    description: "World history and civilization",
-    targetGradeLevels: ["G-9", "G-10"],
-    semesterAvailable: [1],
-    active: true,
-  },
-  {
-    _id: "507f1f77bcf86cd799439018",
-    name: "Arts",
-    subjectId: "ART-101",
-    description: "Visual and performing arts",
-    targetGradeLevels: ["G-7", "G-8"],
-    semesterAvailable: [1, 2],
-    active: true,
-  },
-];
-
-const ITEMS_PER_PAGE = 5;
+} from "lucide-react";
+import { GradeLevel, Semester } from "../types";
+import {
+  useSubjects,
+  useCreateSubjects,
+  useUpdateSubjects,
+} from "../hooks/useSubjects";
+import { toast } from "react-toastify";
 
 // Available grades for filter and form
 const GRADE_OPTIONS = [
-  { value: "G-7", label: "Grade 7" },
-  { value: "G-8", label: "Grade 8" },
-  { value: "G-9", label: "Grade 9" },
-  { value: "G-10", label: "Grade 10" },
-  { value: "SHS-11", label: "Grade 11 (SHS)" },
-  { value: "SHS-12", label: "Grade 12 (SHS)" },
-  { value: "COL-1", label: "College 1" },
-  { value: "COL-2", label: "College 2" },
-  { value: "COL-3", label: "College 3" },
-  { value: "COL-4", label: "College 4" },
+  { value: GradeLevel.Grade7, label: "Grade 7" },
+  { value: GradeLevel.Grade8, label: "Grade 8" },
+  { value: GradeLevel.Grade9, label: "Grade 9" },
+  { value: GradeLevel.Grade10, label: "Grade 10" },
+  { value: GradeLevel.Grade11, label: "Grade 11 (SHS)" },
+  { value: GradeLevel.Grade12, label: "Grade 12 (SHS)" },
+  { value: GradeLevel.College1, label: "College 1" },
+  { value: GradeLevel.College2, label: "College 2" },
+  { value: GradeLevel.College3, label: "College 3" },
+  { value: GradeLevel.College4, label: "College 4" },
 ];
 
 export default function SubjectList() {
   const [searchTerm, setSearchTerm] = useState("");
   const [gradeFilter, setGradeFilter] = useState("ALL");
   const [statusFilter, setStatusFilter] = useState("ALL"); // New Status Filter State
-  const [subjects, setSubjects] = useState(sampleSubjects);
   const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
+
+  // Debounce search term
+  const [debouncedSearch, setDebouncedSearch] = useState(searchTerm);
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(searchTerm), 500);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  const { subjects, totalPages, loading, refetch } = useSubjects(
+    currentPage,
+    ITEMS_PER_PAGE,
+    debouncedSearch,
+    gradeFilter,
+    statusFilter
+  );
+  const { loading: createLoading, create } = useCreateSubjects();
+  const { loading: updateLoading, update } = useUpdateSubjects();
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const modalRef = useRef<HTMLDialogElement>(null);
 
@@ -119,35 +66,10 @@ export default function SubjectList() {
     name: "",
     subjectId: "",
     description: "",
-    targetGradeLevels: [] as string[],
-    semesterAvailable: [] as number[],
+    targetGradeLevels: [] as GradeLevel[],
+    semesterAvailable: [] as Semester[],
     active: true,
   });
-
-  // Filter subjects logic
-  const filteredSubjects = subjects.filter((subject) => {
-    // 1. Search Filter
-    const matchesSearch =
-      subject.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      subject.subjectId.toLowerCase().includes(searchTerm.toLowerCase());
-
-    // 2. Grade Filter
-    const matchesGrade =
-      gradeFilter === "ALL" || subject.targetGradeLevels.includes(gradeFilter);
-
-    // 3. Status Filter (New)
-    const matchesStatus =
-      statusFilter === "ALL" ||
-      (statusFilter === "ACTIVE" ? subject.active : !subject.active);
-
-    return matchesSearch && matchesGrade && matchesStatus;
-  });
-
-  // Pagination logic
-  const totalPages = Math.ceil(filteredSubjects.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentSubjects = filteredSubjects.slice(startIndex, endIndex);
 
   // Handle modal
   useEffect(() => {
@@ -200,35 +122,25 @@ export default function SubjectList() {
     }, 200);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (isEditing && editingId) {
-      // Update existing
-      setSubjects((prev) =>
-        prev.map((sub) =>
-          sub._id === editingId ? { ...sub, ...formData } : sub
-        )
-      );
-    } else {
-      // Create new
-      const newSubject = {
-        ...formData,
-        _id: Math.random().toString(36).substr(2, 9),
-      };
-      setSubjects((prev) => [newSubject, ...prev]);
+    try {
+      if (isEditing && editingId) {
+        await update(editingId, formData);
+      } else {
+        await create(formData);
+        toast.success("Subject created successfully");
+      }
 
-      // Reset View on Add
-      setCurrentPage(1);
-      setSearchTerm("");
-      setGradeFilter("ALL");
-      setStatusFilter("ALL"); // Reset status filter too
+      handleCloseModal();
+      refetch();
+    } catch (error: any) {
+      console.error("Failed to save subject:", error);
+      toast.error(error.response?.data?.message || "Failed to save subject");
     }
-
-    handleCloseModal();
   };
-
-  const handleGradeLevelToggle = (grade: string) => {
+  const handleGradeLevelToggle = (grade: GradeLevel) => {
     setFormData((prev) => ({
       ...prev,
       targetGradeLevels: prev.targetGradeLevels.includes(grade)
@@ -329,103 +241,110 @@ export default function SubjectList() {
 
       {/* Subject List */}
       <AnimatePresence mode="wait">
-        <motion.div
-          // Added subjects.length and statusFilter to key to force refresh on add/change
-          key={
-            currentPage +
-            gradeFilter +
-            statusFilter +
-            searchTerm +
-            subjects.length
-          }
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          exit="hidden"
-          className="space-y-3"
-        >
-          {currentSubjects.map((subject) => (
-            <motion.div
-              layout
-              key={subject._id}
-              variants={itemVariants}
-              className="card bg-base-100 shadow-md hover:shadow-lg transition-shadow group"
-            >
-              <div className="card-body p-4">
-                <div className="flex items-start gap-3">
-                  <div className="avatar placeholder">
-                    <div className="bg-primary text-primary-content rounded-lg w-12 h-12 flex items-center justify-center">
-                      <BookOpen size={24} />
+        {loading ? (
+          <div className="flex justify-center py-10">
+            <span className="loading loading-spinner loading-lg"></span>
+          </div>
+        ) : (
+          <motion.div
+            key={
+              currentPage +
+              gradeFilter +
+              statusFilter +
+              debouncedSearch +
+              subjects.length
+            }
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            exit="hidden"
+            className="space-y-3"
+          >
+            {subjects.map((subject) => (
+              <motion.div
+                layout
+                key={subject._id}
+                variants={itemVariants}
+                className="card bg-base-100 shadow-md hover:shadow-lg transition-shadow group"
+              >
+                <div className="card-body p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="avatar placeholder">
+                      <div className="bg-primary text-primary-content rounded-lg w-12 h-12 flex items-center justify-center">
+                        <BookOpen size={24} />
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <h3 className="card-title text-base">{subject.name}</h3>
-                        <p className="text-sm text-base-content/60">
-                          {subject.subjectId}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <h3 className="card-title text-base">
+                            {subject.name}
+                          </h3>
+                          <p className="text-sm text-base-content/60">
+                            {subject.subjectId}
+                          </p>
+                        </div>
+
+                        <div className="flex items-start gap-2">
+                          <div className="flex flex-col items-end gap-1">
+                            {subject.active ? (
+                              <div className="badge badge-success badge-sm">
+                                Active
+                              </div>
+                            ) : (
+                              <div className="badge badge-error badge-sm">
+                                Inactive
+                              </div>
+                            )}
+                            <span className="text-xs text-base-content/50">
+                              Sem {subject.semesterAvailable.join(", ")}
+                            </span>
+                          </div>
+
+                          <button
+                            onClick={() => handleOpenModal(subject)}
+                            className="btn btn-ghost btn-xs btn-square text-base-content/50 hover:text-primary hover:bg-primary/10"
+                          >
+                            <Edit2 size={16} />
+                          </button>
+                        </div>
+                      </div>
+                      {subject.description && (
+                        <p className="text-sm text-base-content/70 mt-2 line-clamp-2">
+                          {subject.description}
                         </p>
-                      </div>
-
-                      <div className="flex items-start gap-2">
-                        <div className="flex flex-col items-end gap-1">
-                          {subject.active ? (
-                            <div className="badge badge-success badge-sm">
-                              Active
-                            </div>
-                          ) : (
-                            <div className="badge badge-error badge-sm">
-                              Inactive
-                            </div>
-                          )}
-                          <span className="text-xs text-base-content/50">
-                            Sem {subject.semesterAvailable.join(", ")}
-                          </span>
-                        </div>
-
-                        <button
-                          onClick={() => handleOpenModal(subject)}
-                          className="btn btn-ghost btn-xs btn-square text-base-content/50 hover:text-primary hover:bg-primary/10"
-                        >
-                          <Edit2 size={16} />
-                        </button>
-                      </div>
-                    </div>
-                    {subject.description && (
-                      <p className="text-sm text-base-content/70 mt-2 line-clamp-2">
-                        {subject.description}
-                      </p>
-                    )}
-                    <div className="flex flex-wrap gap-1 mt-3">
-                      {subject.targetGradeLevels.slice(0, 4).map((grade) => (
-                        <div
-                          key={grade}
-                          className="badge badge-outline badge-sm"
-                        >
-                          {grade}
-                        </div>
-                      ))}
-                      {subject.targetGradeLevels.length > 4 && (
-                        <div className="badge badge-ghost badge-sm">
-                          +{subject.targetGradeLevels.length - 4}
-                        </div>
                       )}
+                      <div className="flex flex-wrap gap-1 mt-3">
+                        {subject.targetGradeLevels.slice(0, 4).map((grade) => (
+                          <div
+                            key={grade}
+                            className="badge badge-outline badge-sm"
+                          >
+                            {grade}
+                          </div>
+                        ))}
+                        {subject.targetGradeLevels.length > 4 && (
+                          <div className="badge badge-ghost badge-sm">
+                            +{subject.targetGradeLevels.length - 4}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            ))}
 
-          {currentSubjects.length === 0 && (
-            <div className="card bg-base-100 shadow-md">
-              <div className="card-body items-center text-center py-12">
-                <BookOpen size={48} className="text-base-content/30 mb-3" />
-                <p className="text-base-content/60">No subjects found</p>
+            {subjects.length === 0 && (
+              <div className="card bg-base-100 shadow-md">
+                <div className="card-body items-center text-center py-12">
+                  <BookOpen size={48} className="text-base-content/30 mb-3" />
+                  <p className="text-base-content/60">No subjects found</p>
+                </div>
               </div>
-            </div>
-          )}
-        </motion.div>
+            )}
+          </motion.div>
+        )}
       </AnimatePresence>
 
       {/* Pagination */}
@@ -616,10 +535,18 @@ export default function SubjectList() {
                   type="button"
                   className="btn btn-ghost"
                   onClick={handleCloseModal}
+                  disabled={createLoading || updateLoading}
                 >
                   Cancel
                 </button>
-                <button type="submit" className="btn btn-primary">
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={createLoading || updateLoading}
+                >
+                  {(createLoading || updateLoading) && (
+                    <span className="loading loading-spinner loading-sm"></span>
+                  )}
                   {isEditing ? "Save Changes" : "Add Subject"}
                 </button>
               </div>
