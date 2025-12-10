@@ -2,23 +2,26 @@ import { Schema } from "mongoose";
 import { Subject } from "./Subject";
 import { Staff } from "./Staff";
 import { Student } from "./Student";
-import { ClassSchedule } from "./ClassSchedule";
+import { Semester } from "./types/Semester";
 
 export enum SubjectStatus {
-  Enrolled = "enrolled",
-  Passed = "passed",
-  Failed = "failed",
-  Dropped = "dropped",
-  Credited = "credited",
+  Enrolled = "Enrolled",
+  Passed = "Passed",
+  Failed = "Failed",
+  Dropped = "Dropped",
+  Credited = "Credited",
+  Withdrawn = "Withdrawn",
 }
 
 export interface BaseSubjectTaken {
   subjectId: string;
-  teacherId: string;
+  teacherId: string; // "TBA" or ObjectId
   studentId: string;
-  classroomId?: Schema.Types.ObjectId;
+  classroomId: Schema.Types.ObjectId;
   schoolYear: string;
-  semester: number;
+  semester: Semester;
+
+  // Grades
   prelim?: number;
   midterm?: number;
   final?: number;
@@ -30,7 +33,6 @@ export interface BaseSubjectTaken {
   subject: Subject;
   student: Student;
   teacher: Staff;
-  scheduleDetails: ClassSchedule;
 }
 
 export interface SubjectTaken extends BaseSubjectTaken {

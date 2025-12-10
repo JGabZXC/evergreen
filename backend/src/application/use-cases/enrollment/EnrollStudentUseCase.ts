@@ -26,7 +26,7 @@ export class EnrollStudentUseCase {
     session.startTransaction();
 
     try {
-      // 1. Validate Student & Get Assigned Course
+      // 1. Fetch Student & Validate Existence
       const student = await StudentModel.findOne({
         studentId: input.studentId,
       }).session(session);
@@ -37,11 +37,20 @@ export class EnrollStudentUseCase {
 
       if (!student.course) {
         throw new BadRequestError(
-          "Student has no assigned course/program. Please update student details first."
+          "Student has no assigned course. Please update student profile first."
         );
       }
 
-      // 2. Check for Existing Active Enrollment
+      // 2. Validate Promotion Eligibility
+      // Checks if student passed previous year (skipped if COL-1)
+      await this.advisingService.validatePromotionEligibility(
+        input.studentId,
+        student.course.toString(),
+        input.gradeLevel,
+        session
+      );
+
+      // 3. Check for Duplicate Active Enrollment
       const activeEnrollment = await EnrollmentRecordModel.findOne({
         studentId: input.studentId,
         schoolYear: input.schoolYear,
@@ -51,19 +60,21 @@ export class EnrollStudentUseCase {
 
       if (activeEnrollment) {
         throw new ConflictError(
-          "Student is already enrolled for this semester."
+          `Student is already enrolled for ${input.schoolYear} - ${input.semester}.`
         );
       }
 
-      // 3. Delegate: Allocation Service (Find Classroom)
+      // 4. REQ 4: Delegate Classroom Allocation
       let classroom;
       if (input.classroom) {
+        // Manual Selection
         classroom = await this.allocationService.validateManualSelection(
           input.classroom.toString(),
           input.gradeLevel,
           session
         );
       } else {
+        // Automatic / Load Balanced Selection
         classroom = await this.allocationService.findBestAvailableSection(
           input.gradeLevel,
           session
@@ -76,7 +87,7 @@ export class EnrollStudentUseCase {
         );
       }
 
-      // 4. Delegate: Advising Service (Determine Subjects)
+      // 5. Delegate: Advising (Determine Subjects)
       const subjectsToEnroll = await this.advisingService.determineStudentLoad(
         input.studentId,
         student.course.toString(),
@@ -85,20 +96,27 @@ export class EnrollStudentUseCase {
         session
       );
 
-      // 5. Fetch Schedule for Teacher Mapping (Persistence Detail)
-      // This maps the Advising result (Subjects) to the Allocation result (Classroom Schedule)
+      if (subjectsToEnroll.length === 0) {
+        // Edge case: Student passed everything or credited everything
+        throw new BadRequestError(
+          "No subjects left to enroll for this semester. Student may be fully credited or finished."
+        );
+      }
+
+      // 6. Fetch Schedule for Teacher Mapping
       const classSchedules = await ClassScheduleModel.find({
         classroomId: classroom._id,
         semester: input.semester,
         schoolYear: input.schoolYear,
       }).session(session);
 
+      // Map SubjectID -> TeacherID
       const scheduleMap = new Map<string, string>();
       classSchedules.forEach((sched) => {
-        scheduleMap.set(sched.subjectId, sched.teacherId);
+        scheduleMap.set(sched.subjectId.toString(), sched.teacherId);
       });
 
-      // 6. Persistence: Create Enrollment Record (Header)
+      // 7. Persistence: Create Enrollment Record
       const [enrollment] = await EnrollmentRecordModel.create(
         [
           {
@@ -114,13 +132,14 @@ export class EnrollStudentUseCase {
         { session }
       );
 
-      // 7. Persistence: Bulk Create SubjectTaken Records (Lines)
+      // 8. Persistence: Bulk Create SubjectTaken Records
       const subjectTakenDocs = subjectsToEnroll.map((subject: any) => {
-        const assignedTeacher = scheduleMap.get(subject.subjectId) || "TBA";
+        const assignedTeacher =
+          scheduleMap.get(subject._id.toString()) || "TBA"; // Handle missing schedule safely
 
         return {
           studentId: input.studentId,
-          subjectId: subject.subjectId,
+          subjectId: subject._id,
           classroomId: classroom._id,
           teacherId: assignedTeacher,
           schoolYear: input.schoolYear,
@@ -137,7 +156,8 @@ export class EnrollStudentUseCase {
         await SubjectTakenModel.insertMany(subjectTakenDocs, { session });
       }
 
-      // 8. Persistence: Update Classroom Capacity
+      // 9. Persistence: Update Classroom Capacity
+      // Use atomic increment to ensure thread safety
       await ClassroomModel.findByIdAndUpdate(
         classroom._id,
         { $inc: { currentCapacity: 1 } },

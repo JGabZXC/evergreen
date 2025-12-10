@@ -7,21 +7,15 @@ import {
 import { GradeLevel } from "../../domain/Subject";
 
 export class ClassroomAllocationService {
-  /**
-   * Validates a manually selected classroom for eligibility.
-   */
   async validateManualSelection(
     classroomId: string,
     targetGradeLevel: GradeLevel,
-    session?: mongoose.ClientSession
+    session: mongoose.ClientSession
   ) {
-    const classroom = await ClassroomModel.findById(classroomId).session(
-      session || null
-    );
+    const classroom =
+      await ClassroomModel.findById(classroomId).session(session);
 
-    if (!classroom) {
-      throw new NotFoundError("Classroom not found.");
-    }
+    if (!classroom) throw new NotFoundError("Classroom not found.");
 
     if (classroom.currentCapacity >= classroom.capacity) {
       throw new BadRequestError(`Classroom ${classroom.name} is full.`);
@@ -29,37 +23,33 @@ export class ClassroomAllocationService {
 
     if (classroom.gradeLevel !== targetGradeLevel) {
       throw new BadRequestError(
-        `Mismatch: Classroom is ${classroom.gradeLevel}, Student is ${targetGradeLevel}`
+        `Mismatch: Classroom is ${classroom.gradeLevel}, you are enrolling for ${targetGradeLevel}`
       );
     }
 
+    // Important: We don't increment here. We return the object.
+    // The UseCase transaction will perform the atomic increment.
     return classroom;
   }
 
-  /**
-   * Automatically finds the best available section using a load-balancing strategy.
-   */
   async findBestAvailableSection(
     gradeLevel: GradeLevel,
-    session?: mongoose.ClientSession
+    session: mongoose.ClientSession
   ) {
-    // Load Balancing Strategy:
-    // Find sections for this Grade Level that are NOT full.
-    // Sort by 'currentCapacity' ascending to fill sections evenly (Round Robin effect).
-    const availableSections = await ClassroomModel.find({
+    // Find section with lowest capacity that isn't full
+    const availableSection = await ClassroomModel.findOne({
       gradeLevel: gradeLevel,
       $expr: { $lt: ["$currentCapacity", "$capacity"] },
     })
-      .sort({ currentCapacity: 1 })
-      .limit(1)
-      .session(session || null);
+      .sort({ currentCapacity: 1 }) // Load balancing
+      .session(session);
 
-    if (availableSections.length === 0) {
+    if (!availableSection) {
       throw new BadRequestError(
-        `No available sections found for ${gradeLevel}. All are full.`
+        `No available sections found for ${gradeLevel}. Please contact the Registrar.`
       );
     }
 
-    return availableSections[0];
+    return availableSection;
   }
 }

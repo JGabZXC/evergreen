@@ -1,6 +1,5 @@
 import { Schema } from "mongoose";
 import { Semester } from "./types/Semester";
-import { Staff } from "./Staff";
 
 export enum GradeLevel {
   Grade1 = "G-1",
