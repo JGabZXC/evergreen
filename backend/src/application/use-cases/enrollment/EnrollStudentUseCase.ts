@@ -113,7 +113,7 @@ export class EnrollStudentUseCase {
       // Map SubjectID -> TeacherID
       const scheduleMap = new Map<string, string>();
       classSchedules.forEach((sched) => {
-        scheduleMap.set(sched.subjectId.toString(), sched.teacherId);
+        scheduleMap.set(sched.subject.toString(), sched.teacherId);
       });
 
       // 7. Persistence: Create Enrollment Record
@@ -139,7 +139,7 @@ export class EnrollStudentUseCase {
 
         return {
           studentId: input.studentId,
-          subjectId: subject._id,
+          subject: subject._id,
           classroomId: classroom._id,
           teacherId: assignedTeacher,
           schoolYear: input.schoolYear,

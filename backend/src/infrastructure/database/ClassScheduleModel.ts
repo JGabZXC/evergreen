@@ -15,7 +15,7 @@ const ClassScheduleSchema = new Schema<ClassSchedule & Document>(
       ref: "Classroom",
       required: true,
     },
-    subjectId: { type: String, required: true },
+    subject: { type: Schema.Types.ObjectId, ref: "Subject", required: true },
     teacherId: { type: String, default: "TBA" },
     schedules: [TimeSlotSchema],
     schoolYear: { type: String, required: true },
@@ -25,16 +25,9 @@ const ClassScheduleSchema = new Schema<ClassSchedule & Document>(
 );
 
 ClassScheduleSchema.index(
-  { classroomId: 1, subjectId: 1, schoolYear: 1, semester: 1 },
+  { classroomId: 1, subject: 1, schoolYear: 1, semester: 1 },
   { unique: true }
 );
-
-ClassScheduleSchema.virtual("subject", {
-  ref: "Subject",
-  localField: "subjectId",
-  foreignField: "subjectId",
-  justOne: true,
-});
 
 ClassScheduleSchema.virtual("teacher", {
   ref: "Staff",

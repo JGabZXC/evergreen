@@ -99,7 +99,14 @@ export const createSubject = async (
 };
 
 export const getSubject = async (req: Request, res: Response) => {
-  let { page = 1, limit = 10 } = req.query;
+  let {
+    page = 1,
+    limit = 10,
+    semester,
+    targetGradeLevels,
+    active,
+    search,
+  } = req.query;
   let { subjectId } = req.params;
 
   if (subjectId && typeof subjectId !== "string") {
@@ -126,7 +133,18 @@ export const getSubject = async (req: Request, res: Response) => {
     if (subjectId) {
       subjects = await getSubjectUseCase.execute(subjectId as string);
     } else {
-      subjects = await getAllSubjectUseCase.execute(skip, Number(limit));
+      const filter: any = {};
+      if (semester) filter.semester = Number(semester);
+      if (targetGradeLevels)
+        filter.targetGradeLevels = String(targetGradeLevels);
+      if (active !== undefined) filter.active = active === "true";
+      if (search) filter.subjectId = String(search);
+
+      subjects = await getAllSubjectUseCase.execute(
+        filter,
+        skip,
+        Number(limit)
+      );
 
       return res.status(HttpStatus.OK).json({ ...subjects });
     }
@@ -142,14 +160,27 @@ export const updateSubject = async (
   res: Response
 ) => {
   try {
-    const { subjectId } = req.params;
-    if (!subjectId || typeof subjectId !== "string") {
+    const {
+      name,
+      subjectId,
+      description,
+      targetGradeLevels,
+      semesterAvailable,
+      active,
+    } = req.body;
+    const { subjectId: paramSubjectId } = req.params;
+    if (!paramSubjectId || typeof paramSubjectId !== "string") {
       throw new BadRequestError("Subject ID is required and must be a string");
     }
-    const updatedSubject = await updateSubjectUseCase.execute(
+
+    const updatedSubject = await updateSubjectUseCase.execute(paramSubjectId, {
+      name,
       subjectId,
-      req.body
-    );
+      description,
+      targetGradeLevels,
+      semesterAvailable,
+      active,
+    });
     return res.status(HttpStatus.OK).json(updatedSubject);
   } catch (err) {
     throw err;

@@ -4,7 +4,7 @@ import { Semester } from "../../domain/types/Semester";
 
 export const SubjectTakenSchema = new Schema<BaseSubjectTaken & Document>(
   {
-    subjectId: { type: String, required: true },
+    subject: { type: Schema.Types.ObjectId, ref: "Subject", required: true },
     teacherId: { type: String, required: true },
     studentId: { type: String, required: true },
     classroomId: {
@@ -33,13 +33,6 @@ export const SubjectTakenSchema = new Schema<BaseSubjectTaken & Document>(
     timestamps: true,
   }
 );
-
-SubjectTakenSchema.virtual("subject", {
-  ref: "Subject",
-  localField: "subjectId",
-  foreignField: "subjectId",
-  justOne: true,
-});
 
 SubjectTakenSchema.virtual("teacher", {
   ref: "Staff",

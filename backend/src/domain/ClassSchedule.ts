@@ -12,14 +12,13 @@ export interface TimeSlot {
 
 export interface BaseClassSchedule {
   classroomId: Schema.Types.ObjectId;
-  subjectId: string;
+  subject: Schema.Types.ObjectId;
   teacherId: string;
   schedules: TimeSlot[];
   schoolYear: string;
   semester: number;
 
   // Virtuals
-  subject?: Subject;
   teacher?: Staff;
 }
 

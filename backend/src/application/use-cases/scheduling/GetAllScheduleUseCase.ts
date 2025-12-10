@@ -26,7 +26,7 @@ export class GetAllScheduleUseCase {
     if (filters.semester) query.semester = filters.semester;
     if (filters.classroomId) query.classroomId = filters.classroomId;
     if (filters.teacherId) query.teacherId = filters.teacherId;
-    if (filters.subjectId) query.subjectId = filters.subjectId;
+    if (filters.subjectId) query.subject = filters.subjectId;
 
     if (filters.room) {
       query["schedules.room"] = filters.room;

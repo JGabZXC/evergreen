@@ -14,7 +14,7 @@ export enum SubjectStatus {
 }
 
 export interface BaseSubjectTaken {
-  subjectId: string;
+  subject: Schema.Types.ObjectId | Subject;
   teacherId: string; // "TBA" or ObjectId
   studentId: string;
   classroomId: Schema.Types.ObjectId;
@@ -30,7 +30,6 @@ export interface BaseSubjectTaken {
   status: SubjectStatus;
 
   // VIRTUALS
-  subject: Subject;
   student: Student;
   teacher: Staff;
 }

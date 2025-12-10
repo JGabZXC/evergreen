@@ -60,11 +60,11 @@ export class StudentAdvisingService {
             h.status === SubjectStatus.Passed ||
             h.status === SubjectStatus.Credited // REQ 2: Transferees count as passed
         )
-        .map((h) => h.subjectId)
+        .map((h) => h.subject.toString())
     );
 
     const missingSubjects = requiredSubjects.filter(
-      (req) => !passedSubjectStrings.has(req.subjectId)
+      (req) => !passedSubjectStrings.has(req._id.toString())
     );
 
     if (missingSubjects.length > 0) {
@@ -114,13 +114,13 @@ export class StudentAdvisingService {
             h.status === SubjectStatus.Passed ||
             h.status === SubjectStatus.Credited
         )
-        .map((h) => h.subjectId)
+        .map((h) => h.subject.toString())
     );
 
     // 5. Filter: New Subjects to Take
     // Compare string vs string
     const subjectsToEnroll = potentialNewSubjects.filter(
-      (sub) => !passedSubjectStrings.has(sub.subjectId)
+      (sub) => !passedSubjectStrings.has(sub._id.toString())
     );
 
     // 6. Identify Retakes (Failed/Dropped)
@@ -129,14 +129,14 @@ export class StudentAdvisingService {
       (h) =>
         (h.status === SubjectStatus.Failed ||
           h.status === SubjectStatus.Dropped) &&
-        !passedSubjectStrings.has(h.subjectId)
+        !passedSubjectStrings.has(h.subject.toString())
     );
 
-    const retakeSubjectIds = failedHistory.map((h) => h.subjectId);
+    const retakeSubjectIds = failedHistory.map((h) => h.subject);
 
     // Fetch Retake Details
     const retakeDetails = await SubjectModel.find({
-      subjectId: { $in: retakeSubjectIds },
+      _id: { $in: retakeSubjectIds },
       active: true,
     }).session(session || null);
 

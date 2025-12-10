@@ -15,13 +15,13 @@ export class ManageClassScheduleUseCase {
     this.validateTimeSlots(data.schedules);
 
     // 2. VALIDATE SUBJECT EXISTENCE [NEW]
-    // Check if the subjectId actually exists in the Subject collection
-    const subjectExists = await SubjectModel.findOne({
-      subjectId: data.subjectId,
-    }).session(session || null);
+    // Check if the subject actually exists in the Subject collection
+    const subjectExists = await SubjectModel.findById(data.subject).session(
+      session || null
+    );
 
     if (!subjectExists) {
-      throw new NotFoundError(`Subject with ID '${data.subjectId}' not found.`);
+      throw new NotFoundError(`Subject with ID '${data.subject}' not found.`);
     }
 
     // 3. CHECK TEACHER CONFLICTS
@@ -30,7 +30,7 @@ export class ManageClassScheduleUseCase {
         teacherId: data.teacherId,
         schoolYear: data.schoolYear,
         semester: data.semester,
-        subjectId: { $ne: data.subjectId },
+        subject: { $ne: data.subject },
       }).session(session || null);
 
       this.checkConflicts(
@@ -45,7 +45,7 @@ export class ManageClassScheduleUseCase {
       classroomId: data.classroomId,
       schoolYear: data.schoolYear,
       semester: data.semester,
-      subjectId: { $ne: data.subjectId },
+      subject: { $ne: data.subject },
     }).session(session || null);
 
     this.checkConflicts(
@@ -83,7 +83,7 @@ export class ManageClassScheduleUseCase {
     const schedule = await ClassScheduleModel.findOneAndUpdate(
       {
         classroomId: data.classroomId,
-        subjectId: data.subjectId,
+        subject: data.subject,
         schoolYear: data.schoolYear,
       },
       {
@@ -97,7 +97,7 @@ export class ManageClassScheduleUseCase {
       await SubjectTakenModel.updateMany(
         {
           classroomId: data.classroomId,
-          subjectId: data.subjectId,
+          subject: data.subject,
           schoolYear: data.schoolYear,
           semester: data.semester,
         },

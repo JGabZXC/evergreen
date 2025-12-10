@@ -76,17 +76,11 @@ export const updateSchedule = async (
   res: Response
 ) => {
   try {
-    const {
-      classroomId,
-      subjectId,
-      teacherId,
-      schedules,
-      schoolYear,
-      semester,
-    } = req.body;
+    const { classroomId, subject, teacherId, schedules, schoolYear, semester } =
+      req.body;
     const errors: { [key: string]: string } = {};
 
-    if (!classroomId || !subjectId || !schoolYear || !semester || !schedules) {
+    if (!classroomId || !subject || !schoolYear || !semester || !schedules) {
       throw new BadRequestError(
         "Missing required fields: classroomId, subjectId, schoolYear, semester, or schedules."
       );
@@ -100,8 +94,8 @@ export const updateSchedule = async (
       errors.classroomId = "Classroom ID is required.";
     }
 
-    if (!subjectId) {
-      errors.subjectId = "Subject ID is required.";
+    if (!subject) {
+      errors.subject = "Subject ID is required.";
     }
     if (!schoolYear) {
       errors.schoolYear = "School year is required.";
@@ -116,7 +110,7 @@ export const updateSchedule = async (
 
     const scheduleData: BaseClassSchedule = {
       classroomId,
-      subjectId,
+      subject,
       teacherId: teacherId || "TBA", // Default to TBA if not provided
       schedules,
       schoolYear,
