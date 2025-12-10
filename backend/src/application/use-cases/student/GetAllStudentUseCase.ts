@@ -1,6 +1,6 @@
 import { StudentAggregate } from "../../../domain/Student";
 import { StudentModel } from "../../../infrastructure/database/StudentModel";
-import { StudentProfileModel } from "../../../infrastructure/database/StudentProfileModel";
+import mongoose from "mongoose";
 
 export class GetAllStudentUseCase {
   async execute(
@@ -18,6 +18,10 @@ export class GetAllStudentUseCase {
     // 1. Match Filter (Active/Inactive, etc)
     // For 'enrolled' view, we usually only want active students, but let's respect the passed filter
     if (Object.keys(filter).length > 0) {
+      // Ensure course is cast to ObjectId for aggregation
+      if (filter.course && typeof filter.course === "string") {
+        filter.course = new mongoose.Types.ObjectId(filter.course);
+      }
       pipeline.push({ $match: filter });
     }
 

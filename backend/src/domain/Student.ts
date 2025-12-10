@@ -40,7 +40,6 @@ export interface BaseStudent {
 
 export interface Student extends BaseStudent {
   _id: Schema.Types.ObjectId;
-  formattedId: string;
   isActive: boolean;
 }
 

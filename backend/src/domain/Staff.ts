@@ -32,5 +32,4 @@ export interface BaseStaff {
 export interface Staff extends BaseStaff {
   _id: Schema.Types.ObjectId;
   isActive: boolean;
-  formattedId: string;
 }

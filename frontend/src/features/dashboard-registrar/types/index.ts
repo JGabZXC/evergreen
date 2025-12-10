@@ -1,6 +1,4 @@
-// frontend/src/features/dashboard-registrar/types/index.ts
-
-// --- Enums ---
+// --- Enums  ---
 
 export enum GradeLevel {
   Grade1 = "G-1",
@@ -29,6 +27,22 @@ export enum Semester {
   Third = 3,
 }
 
+// --- Shared Sub-Interfaces ---
+
+export interface Address {
+  street: string;
+  city: string;
+  province: string;
+  postalCode: string;
+  country: string;
+}
+
+export interface Guardian {
+  name: string;
+  relationship: string;
+  contactNumber: string;
+}
+
 // --- Domain Interfaces ---
 
 export interface Course {
@@ -36,20 +50,8 @@ export interface Course {
   code: string;
   name: string;
   gradeAvailable: "shs" | "college";
-  // Add other fields if needed
-}
-
-export interface Address {
-  street?: string;
-  city?: string;
-  province?: string;
-  postalCode?: string;
-}
-
-export interface GuardianDetails {
-  name: string;
-  contact: string;
-  relation: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface StudentProfile {
@@ -57,10 +59,14 @@ export interface StudentProfile {
   studentId: string;
   firstName: string;
   lastName: string;
-  dateOfBirth: string; // ISO Date
-  phoneNumber?: string;
-  address?: Address;
-  guardianDetails?: GuardianDetails;
+  middleName?: string;
+  dateOfBirth: string;
+  gender: "Male" | "Female" | "Other";
+  civilStatus: "Single" | "Married" | "Widowed" | "Separated";
+  email: string;
+  phoneNumber: string;
+  address: Address;
+  guardian: Guardian;
   createdAt: string;
   updatedAt: string;
 }
@@ -69,28 +75,33 @@ export interface EnrollmentRecord {
   _id: string;
   studentId: string;
   schoolYear: string;
-  semester: number;
-  gradeLevel: string;
+  semester: Semester;
+  gradeLevel: GradeLevel;
   status: string; // e.g., "Enrolled", "Dropped"
   enrollmentDate: string;
-  // Add other fields if needed
+  classroomId?: string; // ID Reference
 }
 
+// Matches the aggregation result from GetAllStudentUseCase
 export interface Student {
   _id: string;
   userId: string;
   studentId: string;
-  formattedId: string;
   isActive: boolean;
-  course: Course; // Populated
+
+  // Populated Fields via Aggregation
+  course?: Course;
   profile?: StudentProfile;
   latestEnrollment?: EnrollmentRecord;
+
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Subject {
   _id: string;
-  name: string;
-  subjectId: string;
+  name: string; // e.g. "Calculus I" (This is essentially the 'description')
+  subjectId: string; // e.g. "MATH101" (This is essentially the 'code')
   description?: string;
   targetGradeLevels: GradeLevel[];
   semesterAvailable: Semester[];
@@ -102,17 +113,19 @@ export interface Subject {
 
 export interface Classroom {
   _id: string;
-  adviserId: string;
-  name: string; // Section name
+  name: string; // Section Name
   gradeLevel: GradeLevel;
   capacity: number;
   currentCapacity: number;
+  adviserId?: string; // Teacher ID
   createdAt: string;
   updatedAt: string;
 }
 
+// --- Schedule Interfaces ---
+
 export interface TimeSlot {
-  day: string;
+  day: "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun";
   startTime: string;
   endTime: string;
   room: string;
@@ -121,47 +134,42 @@ export interface TimeSlot {
 
 export interface ClassSchedule {
   _id: string;
-  classroomId:
-    | {
-        _id: string;
-        name: string;
-        gradeLevel: string;
-      }
-    | string; // Can be populated or ID
-  subjectId:
-    | {
-        _id: string;
-        name: string;
-        subjectId: string;
-      }
-    | string; // Can be populated or ID
-  teacherId:
-    | {
-        _id: string;
-        employeeId: string;
-        userId: {
-          email: string;
-          // other user fields
-        };
-      }
-    | string; // Can be populated or ID
+  classroomId: string | Classroom; // ID or Populated
+  subjectId: string | Subject; // ID or Populated
+  teacherId: string | Teacher; // ID or Populated
   schoolYear: string;
-  semester: number;
+  semester: Semester;
   schedules: TimeSlot[];
+  createdAt: string;
+  updatedAt: string;
+
+  // Virtuals populated by backend
+  subject?: Subject;
+  teacher?: Teacher;
+}
+
+// --- Staff/Teacher Interfaces ---
+
+export interface StaffProfile {
+  firstName: string;
+  lastName: string;
+  middleName?: string;
+  phoneNumber?: string;
 }
 
 export interface Teacher {
+  _id: string;
   userId: {
     _id: string;
     email: string;
+    username: string;
     role: string;
   };
   employeeId: string;
+  department: string;
+  position: string;
   isActive: boolean;
-  profile?: {
-    firstName: string;
-    lastName: string;
-  };
+  profile?: StaffProfile; // Populated
 }
 
 // --- API Response Interfaces ---
@@ -169,6 +177,7 @@ export interface Teacher {
 export interface PaginatedResponse {
   totalDocs: number;
   totalPages: number;
+  page: number; // Added page
 }
 
 export interface SubjectResponse extends PaginatedResponse {
@@ -191,7 +200,7 @@ export interface TeacherResponse extends PaginatedResponse {
   teachers: Teacher[];
 }
 
-// --- Payload Interfaces ---
+// --- Payload Interfaces (Requests) ---
 
 export interface CreditPayload {
   studentId: string;
@@ -205,10 +214,19 @@ export interface EnrollPayload {
   gradeLevel: GradeLevel;
   schoolYear: string;
   semester: Semester;
-  classroom?: string;
+  classroom?: string; // Optional Section ID override
 }
 
-// --- Option Interfaces (for Dropdowns) ---
+export interface CreateSchedulePayload {
+  classroomId: string;
+  subjectId: string;
+  teacherId: string; // "TBA" or Employee ID
+  schoolYear: string;
+  semester: Semester;
+  schedules: Omit<TimeSlot, "_id">[];
+}
+
+// --- Option Interfaces (UI Helpers) ---
 
 export interface SectionOption {
   _id: string;
@@ -219,7 +237,7 @@ export interface SectionOption {
 export interface SubjectOption {
   _id: string;
   subjectId: string;
-  name: string;
+  description: string; // Use description for display name
 }
 
 export interface TeacherOption {
@@ -227,26 +245,4 @@ export interface TeacherOption {
   firstName: string;
   lastName: string;
   employeeId: string;
-}
-
-// --- Component Specific Types ---
-
-export interface ScheduleSlot {
-  day: string;
-  startTime: string;
-  endTime: string;
-  room: string;
-}
-
-export interface ScheduleSlotWithId extends ScheduleSlot {
-  id: string;
-}
-
-export interface CreateSchedulePayload {
-  classroomId: string;
-  subjectId: string;
-  teacherId: string;
-  schoolYear: string;
-  semester: number;
-  schedules: ScheduleSlot[];
 }
