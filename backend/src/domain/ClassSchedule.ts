@@ -1,7 +1,6 @@
 import { Schema } from "mongoose";
-import { SubjectDTO } from "../interfaces/http/types/SubjectDTO";
-import { Subject } from "./Subject";
 import { Staff } from "./Staff";
+import { Semester } from "./types/Semester";
 
 export interface TimeSlot {
   day: "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun";
@@ -13,10 +12,10 @@ export interface TimeSlot {
 export interface BaseClassSchedule {
   classroomId: Schema.Types.ObjectId;
   subject: Schema.Types.ObjectId;
-  teacherId: string;
+  teacherId: string; // Employee ID
   schedules: TimeSlot[];
   schoolYear: string;
-  semester: number;
+  semester: Semester;
 
   // Virtuals
   teacher?: Staff;

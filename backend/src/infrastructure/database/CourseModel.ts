@@ -1,9 +1,11 @@
 import mongoose, { Schema } from "mongoose";
-import { Course, SubjectToBeTaken } from "../../domain/Course";
+import { Course, CurriculumItem } from "../../domain/Course";
 import { Semester } from "../../domain/types/Semester";
-import { GradeLevel } from "../../domain/Subject";
+import { GradeLevel } from "../../domain/types/GradeLevel";
 
-const SubjectToBeTakenSchema = new Schema<SubjectToBeTaken>({
+// TODO: In curriculum add effectiveYear to differentiate if the curriculum will update, e.g for 2023 curriculum vs 2024 curriculum
+
+const CurriculumItemSchema = new Schema<CurriculumItem>({
   semester: {
     type: Number,
     enum: Object.values(Semester).map(Number),
@@ -18,7 +20,7 @@ const CourseSchema = new Schema<Course & Document>(
     name: { type: String, required: true },
     code: { type: String, required: true, unique: true },
     gradeAvailable: { type: String, enum: ["shs", "college"], required: true },
-    subjectToBeTaken: [SubjectToBeTakenSchema],
+    curriculum: [CurriculumItemSchema],
   },
   { timestamps: true }
 );

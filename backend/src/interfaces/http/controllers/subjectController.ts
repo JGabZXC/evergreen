@@ -19,8 +19,7 @@ export const createSubject = async (
   req: AuthenticatedRequest,
   res: Response
 ) => {
-  const { name, subjectId, description, targetGradeLevels, semesterAvailable } =
-    req.body;
+  const { name, subjectId, description, semesterAvailable } = req.body;
   const bulk = req.query.bulk === "true";
 
   try {
@@ -88,7 +87,7 @@ export const createSubject = async (
     }
 
     const subject = await createSubjectUseCase.execute(
-      { name, subjectId, description, targetGradeLevels, semesterAvailable },
+      { name, subjectId, description, semesterAvailable },
       employeeId
     );
 
@@ -160,14 +159,8 @@ export const updateSubject = async (
   res: Response
 ) => {
   try {
-    const {
-      name,
-      subjectId,
-      description,
-      targetGradeLevels,
-      semesterAvailable,
-      active,
-    } = req.body;
+    const { name, subjectId, description, semesterAvailable, active } =
+      req.body;
     const { subjectId: paramSubjectId } = req.params;
     if (!paramSubjectId || typeof paramSubjectId !== "string") {
       throw new BadRequestError("Subject ID is required and must be a string");
@@ -177,7 +170,6 @@ export const updateSubject = async (
       name,
       subjectId,
       description,
-      targetGradeLevels,
       semesterAvailable,
       active,
     });
