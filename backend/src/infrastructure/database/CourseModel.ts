@@ -20,10 +20,31 @@ const CourseSchema = new Schema<Course & Document>(
     name: { type: String, required: true },
     code: { type: String, required: true, unique: true },
     gradeAvailable: { type: String, enum: ["shs", "college"], required: true },
-    curriculum: [CurriculumItemSchema],
+    curriculum: {
+      type: [CurriculumItemSchema],
+      validate: {
+        validator: function (items: CurriculumItem[]) {
+          const seen = new Set();
+
+          for (const item of items) {
+            // Create a unique key for each item (e.g., "G-11-1")
+            const key = `${item.gradeLevel}-${item.semester}`;
+
+            if (seen.has(key)) return false;
+
+            seen.add(key);
+          }
+          return true;
+        },
+        message:
+          "Duplicate Grade Level and Semester combination found in curriculum.",
+      },
+    },
   },
   { timestamps: true }
 );
+
+CourseSchema.index({ code: 1 });
 
 export const CourseModel = mongoose.model<Course & Document>(
   "Course",

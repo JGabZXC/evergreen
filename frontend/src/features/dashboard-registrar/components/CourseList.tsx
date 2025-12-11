@@ -38,8 +38,15 @@ export default function CourseList() {
     };
   }, [searchTerm]);
 
-  const { courses, loading, error, addCourse, editCourse, submitting } =
-    useCourses(currentPage, ITEMS_PER_PAGE, debouncedSearch, levelFilter);
+  const {
+    courses,
+    totalPages,
+    loading,
+    error,
+    addCourse,
+    editCourse,
+    submitting,
+  } = useCourses(currentPage, ITEMS_PER_PAGE, debouncedSearch, levelFilter);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -53,11 +60,6 @@ export default function CourseList() {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 },
   };
-
-  // --- Pagination Logic ---
-  const totalPages = Math.ceil(courses.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const currentCourses = courses.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   const toggleExpand = (id: string) => {
     setExpandedId(expandedId === id ? null : id);
@@ -154,7 +156,7 @@ export default function CourseList() {
             exit="hidden"
             className="space-y-3"
           >
-            {currentCourses.map((course) => (
+            {courses.map((course) => (
               <motion.div
                 layout // Essential for smooth expansion animation
                 key={course._id}
@@ -292,7 +294,7 @@ export default function CourseList() {
               </motion.div>
             ))}
 
-            {currentCourses.length === 0 && (
+            {courses.length === 0 && (
               <div className="card bg-base-100 shadow-md">
                 <div className="card-body items-center text-center py-12">
                   <GraduationCap

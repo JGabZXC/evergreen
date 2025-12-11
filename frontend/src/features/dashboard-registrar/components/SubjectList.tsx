@@ -26,7 +26,7 @@ const SEMESTER_OPTION = [
 export default function SubjectList() {
   const [searchTerm, setSearchTerm] = useState("");
   const [semesterFilter, setSemesterFilter] = useState("ALL");
-  const [statusFilter, setStatusFilter] = useState("ALL"); // New Status Filter State
+  const [statusFilter, setStatusFilter] = useState("ALL");
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 10;
 
@@ -202,7 +202,6 @@ export default function SubjectList() {
                 <option value="ACTIVE">Active</option>
                 <option value="INACTIVE">Inactive</option>
               </select>
-              {/* Added z-10 here to keep icon above the select focus state */}
               <CheckCircle2
                 size={16}
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/60 pointer-events-none z-10"

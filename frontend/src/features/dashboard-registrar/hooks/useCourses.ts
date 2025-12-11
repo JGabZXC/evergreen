@@ -14,6 +14,7 @@ export const useCourses = (
   gradeAvailable = ""
 ) => {
   const [courses, setCourses] = useState<Course[]>([]);
+  const [totalPages, setTotalPages] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -25,6 +26,7 @@ export const useCourses = (
 
       const result = await getAllCourses(page, limit, search, gradeAvailable);
       setCourses(result.courses);
+      setTotalPages(result.totalPages);
     } catch (err: any) {
       console.error("Failed to fetch courses:", err);
       if (err.response?.data?.error?.message) {
@@ -82,6 +84,7 @@ export const useCourses = (
 
   return {
     courses,
+    totalPages,
     loading,
     submitting,
     error,
