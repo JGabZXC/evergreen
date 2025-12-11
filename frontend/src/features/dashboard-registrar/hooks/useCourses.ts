@@ -16,18 +16,30 @@ export const useCourses = (
   const [courses, setCourses] = useState<Course[]>([]);
   const [totalPages, setTotalPages] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
-  const [submitting, setSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
+    const controller = new AbortController();
+    const { signal } = controller;
+
     try {
       setLoading(true);
       setError(null);
 
-      const result = await getAllCourses(page, limit, search, gradeAvailable);
+      const result = await getAllCourses(
+        page,
+        limit,
+        search,
+        gradeAvailable,
+        signal
+      );
       setCourses(result.courses);
       setTotalPages(result.totalPages);
     } catch (err: any) {
+      if (err.name === "CanceledError" || err.name === "AbortError") {
+        console.log("Request aborted");
+        return;
+      }
       console.error("Failed to fetch courses:", err);
       if (err.response?.data?.error?.message) {
         setError(err.response.data.error.message);
@@ -35,20 +47,38 @@ export const useCourses = (
         setError("Failed to fetch courses");
       }
     } finally {
-      setLoading(false);
+      if (!signal.aborted) {
+        setLoading(false);
+      }
     }
+
+    return () => controller.abort();
   }, [page, limit, search, gradeAvailable]);
 
   useEffect(() => {
-    fetchData();
+    const abortFn = fetchData();
+    return () => {
+      abortFn.then((fn) => fn && fn());
+    };
   }, [fetchData]);
 
-  const addCourse = async (data: CreateCoursePayload) => {
-    setSubmitting(true);
+  return {
+    courses,
+    totalPages,
+    loading,
+    error,
+    refetch: fetchData,
+  };
+};
+
+export const useCreateCourse = () => {
+  const [loading, setLoading] = useState(false);
+
+  const create = useCallback(async (data: CreateCoursePayload) => {
+    setLoading(true);
     try {
       await createCourse(data);
       toast.success("Course created successfully");
-      fetchData(); // Refresh list
       return true;
     } catch (error: any) {
       console.error(error);
@@ -57,39 +87,41 @@ export const useCourses = (
       );
       return false;
     } finally {
-      setSubmitting(false);
+      setLoading(false);
     }
-  };
-
-  const editCourse = async (
-    code: string,
-    data: Partial<CreateCoursePayload>
-  ) => {
-    setSubmitting(true);
-    try {
-      await updateCourse(code, data);
-      toast.success("Course updated successfully");
-      fetchData(); // Refresh list
-      return true;
-    } catch (error: any) {
-      console.error(error);
-      toast.error(
-        error.response?.data?.error?.message || "Failed to update course"
-      );
-      return false;
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  }, []);
 
   return {
-    courses,
-    totalPages,
     loading,
-    submitting,
-    error,
-    refetch: fetchData,
-    addCourse,
-    editCourse,
+    create,
+  };
+};
+
+export const useUpdateCourse = () => {
+  const [loading, setLoading] = useState(false);
+
+  const update = useCallback(
+    async (code: string, data: Partial<CreateCoursePayload>) => {
+      setLoading(true);
+      try {
+        await updateCourse(code, data);
+        toast.success("Course updated successfully");
+        return true;
+      } catch (error: any) {
+        console.error(error);
+        toast.error(
+          error.response?.data?.error?.message || "Failed to update course"
+        );
+        return false;
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+  return {
+    loading,
+    update,
   };
 };

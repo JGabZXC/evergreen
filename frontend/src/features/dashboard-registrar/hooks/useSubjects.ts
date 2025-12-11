@@ -18,6 +18,9 @@ export const useSubjects = (
   const [loading, setLoading] = useState(false);
 
   const fetchData = useCallback(async () => {
+    const controller = new AbortController();
+    const { signal } = controller;
+
     setLoading(true);
     try {
       const result = await getAllSubjects(
@@ -25,22 +28,34 @@ export const useSubjects = (
         limit,
         search,
         semesterFilter,
-        statusFilter
+        statusFilter,
+        signal
       );
       setData(result);
     } catch (err: any) {
+      if (err.name === "CanceledError" || err.name === "AbortError") {
+        console.log("Request aborted");
+        return;
+      }
       console.error("Failed to fetch subjects:", err);
 
       if (err.response?.data?.error?.message)
         toast.error(err.response.data.error.message);
       else toast.error("Failed to fetch subjects");
     } finally {
-      setLoading(false);
+      if (!signal.aborted) {
+        setLoading(false);
+      }
     }
+
+    return () => controller.abort();
   }, [page, limit, search, semesterFilter, statusFilter]);
 
   useEffect(() => {
-    fetchData();
+    const abortFn = fetchData();
+    return () => {
+      abortFn.then((fn) => fn && fn());
+    };
   }, [fetchData]);
 
   return {

@@ -181,7 +181,6 @@ export default function SubjectList() {
                   </option>
                 ))}
               </select>
-              {/* Added z-10 here to keep icon above the select focus state */}
               <Filter
                 size={16}
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/60 pointer-events-none z-10"

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { X, Plus, Trash2, Search } from "lucide-react";
 import { useSubjects } from "../hooks/useSubjects";
 import {
@@ -26,6 +26,7 @@ export default function CourseModal({
   initialData,
   isLoading,
 }: CourseModalProps) {
+  const modalRef = useRef<HTMLDialogElement>(null);
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
   const [gradeAvailable, setGradeAvailable] = useState<"shs" | "college">(
@@ -46,6 +47,16 @@ export default function CourseModal({
     }, 500);
     return () => clearTimeout(timer);
   }, [subjectSearch]);
+
+  // Handle modal open/close via ref
+  useEffect(() => {
+    if (!modalRef.current) return;
+    if (isOpen) {
+      modalRef.current.showModal();
+    } else {
+      modalRef.current.close();
+    }
+  }, [isOpen]);
 
   // Populate form when initialData changes (Edit Mode)
   useEffect(() => {
@@ -137,7 +148,7 @@ export default function CourseModal({
 
   // Use DaisyUI modal class structure
   return (
-    <dialog className={`modal ${isOpen ? "modal-open" : ""}`}>
+    <dialog ref={modalRef} className="modal" onCancel={onClose}>
       <div className="modal-box w-11/12 max-w-4xl p-0 overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
         <div className="bg-base-200 px-6 py-4 flex justify-between items-center sticky top-0 z-10">

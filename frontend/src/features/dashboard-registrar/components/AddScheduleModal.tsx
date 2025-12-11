@@ -2,11 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { X, Plus, Trash2, Save, Clock, Loader2, Filter } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useScheduleOptions } from "../hooks/useScheduleOptions";
-import type {
-  ScheduleSlot,
-  ScheduleSlotWithId,
-  CreateSchedulePayload,
-} from "../types";
+import type { CreateSchedulePayload } from "../types";
 
 // --- 1. Safe ID Generator ---
 const generateId = () => {
@@ -53,7 +49,7 @@ export default function AddScheduleModal({
 
     const courseSubjectIds = new Set<string>();
 
-    course.subjectToBeTaken?.forEach((term) => {
+    course.curriculum?.forEach((term) => {
       term.subject?.forEach((sub) => {
         const id = typeof sub === "string" ? sub : sub._id;
         if (id) courseSubjectIds.add(id);

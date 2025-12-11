@@ -6,7 +6,8 @@ export const getAllSubjects = async (
   limit = 10,
   search = "",
   semesterFilter = "",
-  statusFilter = ""
+  statusFilter = "",
+  signal?: AbortSignal
 ) => {
   const queryParams = new URLSearchParams({
     page: page.toString(),
@@ -21,7 +22,8 @@ export const getAllSubjects = async (
   }
 
   const response = await apiPrivate.get<SubjectResponse>(
-    `/api/subject?${queryParams.toString()}`
+    `/api/subject?${queryParams.toString()}`,
+    { signal }
   );
   return response.data;
 };

@@ -5,7 +5,8 @@ export const getAllCourses = async (
   page = 1,
   limit = 10,
   search = "",
-  gradeAvailable = ""
+  gradeAvailable = "",
+  signal?: AbortSignal
 ) => {
   const queryParams = new URLSearchParams({
     page: page.toString(),
@@ -16,7 +17,12 @@ export const getAllCourses = async (
   if (gradeAvailable && gradeAvailable !== "ALL")
     queryParams.append("gradeAvailable", gradeAvailable);
 
-  const courses = await apiPrivate.get(`/api/course?${queryParams.toString()}`);
+  const courses = await apiPrivate.get(
+    `/api/course?${queryParams.toString()}`,
+    {
+      signal,
+    }
+  );
   return courses.data;
 };
 

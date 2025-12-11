@@ -12,7 +12,11 @@ import {
   CalendarDays,
   AlertCircle,
 } from "lucide-react";
-import { useCourses } from "../hooks/useCourses";
+import {
+  useCourses,
+  useCreateCourse,
+  useUpdateCourse,
+} from "../hooks/useCourses";
 import CourseModal from "./CourseModal";
 import type { Course, CreateCoursePayload } from "../types";
 
@@ -38,15 +42,15 @@ export default function CourseList() {
     };
   }, [searchTerm]);
 
-  const {
-    courses,
-    totalPages,
-    loading,
-    error,
-    addCourse,
-    editCourse,
-    submitting,
-  } = useCourses(currentPage, ITEMS_PER_PAGE, debouncedSearch, levelFilter);
+  const { courses, totalPages, loading, error, refetch } = useCourses(
+    currentPage,
+    ITEMS_PER_PAGE,
+    debouncedSearch,
+    levelFilter
+  );
+
+  const { loading: createLoading, create } = useCreateCourse();
+  const { loading: updateLoading, update } = useUpdateCourse();
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -76,11 +80,17 @@ export default function CourseList() {
   };
 
   const handleModalSubmit = async (data: CreateCoursePayload) => {
+    let success = false;
     if (selectedCourse) {
-      return await editCourse(selectedCourse._id, data);
+      success = await update(selectedCourse._id, data);
     } else {
-      return await addCourse(data);
+      success = await create(data);
     }
+
+    if (success) {
+      refetch();
+    }
+    return success;
   };
 
   return (
@@ -349,7 +359,7 @@ export default function CourseList() {
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleModalSubmit}
         initialData={selectedCourse}
-        isLoading={submitting}
+        isLoading={createLoading || updateLoading}
       />
     </div>
   );
