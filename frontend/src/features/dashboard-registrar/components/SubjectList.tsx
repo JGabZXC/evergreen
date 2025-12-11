@@ -8,7 +8,7 @@ import {
   Filter,
   CheckCircle2,
 } from "lucide-react";
-import { GradeLevel, Semester } from "../types";
+import { Semester } from "../types";
 import {
   useSubjects,
   useCreateSubjects,
@@ -17,22 +17,15 @@ import {
 import { toast } from "react-toastify";
 
 // Available grades for filter and form
-const GRADE_OPTIONS = [
-  { value: GradeLevel.Grade7, label: "Grade 7" },
-  { value: GradeLevel.Grade8, label: "Grade 8" },
-  { value: GradeLevel.Grade9, label: "Grade 9" },
-  { value: GradeLevel.Grade10, label: "Grade 10" },
-  { value: GradeLevel.Grade11, label: "Grade 11 (SHS)" },
-  { value: GradeLevel.Grade12, label: "Grade 12 (SHS)" },
-  { value: GradeLevel.College1, label: "College 1" },
-  { value: GradeLevel.College2, label: "College 2" },
-  { value: GradeLevel.College3, label: "College 3" },
-  { value: GradeLevel.College4, label: "College 4" },
+const SEMESTER_OPTION = [
+  { value: Semester.First, label: "1" },
+  { value: Semester.Second, label: "2" },
+  { value: Semester.Third, label: "3" },
 ];
 
 export default function SubjectList() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [gradeFilter, setGradeFilter] = useState("ALL");
+  const [semesterFilter, setSemesterFilter] = useState("ALL");
   const [statusFilter, setStatusFilter] = useState("ALL"); // New Status Filter State
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 10;
@@ -48,7 +41,7 @@ export default function SubjectList() {
     currentPage,
     ITEMS_PER_PAGE,
     debouncedSearch,
-    gradeFilter,
+    semesterFilter,
     statusFilter
   );
   const { loading: createLoading, create } = useCreateSubjects();
@@ -66,7 +59,6 @@ export default function SubjectList() {
     name: "",
     subjectId: "",
     description: "",
-    targetGradeLevels: [] as GradeLevel[],
     semesterAvailable: [] as Semester[],
     active: true,
   });
@@ -86,7 +78,6 @@ export default function SubjectList() {
         name: subjectToEdit.name,
         subjectId: subjectToEdit.subjectId,
         description: subjectToEdit.description,
-        targetGradeLevels: subjectToEdit.targetGradeLevels,
         semesterAvailable: subjectToEdit.semesterAvailable,
         active: subjectToEdit.active,
       });
@@ -98,7 +89,6 @@ export default function SubjectList() {
         name: "",
         subjectId: "",
         description: "",
-        targetGradeLevels: [],
         semesterAvailable: [],
         active: true,
       });
@@ -115,7 +105,6 @@ export default function SubjectList() {
         name: "",
         subjectId: "",
         description: "",
-        targetGradeLevels: [],
         semesterAvailable: [],
         active: true,
       });
@@ -139,14 +128,6 @@ export default function SubjectList() {
       console.error("Failed to save subject:", error);
       toast.error(error.response?.data?.message || "Failed to save subject");
     }
-  };
-  const handleGradeLevelToggle = (grade: GradeLevel) => {
-    setFormData((prev) => ({
-      ...prev,
-      targetGradeLevels: prev.targetGradeLevels.includes(grade)
-        ? prev.targetGradeLevels.filter((g) => g !== grade)
-        : [...prev.targetGradeLevels, grade],
-    }));
   };
 
   const containerVariants = {
@@ -187,14 +168,14 @@ export default function SubjectList() {
             <div className="relative flex-1 md:flex-none">
               <select
                 className="select select-bordered w-full pl-9"
-                value={gradeFilter}
+                value={semesterFilter}
                 onChange={(e) => {
-                  setGradeFilter(e.target.value);
+                  setSemesterFilter(e.target.value);
                   setCurrentPage(1);
                 }}
               >
-                <option value="ALL">All Grades</option>
-                {GRADE_OPTIONS.map((opt) => (
+                <option value="ALL">All Semesters</option>
+                {SEMESTER_OPTION.map((opt) => (
                   <option key={opt.value} value={opt.value}>
                     {opt.label}
                   </option>
@@ -249,7 +230,7 @@ export default function SubjectList() {
           <motion.div
             key={
               currentPage +
-              gradeFilter +
+              semesterFilter +
               statusFilter +
               debouncedSearch +
               subjects.length
@@ -314,21 +295,6 @@ export default function SubjectList() {
                           {subject.description}
                         </p>
                       )}
-                      <div className="flex flex-wrap gap-1 mt-3">
-                        {subject.targetGradeLevels.slice(0, 4).map((grade) => (
-                          <div
-                            key={grade}
-                            className="badge badge-outline badge-sm"
-                          >
-                            {grade}
-                          </div>
-                        ))}
-                        {subject.targetGradeLevels.length > 4 && (
-                          <div className="badge badge-ghost badge-sm">
-                            +{subject.targetGradeLevels.length - 4}
-                          </div>
-                        )}
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -450,28 +416,6 @@ export default function SubjectList() {
               />
             </div>
 
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text">Target Grade Levels</span>
-              </label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 p-4 border border-base-300 rounded-lg max-h-48 overflow-y-auto">
-                {GRADE_OPTIONS.map((grade) => (
-                  <label
-                    key={grade.value}
-                    className="label cursor-pointer justify-start gap-2 hover:bg-base-200 rounded p-1"
-                  >
-                    <input
-                      type="checkbox"
-                      className="checkbox checkbox-primary checkbox-sm"
-                      checked={formData.targetGradeLevels.includes(grade.value)}
-                      onChange={() => handleGradeLevelToggle(grade.value)}
-                    />
-                    <span className="label-text">{grade.label}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="form-control flex-1">
                 <label className="label">
@@ -511,22 +455,24 @@ export default function SubjectList() {
                 </div>
               </div>
 
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text">Status</span>
-                </label>
-                <div className="flex items-center gap-2 mt-2">
-                  <span className="label-text">Active</span>
-                  <input
-                    type="checkbox"
-                    className="toggle toggle-success"
-                    checked={formData.active}
-                    onChange={(e) =>
-                      setFormData({ ...formData, active: e.target.checked })
-                    }
-                  />
+              {isEditing && (
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Status</span>
+                  </label>
+                  <div className="flex items-center gap-2 mt-2">
+                    <span className="label-text">Active</span>
+                    <input
+                      type="checkbox"
+                      className="toggle toggle-success"
+                      checked={formData.active}
+                      onChange={(e) =>
+                        setFormData({ ...formData, active: e.target.checked })
+                      }
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
             <div className="modal-action justify-end mt-6">

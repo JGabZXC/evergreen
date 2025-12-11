@@ -5,7 +5,7 @@ export const getAllSubjects = async (
   page = 1,
   limit = 10,
   search = "",
-  gradeFilter = "",
+  semesterFilter = "",
   statusFilter = ""
 ) => {
   const queryParams = new URLSearchParams({
@@ -14,8 +14,8 @@ export const getAllSubjects = async (
   });
 
   if (search) queryParams.append("search", search);
-  if (gradeFilter && gradeFilter !== "ALL")
-    queryParams.append("targetGradeLevels", gradeFilter);
+  if (semesterFilter && semesterFilter !== "ALL")
+    queryParams.append("semester", semesterFilter);
   if (statusFilter && statusFilter !== "ALL") {
     queryParams.append("active", statusFilter === "ACTIVE" ? "true" : "false");
   }

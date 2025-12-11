@@ -11,7 +11,7 @@ export const useSubjects = (
   page = 1,
   limit = 10,
   search = "",
-  gradeFilter = "",
+  semesterFilter = "",
   statusFilter = ""
 ) => {
   const [data, setData] = useState<SubjectResponse | null>(null);
@@ -24,7 +24,7 @@ export const useSubjects = (
         page,
         limit,
         search,
-        gradeFilter,
+        semesterFilter,
         statusFilter
       );
       setData(result);
@@ -37,7 +37,7 @@ export const useSubjects = (
     } finally {
       setLoading(false);
     }
-  }, [page, limit, search, gradeFilter, statusFilter]);
+  }, [page, limit, search, semesterFilter, statusFilter]);
 
   useEffect(() => {
     fetchData();

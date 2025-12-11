@@ -103,7 +103,7 @@ export interface Subject {
   name: string; // e.g. "Calculus I" (This is essentially the 'description')
   subjectId: string; // e.g. "MATH101" (This is essentially the 'code')
   description?: string;
-  targetGradeLevels: GradeLevel[];
+  // targetGradeLevels: GradeLevel[]; // REMOVED
   semesterAvailable: Semester[];
   active: boolean;
   createdBy: string;
