@@ -1,12 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Clock,
-  Plus,
-  RefreshCw,
-  LayoutDashboard,
-  Users,
-  Loader2,
-} from "lucide-react";
+import { Clock, Plus, RefreshCw, LayoutDashboard, Users } from "lucide-react";
 import AddScheduleModal from "./AddScheduleModal";
 import { useTeacherScheduling } from "../hooks/useTeacherScheduling";
 import { getSchoolYearOptions } from "../../../utils/schoolYear";
@@ -100,8 +93,8 @@ export default function TeacherScheduling() {
 
       {/* Schedule Grid */}
       {loading ? (
-        <div className="flex justify-center items-center py-20">
-          <Loader2 className="animate-spin text-primary" size={48} />
+        <div className="flex justify-center py-10">
+          <span className="loading loading-spinner loading-lg"></span>
         </div>
       ) : (
         <AnimatePresence mode="wait">

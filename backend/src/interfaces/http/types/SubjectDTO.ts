@@ -7,6 +7,6 @@ export type SubjectDTO = Omit<
 > & {
   _id: string;
   createdBy: UserDTO;
-  createdAt: string;
-  updatedAt: string;
+  // createdAt: string;
+  // updatedAt: string;
 };

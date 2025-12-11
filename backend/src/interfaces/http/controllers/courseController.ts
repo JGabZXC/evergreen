@@ -15,10 +15,10 @@ const getCourseUseCase = new GetCourseUseCase();
 const getAllCoursesUseCase = new GetAllCourseUseCase();
 
 export const getCourse = async (req: Request, res: Response) => {
-  let { page = 1, limit = 10 } = req.query;
-  const { code } = req.params;
+  let { page = 1, limit = 10, search, gradeAvailable } = req.query;
+  const { code: paramCode } = req.params;
 
-  if (code && typeof code !== "string") {
+  if (paramCode && typeof paramCode !== "string") {
     throw new BadRequestError("Course code is required and must be a string");
   }
 
@@ -38,12 +38,18 @@ export const getCourse = async (req: Request, res: Response) => {
   try {
     let courses;
 
-    if (code) {
-      courses = await getCourseUseCase.execute(code as string);
+    if (paramCode) {
+      courses = await getCourseUseCase.execute(paramCode as string);
     } else {
-      courses = await getAllCoursesUseCase.execute(skip, Number(limit));
+      const filter: Record<string, any> = {};
+      if (search) filter.code = String(search);
+      if (gradeAvailable) filter.gradeAvailable = String(gradeAvailable);
 
-      if (Number(page) > courses.totalPages) {
+      courses = await getAllCoursesUseCase.execute(filter, skip, Number(limit));
+
+      console.log(courses);
+
+      if (Number(page) > courses.totalPages && courses.totalDocs > 0) {
         throw new BadRequestError("Page number exceeds total pages");
       }
 

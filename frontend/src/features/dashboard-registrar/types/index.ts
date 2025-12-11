@@ -45,11 +45,19 @@ export interface Guardian {
 
 // --- Domain Interfaces ---
 
+export interface CurriculumItem {
+  _id: string;
+  semester: Semester;
+  gradeLevel: GradeLevel;
+  subject: Subject[];
+}
+
 export interface Course {
   _id: string;
   code: string;
   name: string;
   gradeAvailable: "shs" | "college";
+  curriculum: CurriculumItem[];
   createdAt: string;
   updatedAt: string;
 }
@@ -98,6 +106,18 @@ export interface Student {
   updatedAt: string;
 }
 
+export interface Staff {
+  _id: string;
+  userId: {
+    _id: string;
+    email: string;
+    username: string;
+    role: string;
+  };
+  employeeId: string;
+  isActive: boolean;
+}
+
 export interface Subject {
   _id: string;
   name: string; // e.g. "Calculus I" (This is essentially the 'description')
@@ -107,14 +127,8 @@ export interface Subject {
   semesterAvailable: Semester[];
   active: boolean;
   createdBy: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface SubjectResponse {
-  subjects: Subject[];
-  totalDocs: number;
-  totalPages: number;
+  // createdAt: string;
+  // updatedAt: string;
 }
 
 export interface Classroom {
@@ -157,10 +171,17 @@ export interface ClassSchedule {
 // --- Staff/Teacher Interfaces ---
 
 export interface StaffProfile {
+  employeeId: string;
   firstName: string;
   lastName: string;
-  middleName?: string;
-  phoneNumber?: string;
+  dateOfBirth: string;
+  address?: Address;
+  phoneNumber: string;
+  department: string;
+  hireDate: string;
+
+  // VIRTUALS
+  staff?: Staff;
 }
 
 export interface Teacher {
@@ -206,6 +227,10 @@ export interface TeacherResponse extends PaginatedResponse {
   teachers: Teacher[];
 }
 
+export interface CourseResponse extends PaginatedResponse {
+  courses: Course[];
+}
+
 // --- Payload Interfaces (Requests) ---
 
 export interface CreditPayload {
@@ -230,6 +255,15 @@ export interface CreateSchedulePayload {
   schoolYear: string;
   semester: Semester;
   schedules: Omit<TimeSlot, "_id">[];
+}
+
+export interface CreateCoursePayload {
+  name: string;
+  code: string;
+  gradeAvailable: "shs" | "college";
+  curriculum: (Omit<CurriculumItem, "_id" | "subject"> & {
+    subject: Subject["_id"][];
+  })[];
 }
 
 // --- Option Interfaces (UI Helpers) ---

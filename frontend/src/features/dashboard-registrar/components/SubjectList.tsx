@@ -348,7 +348,6 @@ export default function SubjectList() {
         </div>
       )}
 
-      {/* Modal - Same as before, code omitted for brevity but logic is unchanged */}
       <dialog ref={modalRef} className="modal" onCancel={handleCloseModal}>
         <div className="modal-box max-w-3xl">
           <form method="dialog">
