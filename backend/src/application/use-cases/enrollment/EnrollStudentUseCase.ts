@@ -46,8 +46,7 @@ export class EnrollStudentUseCase {
       await this.advisingService.validatePromotionEligibility(
         input.studentId,
         student.course.toString(),
-        input.gradeLevel,
-        session
+        input.gradeLevel
       );
 
       // 3. Check for Duplicate Active Enrollment
@@ -144,7 +143,7 @@ export class EnrollStudentUseCase {
           teacherId: assignedTeacher,
           schoolYear: input.schoolYear,
           semester: input.semester,
-          status: SubjectStatus.Enrolled,
+          status: SubjectStatus.Ongoing,
           prelim: 0,
           midterm: 0,
           final: 0,

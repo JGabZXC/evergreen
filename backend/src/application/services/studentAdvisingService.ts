@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { ClientSession } from "mongoose";
 import { CourseModel } from "../../infrastructure/database/CourseModel";
 import { SubjectTakenModel } from "../../infrastructure/database/SubjectTakenModel";
 import { SubjectModel } from "../../infrastructure/database/SubjectModel";
@@ -6,7 +6,7 @@ import {
   NotFoundError,
   BadRequestError,
 } from "../../interfaces/http/middleware/HttpErrors";
-import { GradeLevel } from "../../domain/Subject";
+import { GradeLevel } from "../../domain/types/GradeLevel";
 import { Semester } from "../../domain/types/Semester";
 import { SubjectStatus } from "../../domain/SubjectTaken";
 
@@ -14,65 +14,33 @@ export class StudentAdvisingService {
   async validatePromotionEligibility(
     studentId: string,
     courseId: string,
-    targetGradeLevel: GradeLevel,
-    session?: mongoose.ClientSession
+    targetGradeLevel: GradeLevel
   ): Promise<void> {
-    // 1. Skip validation for Freshmen (COL-1 or Grade 11)
-    if (this.isFirstYear(targetGradeLevel)) {
+    // 1. Incoming Freshmen (COL-1)
+    if (targetGradeLevel === GradeLevel.College1) {
+      await this.validateIncomingCollegeStudent(studentId);
       return;
     }
 
-    // 2. Identify Previous Grade Level
-    const previousGrade = this.getPreviousGradeLevel(targetGradeLevel);
-    if (!previousGrade) return;
-
-    // 3. Fetch Course Curriculum
-    const course = await CourseModel.findById(courseId).session(
-      session || null
-    );
-    if (!course) throw new NotFoundError("Course curriculum not found.");
-
-    // 4. Get Required Subject ObjectIds (from Course)
-    const requiredPreviousItems = course.subjectToBeTaken.filter(
-      (item) => item.gradeLevel === previousGrade
-    );
-    const requiredObjectIds = requiredPreviousItems.flatMap((c) => c.subject);
-
-    if (requiredObjectIds.length === 0) return;
-
-    // 5. Resolve ObjectIds -> Subject Details
-    const requiredSubjects = await SubjectModel.find({
-      _id: { $in: requiredObjectIds },
-    })
-      .select("subjectId name")
-      .session(session || null);
-
-    // 6. Fetch Student's Academic History
-    const history = await SubjectTakenModel.find({ studentId }).session(
-      session || null
-    );
-
-    // 7. Check for Clearance
-    const passedSubjectStrings = new Set(
-      history
-        .filter(
-          (h) =>
-            h.status === SubjectStatus.Passed ||
-            h.status === SubjectStatus.Credited // REQ 2: Transferees count as passed
-        )
-        .map((h) => h.subject.toString())
-    );
-
-    const missingSubjects = requiredSubjects.filter(
-      (req) => !passedSubjectStrings.has(req._id.toString())
-    );
-
-    if (missingSubjects.length > 0) {
-      const missingNames = missingSubjects.map((s) => s.name).join(", ");
-      throw new BadRequestError(
-        `Cannot enroll in ${targetGradeLevel}. You have unfinished subjects from ${previousGrade}: [${missingNames}]`
-      );
+    // 2. Incoming Grade 11 (New SHS)
+    if (targetGradeLevel === GradeLevel.Grade11) {
+      return;
     }
+
+    // 3. SHS Promotion (Grade 12)
+    if (targetGradeLevel === GradeLevel.Grade12) {
+      // Strict: Must have passed Grade 11
+      await this.validateStrictCompletion(
+        studentId,
+        courseId,
+        GradeLevel.Grade11
+      );
+      return;
+    }
+
+    // 4. College Promotion (COL-2+)
+    // Allow irregulars. Failed subjects will be picked up by determineStudentLoad.
+    return;
   }
 
   async determineStudentLoad(
@@ -89,13 +57,12 @@ export class StudentAdvisingService {
       throw new NotFoundError("Assigned course curriculum not found.");
 
     // 1. Get Standard Curriculum ObjectIds for this Sem
-    const curriculumSubjects = course.subjectToBeTaken.filter(
+    const curriculumSubjects = course.curriculum.filter(
       (item) => item.gradeLevel === gradeLevel && item.semester === semester
     );
     const standardObjectIds = curriculumSubjects.flatMap((c) => c.subject);
 
     // 2. Resolve ObjectIds -> String subjectIds
-    // We need the full subject details anyway for the final return
     const potentialNewSubjects = await SubjectModel.find({
       _id: { $in: standardObjectIds },
       active: true,
@@ -118,13 +85,11 @@ export class StudentAdvisingService {
     );
 
     // 5. Filter: New Subjects to Take
-    // Compare string vs string
     const subjectsToEnroll = potentialNewSubjects.filter(
       (sub) => !passedSubjectStrings.has(sub._id.toString())
     );
 
     // 6. Identify Retakes (Failed/Dropped)
-    // These are subjects in history that are NOT passed
     const failedHistory = academicHistory.filter(
       (h) =>
         (h.status === SubjectStatus.Failed ||
@@ -161,19 +126,77 @@ export class StudentAdvisingService {
 
   // --- Helpers ---
 
-  private isFirstYear(grade: GradeLevel): boolean {
-    return grade === GradeLevel.College1 || grade === GradeLevel.Grade11;
+  private async validateIncomingCollegeStudent(studentId: string) {
+    const history = await SubjectTakenModel.find({ studentId });
+    if (history.length === 0) return; // New student
+
+    // Check for unredeemed failures
+    const passedSubjects = new Set(
+      history
+        .filter(
+          (h) =>
+            h.status === SubjectStatus.Passed ||
+            h.status === SubjectStatus.Credited
+        )
+        .map((h) => h.subject.toString())
+    );
+
+    const failedSubjects = history
+      .filter(
+        (h) =>
+          h.status === SubjectStatus.Failed ||
+          h.status === SubjectStatus.Dropped
+      )
+      .map((h) => h.subject.toString());
+
+    for (const failedId of failedSubjects) {
+      if (!passedSubjects.has(failedId)) {
+        throw new BadRequestError(
+          "Cannot enroll in College. You have unfinished subjects from previous levels."
+        );
+      }
+    }
   }
 
-  private getPreviousGradeLevel(current: GradeLevel): GradeLevel | null {
-    const map: Partial<Record<GradeLevel, GradeLevel>> = {
-      [GradeLevel.Grade12]: GradeLevel.Grade11,
-      [GradeLevel.College2]: GradeLevel.College1,
-      [GradeLevel.College3]: GradeLevel.College2,
-      [GradeLevel.College4]: GradeLevel.College3,
-      [GradeLevel.College5]: GradeLevel.College4,
-      [GradeLevel.College6]: GradeLevel.College5,
-    };
-    return map[current] || null;
+  private async validateStrictCompletion(
+    studentId: string,
+    courseId: string,
+    requiredGradeLevel: GradeLevel
+  ) {
+    const course = await CourseModel.findById(courseId);
+    if (!course) throw new NotFoundError("Course curriculum not found.");
+
+    const requiredItems = course.curriculum.filter(
+      (item) => item.gradeLevel === requiredGradeLevel
+    );
+    const requiredObjectIds = requiredItems.flatMap((c) => c.subject);
+
+    if (requiredObjectIds.length === 0) return;
+
+    const history = await SubjectTakenModel.find({ studentId });
+
+    const passedSubjectStrings = new Set(
+      history
+        .filter(
+          (h) =>
+            h.status === SubjectStatus.Passed ||
+            h.status === SubjectStatus.Credited
+        )
+        .map((h) => h.subject.toString())
+    );
+
+    const missingIds = requiredObjectIds.filter(
+      (id) => !passedSubjectStrings.has(id.toString())
+    );
+
+    if (missingIds.length > 0) {
+      const missingSubjects = await SubjectModel.find({
+        _id: { $in: missingIds },
+      });
+      const missingNames = missingSubjects.map((s) => s.name).join(", ");
+      throw new BadRequestError(
+        `Cannot enroll in next level. You have unfinished subjects from ${requiredGradeLevel}: [${missingNames}]`
+      );
+    }
   }
 }

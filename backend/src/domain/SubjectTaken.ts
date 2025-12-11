@@ -5,7 +5,7 @@ import { Student } from "./Student";
 import { Semester } from "./types/Semester";
 
 export enum SubjectStatus {
-  Enrolled = "Enrolled",
+  Ongoing = "Ongoing",
   Passed = "Passed",
   Failed = "Failed",
   Dropped = "Dropped",
