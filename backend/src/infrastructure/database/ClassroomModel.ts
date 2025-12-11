@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
 import { Classroom } from "../../domain/Classroom";
-import { GradeLevel } from "../../domain/Subject";
+import { GradeLevel } from "../../domain/types/GradeLevel";
 
 const ClassroomSchema = new Schema<Classroom & Document>(
   {

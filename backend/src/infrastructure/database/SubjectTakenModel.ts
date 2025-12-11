@@ -25,7 +25,7 @@ export const SubjectTakenSchema = new Schema<BaseSubjectTaken & Document>(
     status: {
       type: String,
       enum: Object.values(SubjectStatus),
-      default: SubjectStatus.Enrolled,
+      default: SubjectStatus.Ongoing,
       required: true,
     },
   },

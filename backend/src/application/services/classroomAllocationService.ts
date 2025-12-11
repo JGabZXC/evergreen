@@ -4,16 +4,14 @@ import {
   BadRequestError,
   NotFoundError,
 } from "../../interfaces/http/middleware/HttpErrors";
-import { GradeLevel } from "../../domain/Subject";
+import { GradeLevel } from "../../domain/types/GradeLevel";
 
 export class ClassroomAllocationService {
   async validateManualSelection(
     classroomId: string,
-    targetGradeLevel: GradeLevel,
-    session: mongoose.ClientSession
+    targetGradeLevel: GradeLevel
   ) {
-    const classroom =
-      await ClassroomModel.findById(classroomId).session(session);
+    const classroom = await ClassroomModel.findById(classroomId);
 
     if (!classroom) throw new NotFoundError("Classroom not found.");
 
@@ -32,17 +30,12 @@ export class ClassroomAllocationService {
     return classroom;
   }
 
-  async findBestAvailableSection(
-    gradeLevel: GradeLevel,
-    session: mongoose.ClientSession
-  ) {
+  async findBestAvailableSection(gradeLevel: GradeLevel) {
     // Find section with lowest capacity that isn't full
     const availableSection = await ClassroomModel.findOne({
       gradeLevel: gradeLevel,
       $expr: { $lt: ["$currentCapacity", "$capacity"] },
-    })
-      .sort({ currentCapacity: 1 }) // Load balancing
-      .session(session);
+    }).sort({ currentCapacity: 1 }); // Load balancing
 
     if (!availableSection) {
       throw new BadRequestError(

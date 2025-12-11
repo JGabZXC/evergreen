@@ -3,8 +3,8 @@ import {
   EnrollmentRecord,
   EnrollmentStatus,
 } from "../../domain/EnrollmentRecord";
-import { GradeLevel } from "../../domain/Subject";
 import { Semester } from "../../domain/types/Semester";
+import { GradeLevel } from "../../domain/types/GradeLevel";
 
 const EnrollmentRecordSchema = new Schema<EnrollmentRecord & Document>(
   {

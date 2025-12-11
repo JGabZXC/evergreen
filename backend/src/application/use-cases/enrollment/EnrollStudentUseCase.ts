@@ -16,6 +16,7 @@ import { ClassScheduleModel } from "../../../infrastructure/database/ClassSchedu
 import { ClassroomModel } from "../../../infrastructure/database/ClassroomModel";
 import { StudentAdvisingService } from "../../services/studentAdvisingService";
 import { ClassroomAllocationService } from "../../services/classroomAllocationService";
+import { Subject } from "../../../domain/Subject";
 
 export class EnrollStudentUseCase {
   private advisingService = new StudentAdvisingService();
@@ -69,14 +70,12 @@ export class EnrollStudentUseCase {
         // Manual Selection
         classroom = await this.allocationService.validateManualSelection(
           input.classroom.toString(),
-          input.gradeLevel,
-          session
+          input.gradeLevel
         );
       } else {
         // Automatic / Load Balanced Selection
         classroom = await this.allocationService.findBestAvailableSection(
-          input.gradeLevel,
-          session
+          input.gradeLevel
         );
       }
 
@@ -107,7 +106,7 @@ export class EnrollStudentUseCase {
         classroomId: classroom._id,
         semester: input.semester,
         schoolYear: input.schoolYear,
-      }).session(session);
+      });
 
       // Map SubjectID -> TeacherID
       const scheduleMap = new Map<string, string>();
@@ -132,7 +131,7 @@ export class EnrollStudentUseCase {
       );
 
       // 8. Persistence: Bulk Create SubjectTaken Records
-      const subjectTakenDocs = subjectsToEnroll.map((subject: any) => {
+      const subjectTakenDocs = subjectsToEnroll.map((subject: Subject) => {
         const assignedTeacher =
           scheduleMap.get(subject._id.toString()) || "TBA"; // Handle missing schedule safely
 

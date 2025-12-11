@@ -1,7 +1,6 @@
 import { Schema } from "mongoose";
 import { Semester } from "./types/Semester";
-import { BaseSubjectTaken, SubjectTaken } from "./SubjectTaken";
-import { GradeLevel } from "./Subject";
+import { GradeLevel } from "./types/GradeLevel";
 
 export enum EnrollmentStatus {
   Enrolled = "Enrolled",
