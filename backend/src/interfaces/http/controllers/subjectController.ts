@@ -98,14 +98,7 @@ export const createSubject = async (
 };
 
 export const getSubject = async (req: Request, res: Response) => {
-  let {
-    page = 1,
-    limit = 10,
-    semester,
-    targetGradeLevels,
-    active,
-    search,
-  } = req.query;
+  let { page = 1, limit = 10, semester, active, search } = req.query;
   let { subjectId } = req.params;
 
   if (subjectId && typeof subjectId !== "string") {
@@ -134,8 +127,6 @@ export const getSubject = async (req: Request, res: Response) => {
     } else {
       const filter: any = {};
       if (semester) filter.semester = Number(semester);
-      if (targetGradeLevels)
-        filter.targetGradeLevels = String(targetGradeLevels);
       if (active !== undefined) filter.active = active === "true";
       if (search) filter.subjectId = String(search);
 

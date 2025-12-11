@@ -7,7 +7,7 @@ export class GetAllCourseUseCase {
       CourseModel.find()
         .skip(skip)
         .limit(limit)
-        .populate("subjectToBeTaken.subject")
+        .populate("curriculum.subject")
         .lean<CourseDTO[]>(),
       CourseModel.countDocuments(),
     ]);

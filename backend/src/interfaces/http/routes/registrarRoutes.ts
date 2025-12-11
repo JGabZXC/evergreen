@@ -2,11 +2,8 @@ import { Router } from "express";
 import { authGuard } from "../middleware/authGuard";
 import { isRegistrar, requireRole } from "../middleware/permissions";
 import {
-  createCourse,
   creditSubject,
   deactivateUser,
-  getCourse,
-  updateCourse,
 } from "../controllers/registrarController";
 import { enrollStudent } from "../controllers/enrollmentController";
 import { StaffRole, StudentRole } from "../../../domain/types/Role";
@@ -19,25 +16,6 @@ import {
 const router = Router();
 
 router.post("/deactivate-users", authGuard, isRegistrar, deactivateUser);
-
-// COURSE
-router
-  .route("/course")
-  .get(
-    authGuard,
-    requireRole(StaffRole.Registrar, StudentRole.Student),
-    getCourse
-  )
-  .post(authGuard, isRegistrar, createCourse);
-
-router
-  .route("/course/:code")
-  .get(
-    authGuard,
-    requireRole(StaffRole.Registrar, StudentRole.Student),
-    getCourse
-  )
-  .patch(authGuard, isRegistrar, updateCourse);
 
 // ENROLLMENT
 router.post("/enroll", authGuard, isRegistrar, enrollStudent);

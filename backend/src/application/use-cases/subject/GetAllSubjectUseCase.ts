@@ -3,7 +3,6 @@ import { SubjectDTO } from "../../../interfaces/http/types/SubjectDTO";
 
 export interface SubjectFilter {
   semester?: number;
-  targetGradeLevels?: string;
   active?: boolean;
   subjectId?: string;
 }
@@ -14,10 +13,6 @@ export class GetAllSubjectUseCase {
 
     if (filter.semester !== undefined) {
       query.semesterAvailable = filter.semester;
-    }
-
-    if (filter.targetGradeLevels) {
-      query.targetGradeLevels = filter.targetGradeLevels;
     }
 
     if (filter.active !== undefined) {
