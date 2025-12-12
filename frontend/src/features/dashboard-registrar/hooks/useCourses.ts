@@ -18,48 +18,45 @@ export const useCourses = (
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchData = useCallback(async () => {
-    const controller = new AbortController();
-    const { signal } = controller;
+  const fetchData = useCallback(
+    async (signal?: AbortSignal) => {
+      try {
+        setLoading(true);
+        setError(null);
 
-    try {
-      setLoading(true);
-      setError(null);
-
-      const result = await getAllCourses(
-        page,
-        limit,
-        search,
-        gradeAvailable,
-        signal
-      );
-      setCourses(result.courses);
-      setTotalPages(result.totalPages);
-    } catch (err: any) {
-      if (err.name === "CanceledError" || err.name === "AbortError") {
-        console.log("Request aborted");
-        return;
+        const result = await getAllCourses(
+          page,
+          limit,
+          search,
+          gradeAvailable,
+          signal
+        );
+        setCourses(result.courses);
+        setTotalPages(result.totalPages);
+      } catch (err: any) {
+        if (err.name === "CanceledError" || err.name === "AbortError") {
+          console.log("Request aborted");
+          return;
+        }
+        console.error("Failed to fetch courses:", err);
+        if (err.response?.data?.error?.message) {
+          setError(err.response.data.error.message);
+        } else {
+          setError("Failed to fetch courses");
+        }
+      } finally {
+        if (!signal?.aborted) {
+          setLoading(false);
+        }
       }
-      console.error("Failed to fetch courses:", err);
-      if (err.response?.data?.error?.message) {
-        setError(err.response.data.error.message);
-      } else {
-        setError("Failed to fetch courses");
-      }
-    } finally {
-      if (!signal.aborted) {
-        setLoading(false);
-      }
-    }
-
-    return () => controller.abort();
-  }, [page, limit, search, gradeAvailable]);
+    },
+    [page, limit, search, gradeAvailable]
+  );
 
   useEffect(() => {
-    const abortFn = fetchData();
-    return () => {
-      abortFn.then((fn) => fn && fn());
-    };
+    const controller = new AbortController();
+    fetchData(controller.signal);
+    return () => controller.abort();
   }, [fetchData]);
 
   return {
@@ -67,7 +64,7 @@ export const useCourses = (
     totalPages,
     loading,
     error,
-    refetch: fetchData,
+    refetch: () => fetchData(),
   };
 };
 

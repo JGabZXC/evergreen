@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Plus,
   Edit2,
@@ -6,6 +6,7 @@ import {
   Users,
   GraduationCap,
   Calendar,
+  Search,
 } from "lucide-react";
 import {
   useSections,
@@ -13,18 +14,45 @@ import {
   useUpdateSection,
 } from "../hooks/useSections";
 import SectionModal from "./SectionModal";
-import type { Section, CreateSectionPayload } from "../types";
+import { GradeLevel, type Section, type CreateSectionPayload } from "../types";
 import { AnimatePresence, motion } from "framer-motion";
+import { getSchoolYearOptions } from "../../../utils/schoolYear";
 
 export default function SectionList() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSection, setSelectedSection] = useState<Section | null>(null);
+
+  // Filter states
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [gradeLevel, setGradeLevel] = useState("");
+  const [schoolYear, setSchoolYear] = useState("");
+  const [capacity, setCapacity] = useState("");
+
   const ITEMS_PER_PAGE = 10;
+
+  // Debounce search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+      setCurrentPage(1);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [gradeLevel, schoolYear, capacity]);
 
   const { sections, totalPages, loading, error, refetch } = useSections(
     currentPage,
-    ITEMS_PER_PAGE
+    ITEMS_PER_PAGE,
+    debouncedSearch,
+    gradeLevel,
+    schoolYear,
+    capacity
   );
 
   const { loading: createLoading, create } = useCreateSection();
@@ -76,8 +104,74 @@ export default function SectionList() {
         </div>
       )}
 
-      <div className="flex justify-end">
-        <button onClick={handleAddClick} className="btn btn-primary gap-2">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-base-200 p-4 rounded-lg">
+        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+          {/* Search */}
+          <div className="form-control w-full">
+            <div className="input-group w-full">
+              <div className="relative w-full">
+                <input
+                  type="text"
+                  placeholder="Search sections..."
+                  className="input input-bordered w-full pl-10"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+                <Search
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-base-content/50"
+                  size={18}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Grade Level Filter */}
+          <select
+            className="select select-bordered w-full"
+            value={gradeLevel}
+            onChange={(e) => setGradeLevel(e.target.value)}
+          >
+            <option value="">All Grade Levels</option>
+            <option value={GradeLevel.Grade7}>Grade 7</option>
+            <option value={GradeLevel.Grade8}>Grade 8</option>
+            <option value={GradeLevel.Grade9}>Grade 9</option>
+            <option value={GradeLevel.Grade10}>Grade 10</option>
+            <option value={GradeLevel.Grade11}>Grade 11</option>
+            <option value={GradeLevel.Grade12}>Grade 12</option>
+          </select>
+
+          {/* School Year Filter */}
+          <select
+            className="select select-bordered w-full"
+            value={schoolYear}
+            onChange={(e) => setSchoolYear(e.target.value)}
+          >
+            <option value="">All School Years</option>
+            {getSchoolYearOptions().map((year) => (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            ))}
+          </select>
+
+          {/* Capacity Filter */}
+          <select
+            className="select select-bordered w-full"
+            value={capacity}
+            onChange={(e) => setCapacity(e.target.value)}
+          >
+            <option value="">Any Capacity</option>
+            <option value="30">30 Students</option>
+            <option value="40">40 Students</option>
+            <option value="50">50 Students</option>
+            <option value="60">60 Students</option>
+          </select>
+        </div>
+
+        <button
+          onClick={handleAddClick}
+          className="btn btn-primary gap-2 whitespace-nowrap"
+        >
           <Plus size={18} />
           Add Section
         </button>

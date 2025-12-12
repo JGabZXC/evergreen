@@ -14,15 +14,7 @@ const updateRoomUseCase = new UpdateRoomUseCase();
 const createRoomUseCase = new CreateRoomUseCase();
 
 export const getRoom = async (req: Request, res: Response) => {
-  let {
-    page = 1,
-    limit = 10,
-    search,
-    type,
-    capacity,
-    status,
-    isActive,
-  } = req.query;
+  let { page = 1, limit = 10, search, type, capacity, status } = req.query;
   let { roomId } = req.params;
 
   if (roomId && typeof roomId !== "string") {
@@ -91,6 +83,53 @@ export const updateRoom = async (req: Request, res: Response) => {
 
 export const createRoom = async (req: Request, res: Response) => {
   const { name, type, capacity, status, isActive } = req.body;
+  const bulk = req.query.bulk === "true";
+
+  if (bulk) {
+    if (!Array.isArray(req.body)) {
+      throw new BadRequestError("Bulk create requires an array of rooms");
+    }
+
+    const results = await Promise.all(
+      req.body.map(async (room) => {
+        try {
+          const roomResult = await createRoomUseCase.execute(room);
+          return { success: true, room: roomResult };
+        } catch (err: any) {
+          return { success: false, room, errors: { general: err.message } };
+        }
+      })
+    );
+
+    const successfulCreations = results
+      .filter((r) => r.success)
+      .map((r) => (r as any).room);
+
+    const failedCreations = results
+      .filter((r) => !r.success)
+      .map((r) => ({
+        room: (r as any).room,
+        errors: (r as any).errors,
+      }));
+
+    if (successfulCreations.length === 0) {
+      throw new BadRequestError("All bulk room creations failed", {
+        failedRooms: failedCreations,
+      });
+    }
+
+    const status =
+      successfulCreations.length < results.length
+        ? HttpStatus.PARTIAL_CONTENT
+        : HttpStatus.CREATED;
+
+    return res.status(status).json({
+      message: `${successfulCreations.length} room(s) created successfully.`,
+      successfulCreations,
+      failedCreations: failedCreations.length > 0 ? failedCreations : undefined,
+    });
+  }
+
   try {
     const newRoom = await createRoomUseCase.execute({
       name,

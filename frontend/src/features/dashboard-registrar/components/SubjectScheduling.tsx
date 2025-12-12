@@ -19,7 +19,7 @@ const itemVariants = {
   visible: { opacity: 1, y: 0 },
 };
 
-export default function TeacherScheduling() {
+export default function SubjectScheduling() {
   const {
     schedules,
     loading,
@@ -76,7 +76,7 @@ export default function TeacherScheduling() {
 
           <button
             className="btn btn-sm btn-ghost btn-square"
-            onClick={fetchSchedules}
+            onClick={() => fetchSchedules()}
             disabled={loading}
             title="Refresh List"
           >

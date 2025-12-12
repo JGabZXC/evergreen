@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import DashboardOverview from "../components/DashboardOverview";
 import ManualEnrollment from "../components/ManualEnrollment";
-import TeacherScheduling from "../components/TeacherScheduling";
+import SubjectScheduling from "../components/SubjectScheduling";
 import StudentRecords from "../components/StudentRecords";
 import SubjectList from "../components/SubjectList";
 import CreateStudent from "../components/CreateStudent";
@@ -38,7 +38,7 @@ export default function DashboardRegistrar() {
       case "enrollment":
         return <ManualEnrollment />;
       case "scheduling":
-        return <TeacherScheduling />;
+        return <SubjectScheduling />;
       case "records":
         return <StudentRecords />;
       case "subjects":

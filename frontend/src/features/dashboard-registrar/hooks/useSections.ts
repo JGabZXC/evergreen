@@ -10,44 +10,67 @@ import type {
   UpdateSectionPayload,
 } from "../types";
 
-export const useSections = (page = 1, limit = 10) => {
+export const useSections = (
+  page = 1,
+  limit = 10,
+  search = "",
+  gradeLevel = "",
+  schoolYear = "",
+  capacity = ""
+) => {
   const [sections, setSections] = useState<Section[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchSections = useCallback(async () => {
-    const controller = new AbortController();
-    setLoading(true);
-    setError(null);
+  const fetchSections = useCallback(
+    async (signal?: AbortSignal) => {
+      setLoading(true);
+      setError(null);
 
-    try {
-      const data = await getAllSections(page, limit, controller.signal);
-      setSections(data.sections || []);
-      setTotalPages(data.totalPages || 1);
-    } catch (err: any) {
-      if (err.name !== "CanceledError" && err.name !== "AbortError") {
-        setError(
-          err.response?.data?.error?.message || "Failed to fetch sections"
+      try {
+        const data = await getAllSections(
+          page,
+          limit,
+          search,
+          gradeLevel,
+          schoolYear,
+          capacity,
+          signal
         );
-      }
-    } finally {
-      if (!controller.signal.aborted) {
-        setLoading(false);
-      }
-    }
 
-    return () => controller.abort();
-  }, [page, limit]);
+        console.log(data);
+
+        setSections(data.sections || []);
+        setTotalPages(data.totalPages || 1);
+      } catch (err: any) {
+        if (err.name !== "CanceledError" && err.name !== "AbortError") {
+          setError(
+            err.response?.data?.error?.message || "Failed to fetch sections"
+          );
+        }
+      } finally {
+        if (!signal?.aborted) {
+          setLoading(false);
+        }
+      }
+    },
+    [page, limit, search, gradeLevel, schoolYear, capacity]
+  );
 
   useEffect(() => {
-    const abortFn = fetchSections();
-    return () => {
-      abortFn.then((abort) => abort && abort());
-    };
+    const controller = new AbortController();
+    fetchSections(controller.signal);
+    return () => controller.abort();
   }, [fetchSections]);
 
-  return { sections, totalPages, loading, error, refetch: fetchSections };
+  return {
+    sections,
+    totalPages,
+    loading,
+    error,
+    refetch: () => fetchSections(),
+  };
 };
 
 export const useCreateSection = () => {

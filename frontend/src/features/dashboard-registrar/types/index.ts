@@ -148,7 +148,6 @@ export interface TimeSlot {
   day: "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun";
   startTime: string;
   endTime: string;
-  room: string;
   _id?: string;
 }
 
@@ -249,7 +248,7 @@ export interface EnrollPayload {
 
 export interface CreateSchedulePayload {
   classroomId: string;
-  subjectId: string;
+  subject: string;
   teacherId: string; // "TBA" or Employee ID
   schoolYear: string;
   semester: Semester;

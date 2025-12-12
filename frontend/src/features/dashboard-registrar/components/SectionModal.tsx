@@ -3,6 +3,7 @@ import { X } from "lucide-react";
 import { GradeLevel, type CreateSectionPayload, type Section } from "../types";
 import { useRooms } from "../hooks/useRooms";
 import { useTeachers } from "../hooks/useTeachers";
+import { getCurrentSchoolYear } from "../../../utils/schoolYear";
 
 interface SectionModalProps {
   isOpen: boolean;
@@ -23,7 +24,7 @@ export default function SectionModal({
   const [name, setName] = useState("");
   const [adviserId, setAdviserId] = useState("TBA");
   const [gradeLevel, setGradeLevel] = useState<GradeLevel>(GradeLevel.Grade1);
-  const [schoolYear, setSchoolYear] = useState("2023-2024"); // Should be dynamic
+  const [schoolYear, setSchoolYear] = useState(getCurrentSchoolYear()); // Should be dynamic
   const [capacity, setCapacity] = useState(40);
   const [designatedRoom, setDesignatedRoom] = useState("");
 
@@ -31,6 +32,7 @@ export default function SectionModal({
   const { rooms } = useRooms(1, 100, "", "", "Open");
   // Fetch teachers for selection
   const { teachers, loading: loadingTeachers } = useTeachers(true);
+  console.log(teachers);
 
   useEffect(() => {
     if (!modalRef.current) return;
@@ -58,7 +60,7 @@ export default function SectionModal({
     setName("");
     setAdviserId("TBA");
     setGradeLevel(GradeLevel.Grade1);
-    setSchoolYear("2023-2024");
+    setSchoolYear(getCurrentSchoolYear());
     setCapacity(40);
     setDesignatedRoom("");
   };

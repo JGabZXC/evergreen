@@ -15,24 +15,36 @@ export const useTeacherScheduling = () => {
   const [schoolYear, setSchoolYear] = useState(getCurrentSchoolYear());
   const [semester, setSemester] = useState(1);
 
-  const fetchSchedules = useCallback(async () => {
-    setLoading(true);
-    try {
-      const data = await getSchedules({
-        schoolYear,
-        semester,
-        limit: 50,
-      });
-      setSchedules(data.schedules);
-    } catch (error) {
-      console.error("Failed to fetch schedules:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [schoolYear, semester]);
+  const fetchSchedules = useCallback(
+    async (signal?: AbortSignal) => {
+      setLoading(true);
+      try {
+        const data = await getSchedules(
+          {
+            schoolYear,
+            semester,
+            limit: 50,
+          },
+          signal
+        );
+        setSchedules(data.schedules);
+      } catch (error: any) {
+        if (error.name !== "CanceledError" && error.name !== "AbortError") {
+          console.error("Failed to fetch schedules:", error);
+        }
+      } finally {
+        if (!signal?.aborted) {
+          setLoading(false);
+        }
+      }
+    },
+    [schoolYear, semester]
+  );
 
   useEffect(() => {
-    fetchSchedules();
+    const controller = new AbortController();
+    fetchSchedules(controller.signal);
+    return () => controller.abort();
   }, [fetchSchedules]);
 
   const handleSaveSchedule = async (payload: any) => {

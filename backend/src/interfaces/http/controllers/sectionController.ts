@@ -55,7 +55,14 @@ export const createSection = async (
 };
 
 export const getSection = async (req: Request, res: Response) => {
-  let { page = 1, limit = 10 } = req.query;
+  let {
+    page = 1,
+    limit = 10,
+    search,
+    gradeLevel,
+    schoolYear,
+    capacity,
+  } = req.query;
   let { id } = req.params;
 
   if (id && typeof id !== "string") {
@@ -80,7 +87,32 @@ export const getSection = async (req: Request, res: Response) => {
     if (id) {
       sections = await getSectionUseCase.execute(id as string);
     } else {
-      sections = await getAllSectionUseCase.execute(skip, Number(limit));
+      const queryFilter: Record<
+        string,
+        string | number | Record<string, unknown>
+      > = {};
+
+      if (search && typeof search === "string") {
+        queryFilter.search = search;
+      }
+
+      if (gradeLevel && typeof gradeLevel === "string") {
+        queryFilter.gradeLevel = gradeLevel;
+      }
+
+      if (schoolYear && typeof schoolYear === "string") {
+        queryFilter.schoolYear = schoolYear;
+      }
+
+      if (capacity && !isNaN(Number(capacity))) {
+        queryFilter.capacity = Number(capacity);
+      }
+
+      sections = await getAllSectionUseCase.execute(
+        queryFilter,
+        skip,
+        Number(limit)
+      );
       return res.status(HttpStatus.OK).json({ ...sections });
     }
     return res.status(HttpStatus.OK).json(sections);

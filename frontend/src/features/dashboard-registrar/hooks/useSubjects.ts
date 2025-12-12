@@ -17,45 +17,42 @@ export const useSubjects = (
   const [data, setData] = useState<SubjectResponse | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const fetchData = useCallback(async () => {
-    const controller = new AbortController();
-    const { signal } = controller;
+  const fetchData = useCallback(
+    async (signal?: AbortSignal) => {
+      setLoading(true);
+      try {
+        const result = await getAllSubjects(
+          page,
+          limit,
+          search,
+          semesterFilter,
+          statusFilter,
+          signal
+        );
+        setData(result);
+      } catch (err: any) {
+        if (err.name === "CanceledError" || err.name === "AbortError") {
+          console.log("Request aborted");
+          return;
+        }
+        console.error("Failed to fetch subjects:", err);
 
-    setLoading(true);
-    try {
-      const result = await getAllSubjects(
-        page,
-        limit,
-        search,
-        semesterFilter,
-        statusFilter,
-        signal
-      );
-      setData(result);
-    } catch (err: any) {
-      if (err.name === "CanceledError" || err.name === "AbortError") {
-        console.log("Request aborted");
-        return;
+        if (err.response?.data?.error?.message)
+          toast.error(err.response.data.error.message);
+        else toast.error("Failed to fetch subjects");
+      } finally {
+        if (!signal?.aborted) {
+          setLoading(false);
+        }
       }
-      console.error("Failed to fetch subjects:", err);
-
-      if (err.response?.data?.error?.message)
-        toast.error(err.response.data.error.message);
-      else toast.error("Failed to fetch subjects");
-    } finally {
-      if (!signal.aborted) {
-        setLoading(false);
-      }
-    }
-
-    return () => controller.abort();
-  }, [page, limit, search, semesterFilter, statusFilter]);
+    },
+    [page, limit, search, semesterFilter, statusFilter]
+  );
 
   useEffect(() => {
-    const abortFn = fetchData();
-    return () => {
-      abortFn.then((fn) => fn && fn());
-    };
+    const controller = new AbortController();
+    fetchData(controller.signal);
+    return () => controller.abort();
   }, [fetchData]);
 
   return {
@@ -63,7 +60,7 @@ export const useSubjects = (
     totalDocs: data?.totalDocs || 0,
     totalPages: data?.totalPages || 0,
     loading,
-    refetch: fetchData,
+    refetch: () => fetchData(),
   };
 };
 

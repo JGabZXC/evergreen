@@ -14,43 +14,44 @@ export const useRooms = (
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchRooms = useCallback(async () => {
-    const controller = new AbortController();
-    setLoading(true);
-    setError(null);
+  const fetchRooms = useCallback(
+    async (signal?: AbortSignal) => {
+      setLoading(true);
+      setError(null);
 
-    try {
-      const data = await getAllRooms(
-        page,
-        limit,
-        search,
-        type,
-        status,
-        controller.signal
-      );
-      setRooms(data.rooms || []);
-      setTotalPages(data.totalPages || 1);
-    } catch (err: any) {
-      if (err.name !== "CanceledError" && err.name !== "AbortError") {
-        setError(err.response?.data?.error?.message || "Failed to fetch rooms");
+      try {
+        const data = await getAllRooms(
+          page,
+          limit,
+          search,
+          type,
+          status,
+          signal
+        );
+        setRooms(data.rooms || []);
+        setTotalPages(data.totalPages || 1);
+      } catch (err: any) {
+        if (err.name !== "CanceledError" && err.name !== "AbortError") {
+          setError(
+            err.response?.data?.error?.message || "Failed to fetch rooms"
+          );
+        }
+      } finally {
+        if (!signal?.aborted) {
+          setLoading(false);
+        }
       }
-    } finally {
-      if (!controller.signal.aborted) {
-        setLoading(false);
-      }
-    }
-
-    return () => controller.abort();
-  }, [page, limit, search, type, status]);
+    },
+    [page, limit, search, type, status]
+  );
 
   useEffect(() => {
-    const abortFn = fetchRooms();
-    return () => {
-      abortFn.then((abort) => abort && abort());
-    };
+    const controller = new AbortController();
+    fetchRooms(controller.signal);
+    return () => controller.abort();
   }, [fetchRooms]);
 
-  return { rooms, totalPages, loading, error, refetch: fetchRooms };
+  return { rooms, totalPages, loading, error, refetch: () => fetchRooms() };
 };
 
 export const useCreateRoom = () => {
