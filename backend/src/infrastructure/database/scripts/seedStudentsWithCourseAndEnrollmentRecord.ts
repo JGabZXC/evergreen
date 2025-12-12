@@ -2,11 +2,11 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import { RegisterStudentUseCase } from "../../../application/use-cases/RegisterStudentUseCase";
 import { CreateStudentProfileUseCase } from "../../../application/use-cases/user/CreateStudentProfileUseCase";
-import { CreateClassroomUseCase } from "../../../application/use-cases/classroom";
+import { CreateClassroomUseCase } from "../../../application/use-cases/section";
 import { EnrollStudentUseCase } from "../../../application/use-cases/enrollment/EnrollStudentUseCase"; // [NEW]
 import { CourseModel } from "../CourseModel";
 import { SubjectTakenModel } from "../SubjectTakenModel";
-import { ClassroomModel } from "../ClassroomModel";
+import { ClassroomModel } from "../SectionModel";
 import { EnrollmentRecordModel } from "../EnrollmentRecordModel";
 import { SubjectStatus } from "../../../domain/SubjectTaken";
 import { EnrollmentStatus } from "../../../domain/EnrollmentRecord";

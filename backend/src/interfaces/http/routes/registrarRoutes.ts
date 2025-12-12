@@ -8,10 +8,10 @@ import {
 import { enrollStudent } from "../controllers/enrollmentController";
 import { StaffRole, StudentRole } from "../../../domain/types/Role";
 import {
-  createClassroom,
-  getClassroom,
-  updateClassroom,
-} from "../controllers/classroomController";
+  getSection,
+  updateSection,
+  createSection,
+} from "../controllers/sectionController";
 
 const router = Router();
 
@@ -21,23 +21,23 @@ router.post("/deactivate-users", authGuard, isRegistrar, deactivateUser);
 router.post("/enroll", authGuard, isRegistrar, enrollStudent);
 router.post("/credit-subjects", authGuard, isRegistrar, creditSubject);
 
-// CLASSROOM
+// SECTION
 router
-  .route("/classroom")
+  .route("/sections")
   .get(
     authGuard,
     requireRole(StaffRole.Registrar, StudentRole.Student),
-    getClassroom
+    getSection
   )
-  .post(authGuard, isRegistrar, createClassroom);
+  .post(authGuard, isRegistrar, createSection);
 
 router
-  .route("/classroom/:id")
+  .route("/sections/:id")
   .get(
     authGuard,
     requireRole(StaffRole.Registrar, StudentRole.Student),
-    getClassroom
+    getSection
   )
-  .patch(authGuard, isRegistrar, updateClassroom);
+  .patch(authGuard, isRegistrar, updateSection);
 
 export default router;

@@ -7,7 +7,7 @@ import { StudentProfileModel } from "../StudentProfileModel";
 import { TeacherDetailsModel } from "../TeacherDetailsModel";
 import { RefreshTokenModel } from "../RefreshTokenModel";
 import { SubjectModel } from "../SubjectModel";
-import { ClassroomModel } from "../ClassroomModel";
+import { ClassroomModel } from "../SectionModel";
 import { CourseModel } from "../CourseModel";
 import { EnrollmentRecordModel } from "../EnrollmentRecordModel";
 

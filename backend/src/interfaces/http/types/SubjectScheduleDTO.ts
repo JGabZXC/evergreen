@@ -1,9 +1,9 @@
-import { ClassSchedule } from "../../../domain/ClassSchedule";
+import { SubjectSchedule } from "../../../domain/SubjectSchedule";
 import { SubjectDTO } from "./SubjectDTO";
 import { UserDTO } from "./UserDTO";
 
-export type ClassScheduleDTO = Omit<
-  ClassSchedule,
+export type SubjectScheduleDTO = Omit<
+  SubjectSchedule,
   "_id" | "createdAt" | "updatedAt" | "subject" | "teacher"
 > & {
   id: string;

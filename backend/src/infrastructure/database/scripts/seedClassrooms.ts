@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import { ClassroomModel } from "../ClassroomModel";
+import { ClassroomModel } from "../SectionModel";
 import { StaffModel } from "../StaffModel";
 import { UserModel } from "../UserModel";
 import { GradeLevel } from "../../../domain/Subject";

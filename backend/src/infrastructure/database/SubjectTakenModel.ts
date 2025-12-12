@@ -1,6 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 import { BaseSubjectTaken, SubjectStatus } from "../../domain/SubjectTaken";
 import { Semester } from "../../domain/types/Semester";
+import { SubjectSchedule } from "../../domain/SubjectSchedule";
 
 export const SubjectTakenSchema = new Schema<BaseSubjectTaken & Document>(
   {
@@ -56,10 +57,14 @@ SubjectTakenSchema.virtual("classroom", {
 });
 
 SubjectTakenSchema.virtual("scheduleDetails", {
-  ref: "ClassSchedule",
-  localField: "classroomId", // Match Section...
+  ref: "SubjectSchedule",
+  localField: "classroomId",
   foreignField: "classroomId",
-  match: (doc: any) => ({ subjectId: doc.subjectId }), // ...AND Match Subject
+  match: (doc: SubjectSchedule) => ({
+    subject: doc.subject,
+    schoolYear: doc.schoolYear,
+    semester: doc.semester,
+  }),
   justOne: true,
 });
 

@@ -155,8 +155,8 @@ export interface TimeSlot {
 export interface ClassSchedule {
   _id: string;
   classroomId: string | Classroom; // ID or Populated
-  subjectId: string | Subject; // ID or Populated
-  teacherId: string | Teacher; // ID or Populated
+  subject: string | Subject; // ID or Populated
+  teacherId: string; // ID or Populated
   schoolYear: string;
   semester: Semester;
   schedules: TimeSlot[];
@@ -164,7 +164,6 @@ export interface ClassSchedule {
   updatedAt: string;
 
   // Virtuals populated by backend
-  subject?: Subject;
   teacher?: Teacher;
 }
 

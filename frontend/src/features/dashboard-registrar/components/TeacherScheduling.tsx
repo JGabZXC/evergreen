@@ -33,6 +33,7 @@ export default function TeacherScheduling() {
     handleSaveSchedule,
   } = useTeacherScheduling();
 
+  console.log(schedules);
   return (
     <div className="space-y-6">
       {/* Controls Header */}
@@ -128,7 +129,9 @@ export default function TeacherScheduling() {
                       <div className="w-full">
                         <div className="flex items-center justify-between mb-1">
                           <span className="badge badge-neutral text-xs font-mono">
-                            {schedule.subjectId}
+                            {typeof schedule.subject === "object"
+                              ? schedule.subject.subjectId
+                              : "N/A"}
                           </span>
                           {!isAssigned && (
                             <span className="badge badge-warning badge-outline text-[10px] uppercase font-bold">
@@ -138,12 +141,20 @@ export default function TeacherScheduling() {
                         </div>
                         <h3
                           className="font-bold text-base line-clamp-1 text-primary"
-                          title={schedule.subject?.name}
+                          title={
+                            typeof schedule.subject === "object"
+                              ? schedule.subject.name
+                              : schedule.subject
+                          }
                         >
-                          {schedule.subject?.name || "Unknown Subject"}
+                          {typeof schedule.subject === "object"
+                            ? schedule.subject.name
+                            : "Unknown Subject"}
                         </h3>
                         <p className="text-xs text-base-content/60 font-medium">
-                          {schedule.classroomId?.name || "Unknown Section"}
+                          {typeof schedule.classroomId === "object"
+                            ? schedule.classroomId.name
+                            : "Unknown Section"}
                         </p>
                       </div>
                     </div>

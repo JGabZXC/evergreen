@@ -12,8 +12,8 @@ import {
 import { StudentModel } from "../../../infrastructure/database/StudentModel";
 import { EnrollmentRecordModel } from "../../../infrastructure/database/EnrollmentRecordModel";
 import { SubjectTakenModel } from "../../../infrastructure/database/SubjectTakenModel";
-import { ClassScheduleModel } from "../../../infrastructure/database/ClassScheduleModel";
-import { ClassroomModel } from "../../../infrastructure/database/ClassroomModel";
+import { SubjectScheduleModel } from "../../../infrastructure/database/SubjectScheduleModel";
+import { SectionModel } from "../../../infrastructure/database/SectionModel";
 import { StudentAdvisingService } from "../../services/studentAdvisingService";
 import { ClassroomAllocationService } from "../../services/classroomAllocationService";
 import { Subject } from "../../../domain/Subject";
@@ -102,7 +102,7 @@ export class EnrollStudentUseCase {
       }
 
       // 6. Fetch Schedule for Teacher Mapping
-      const classSchedules = await ClassScheduleModel.find({
+      const classSchedules = await SubjectScheduleModel.find({
         classroomId: classroom._id,
         semester: input.semester,
         schoolYear: input.schoolYear,
@@ -154,9 +154,9 @@ export class EnrollStudentUseCase {
         await SubjectTakenModel.insertMany(subjectTakenDocs, { session });
       }
 
-      // 9. Persistence: Update Classroom Capacity
+      // 9. Persistence: Update Section Capacity
       // Use atomic increment to ensure thread safety
-      await ClassroomModel.findByIdAndUpdate(
+      await SectionModel.findByIdAndUpdate(
         classroom._id,
         { $inc: { currentCapacity: 1 } },
         { session }

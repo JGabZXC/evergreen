@@ -14,6 +14,7 @@ import subjectRoutes from "./interfaces/http/routes/subjectRoutes";
 import scheduleRoutes from "./interfaces/http/routes/scheduleRoutes";
 import teacherRoutes from "./interfaces/http/routes/teacherRoutes";
 import courseRoutes from "./interfaces/http/routes/courseRoutes";
+import roomRoutes from "./interfaces/http/routes/roomRoutes";
 
 dotenv.config({
   path: "../.env",
@@ -40,6 +41,7 @@ app.use("/api/subject", subjectRoutes);
 app.use("/api/schedule", scheduleRoutes);
 app.use("/api/teacher", teacherRoutes);
 app.use("/api/course", courseRoutes);
+app.use("/api/room", roomRoutes);
 
 app.use(errorHandler);
 

@@ -1,6 +1,6 @@
-import { ClassSchedule } from "../../../domain/ClassSchedule";
-import { ClassScheduleModel } from "../../../infrastructure/database/ClassScheduleModel";
-import { ClassScheduleDTO } from "../../../interfaces/http/types/ClassScheduleDTO";
+import { SubjectSchedule } from "../../../domain/SubjectSchedule";
+import { SubjectScheduleModel } from "../../../infrastructure/database/SubjectScheduleModel";
+import { SubjectScheduleDTO } from "../../../interfaces/http/types/SubjectScheduleDTO";
 
 interface FilterSchedule {
   schoolYear?: string;
@@ -19,7 +19,7 @@ export class GetAllScheduleUseCase {
   ): Promise<{
     totalDocs: number;
     totalPages: number;
-    schedules: ClassScheduleDTO[];
+    schedules: SubjectScheduleDTO[];
   }> {
     const query: Record<string, string | number> = {};
     if (filters.schoolYear) query.schoolYear = filters.schoolYear;
@@ -33,7 +33,7 @@ export class GetAllScheduleUseCase {
     }
 
     const [schedules, totalDocs] = await Promise.all([
-      ClassScheduleModel.find(query)
+      SubjectScheduleModel.find(query)
         .skip(skip)
         .limit(limit)
         .populate("classroomId")
@@ -42,12 +42,11 @@ export class GetAllScheduleUseCase {
           path: "teacher",
           populate: "userId",
         })
-        .lean<ClassScheduleDTO[]>(),
-      ClassScheduleModel.countDocuments(query),
+        .lean<SubjectScheduleDTO[]>(),
+      SubjectScheduleModel.countDocuments(query),
     ]);
 
     const totalPages = Math.ceil(totalDocs / limit);
-    console.log(schedules, totalDocs, totalPages);
 
     return { totalDocs, totalPages, schedules };
   }

@@ -1,8 +1,10 @@
 import { Schema } from "mongoose";
 import { Subject } from "./Subject";
-import { Staff } from "./Staff";
-import { Student } from "./Student";
 import { Semester } from "./types/Semester";
+import { SectionDTO } from "../interfaces/http/types/SectionDTO";
+import { StudentDTO } from "../interfaces/http/types/StudentDTO";
+import { StaffDTO } from "../interfaces/http/types/StaffDTO";
+import { SubjectScheduleDTO } from "../interfaces/http/types/SubjectScheduleDTO";
 
 export enum SubjectStatus {
   Ongoing = "Ongoing",
@@ -30,8 +32,10 @@ export interface BaseSubjectTaken {
   status: SubjectStatus;
 
   // VIRTUALS
-  student: Student;
-  teacher: Staff;
+  teacher?: StaffDTO;
+  student?: StudentDTO;
+  classroom?: SectionDTO;
+  scheduleDetails?: SubjectScheduleDTO;
 }
 
 export interface SubjectTaken extends BaseSubjectTaken {

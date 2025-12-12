@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
-import { ClassSchedule } from "../../domain/ClassSchedule";
+import { SubjectSchedule } from "../../domain/SubjectSchedule";
 
 const TimeSlotSchema = new Schema({
   day: { type: String, required: true },
@@ -8,7 +8,7 @@ const TimeSlotSchema = new Schema({
   room: { type: String, required: true },
 });
 
-const ClassScheduleSchema = new Schema<ClassSchedule & Document>(
+const SubjectScheduleSchema = new Schema<SubjectSchedule & Document>(
   {
     classroomId: {
       type: Schema.Types.ObjectId,
@@ -24,19 +24,19 @@ const ClassScheduleSchema = new Schema<ClassSchedule & Document>(
   { timestamps: true }
 );
 
-ClassScheduleSchema.index(
+SubjectScheduleSchema.index(
   { classroomId: 1, subject: 1, schoolYear: 1, semester: 1 },
   { unique: true }
 );
 
-ClassScheduleSchema.virtual("teacher", {
+SubjectScheduleSchema.virtual("teacher", {
   ref: "Staff",
   localField: "teacherId",
   foreignField: "employeeId",
   justOne: true,
 });
 
-export const ClassScheduleModel = mongoose.model<ClassSchedule & Document>(
-  "ClassSchedule",
-  ClassScheduleSchema
+export const SubjectScheduleModel = mongoose.model<SubjectSchedule & Document>(
+  "SubjectSchedule",
+  SubjectScheduleSchema
 );

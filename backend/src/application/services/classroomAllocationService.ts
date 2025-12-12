@@ -1,5 +1,4 @@
-import mongoose from "mongoose";
-import { ClassroomModel } from "../../infrastructure/database/ClassroomModel";
+import { SectionModel } from "../../infrastructure/database/SectionModel";
 import {
   BadRequestError,
   NotFoundError,
@@ -11,7 +10,7 @@ export class ClassroomAllocationService {
     classroomId: string,
     targetGradeLevel: GradeLevel
   ) {
-    const classroom = await ClassroomModel.findById(classroomId);
+    const classroom = await SectionModel.findById(classroomId);
 
     if (!classroom) throw new NotFoundError("Classroom not found.");
 
@@ -32,7 +31,7 @@ export class ClassroomAllocationService {
 
   async findBestAvailableSection(gradeLevel: GradeLevel) {
     // Find section with lowest capacity that isn't full
-    const availableSection = await ClassroomModel.findOne({
+    const availableSection = await SectionModel.findOne({
       gradeLevel: gradeLevel,
       $expr: { $lt: ["$currentCapacity", "$capacity"] },
     }).sort({ currentCapacity: 1 }); // Load balancing

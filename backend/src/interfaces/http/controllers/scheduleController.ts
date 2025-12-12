@@ -2,7 +2,7 @@ import { Response } from "express";
 import { HttpStatus } from "../../../domain/HttpStatus";
 import { AuthenticatedRequest } from "../middleware/authGuard";
 import { BadRequestError } from "../middleware/HttpErrors";
-import { BaseClassSchedule } from "../../../domain/ClassSchedule";
+import { BaseSubjectSchedule } from "../../../domain/SubjectSchedule";
 import {
   GetAllScheduleUseCase,
   GetScheduleUseCase,
@@ -108,7 +108,7 @@ export const updateSchedule = async (
       throw new BadRequestError("Validation errors", errors);
     }
 
-    const scheduleData: BaseClassSchedule = {
+    const scheduleData: BaseSubjectSchedule = {
       classroomId,
       subject,
       teacherId: teacherId || "TBA", // Default to TBA if not provided

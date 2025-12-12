@@ -20,6 +20,7 @@ export const getSchedules = async (params: {
   const response = await apiPrivate.get<ScheduleResponse>("/api/schedule", {
     params,
   });
+  console.log(response.data);
   return response.data;
 };
 

@@ -1,21 +1,21 @@
 import { Request, Response } from "express";
 import {
-  CreateClassroomUseCase,
-  GetAllClassroomUseCase,
-  GetClassroomUseCase,
-  UpdateClassroomUseCase,
-} from "../../../application/use-cases/classroom";
+  CreateSectionUseCase,
+  GetAllSectionUseCase,
+  GetSectionUseCase,
+  UpdateSectionUseCase,
+} from "../../../application/use-cases/section";
 import { HttpStatus } from "../../../domain/HttpStatus";
 import { BadRequestError } from "../middleware/HttpErrors";
 import { AuthenticatedRequest } from "../middleware/authGuard";
 import { StaffModel } from "../../../infrastructure/database/StaffModel";
 
-const createClassroomUseCase = new CreateClassroomUseCase();
-const getAllClassroomUseCase = new GetAllClassroomUseCase();
-const getClassroomUseCase = new GetClassroomUseCase();
-const updateClassroomUseCase = new UpdateClassroomUseCase();
+const createSectionUseCase = new CreateSectionUseCase();
+const getAllSectionUseCase = new GetAllSectionUseCase();
+const getSectionUseCase = new GetSectionUseCase();
+const updateSectionUseCase = new UpdateSectionUseCase();
 
-export const createClassroom = async (
+export const createSection = async (
   req: AuthenticatedRequest,
   res: Response
 ) => {
@@ -44,19 +44,19 @@ export const createClassroom = async (
       throw new BadRequestError("Validation failed", errors);
     }
 
-    const createdClassroom = await createClassroomUseCase.execute(req.body);
-    return res.status(HttpStatus.CREATED).json(createdClassroom);
+    const createdSection = await createSectionUseCase.execute(req.body);
+    return res.status(HttpStatus.CREATED).json(createdSection);
   } catch (err) {
     throw err;
   }
 };
 
-export const getClassroom = async (req: Request, res: Response) => {
+export const getSection = async (req: Request, res: Response) => {
   let { page = 1, limit = 10 } = req.query;
   let { id } = req.params;
 
   if (id && typeof id !== "string") {
-    throw new BadRequestError("Classroom ID must be a string");
+    throw new BadRequestError("Section ID must be a string");
   }
 
   if ((page && isNaN(Number(page))) || (page && Number(page) < 1)) {
@@ -73,32 +73,30 @@ export const getClassroom = async (req: Request, res: Response) => {
   const skip = (Number(page) - 1) * Number(limit);
 
   try {
-    let classrooms;
+    let sections;
     if (id) {
-      classrooms = await getClassroomUseCase.execute(id as string);
+      sections = await getSectionUseCase.execute(id as string);
     } else {
-      classrooms = await getAllClassroomUseCase.execute(skip, Number(limit));
-      return res.status(HttpStatus.OK).json({ ...classrooms });
+      sections = await getAllSectionUseCase.execute(skip, Number(limit));
+      return res.status(HttpStatus.OK).json({ ...sections });
     }
-    return res.status(HttpStatus.OK).json(classrooms);
+    return res.status(HttpStatus.OK).json(sections);
   } catch (err) {
     throw err;
   }
 };
 
-export const updateClassroom = async (
+export const updateSection = async (
   req: AuthenticatedRequest,
   res: Response
 ) => {
   try {
     const { id } = req.params;
     if (!id || typeof id !== "string") {
-      throw new BadRequestError(
-        "Classroom ID is required and must be a string"
-      );
+      throw new BadRequestError("Section ID is required and must be a string");
     }
-    const updatedClassroom = await updateClassroomUseCase.execute(id, req.body);
-    return res.status(HttpStatus.OK).json(updatedClassroom);
+    const updatedSection = await updateSectionUseCase.execute(id, req.body);
+    return res.status(HttpStatus.OK).json(updatedSection);
   } catch (err) {
     throw err;
   }

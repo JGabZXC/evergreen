@@ -1,7 +1,7 @@
-import { ClassScheduleModel } from "../../../infrastructure/database/ClassScheduleModel";
+import { SubjectScheduleModel } from "../../../infrastructure/database/SubjectScheduleModel";
 
 export class GetScheduleUseCase {
   async execute(id: string) {
-    return await ClassScheduleModel.findById(id);
+    return await SubjectScheduleModel.findById(id);
   }
 }

@@ -44,7 +44,7 @@ const CourseSchema = new Schema<Course & Document>(
   { timestamps: true }
 );
 
-CourseSchema.index({ code: 1 });
+// CourseSchema.index({ code: 1 });
 
 export const CourseModel = mongoose.model<Course & Document>(
   "Course",

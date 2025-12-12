@@ -1,6 +1,10 @@
 import mongoose from "mongoose";
-import { BaseClassSchedule, TimeSlot } from "../../../domain/ClassSchedule";
-import { ClassScheduleModel } from "../../../infrastructure/database/ClassScheduleModel";
+import {
+  BaseSubjectSchedule,
+  SubjectSchedule,
+  TimeSlot,
+} from "../../../domain/SubjectSchedule";
+import { SubjectScheduleModel } from "../../../infrastructure/database/SubjectScheduleModel";
 import {
   ConflictError,
   BadRequestError,
@@ -10,7 +14,7 @@ import { SubjectModel } from "../../../infrastructure/database/SubjectModel";
 import { SubjectTakenModel } from "../../../infrastructure/database/SubjectTakenModel";
 
 export class ManageClassScheduleUseCase {
-  async execute(data: BaseClassSchedule, session?: mongoose.ClientSession) {
+  async execute(data: BaseSubjectSchedule, session?: mongoose.ClientSession) {
     // 1. Validate Time Format & Logic
     this.validateTimeSlots(data.schedules);
 
@@ -26,7 +30,7 @@ export class ManageClassScheduleUseCase {
 
     // 3. CHECK TEACHER CONFLICTS
     if (data.teacherId && data.teacherId !== "TBA") {
-      const teacherConflicts = await ClassScheduleModel.find({
+      const teacherConflicts = await SubjectScheduleModel.find({
         teacherId: data.teacherId,
         schoolYear: data.schoolYear,
         semester: data.semester,
@@ -41,7 +45,7 @@ export class ManageClassScheduleUseCase {
     }
 
     // 4. CHECK CLASSROOM (SECTION) CONFLICTS
-    const sectionConflicts = await ClassScheduleModel.find({
+    const sectionConflicts = await SubjectScheduleModel.find({
       classroomId: data.classroomId,
       schoolYear: data.schoolYear,
       semester: data.semester,
@@ -54,33 +58,8 @@ export class ManageClassScheduleUseCase {
       "This section already has a class scheduled"
     );
 
-    // 5. CHECK ROOM (PHYSICAL LOCATION) CONFLICTS
-    for (const newSlot of data.schedules) {
-      if (newSlot.room && newSlot.room !== "TBA") {
-        const roomConflicts = await ClassScheduleModel.find({
-          "schedules.room": newSlot.room,
-          "schedules.day": newSlot.day,
-          schoolYear: data.schoolYear,
-          semester: data.semester,
-          classroomId: { $ne: data.classroomId },
-        }).session(session || null);
-
-        const flatConflicts = roomConflicts
-          .flatMap((c) => c.schedules)
-          .filter((s) => s.room === newSlot.room);
-
-        for (const existingSlot of flatConflicts) {
-          if (this.isOverlap(newSlot, existingSlot)) {
-            throw new ConflictError(
-              `Room ${newSlot.room} is already occupied on ${newSlot.day} between ${existingSlot.startTime} - ${existingSlot.endTime}`
-            );
-          }
-        }
-      }
-    }
-
-    // 6. Persist Data (Upsert)
-    const schedule = await ClassScheduleModel.findOneAndUpdate(
+    // 5. Persist Data (Upsert)
+    const schedule = await SubjectScheduleModel.findOneAndUpdate(
       {
         classroomId: data.classroomId,
         subject: data.subject,
