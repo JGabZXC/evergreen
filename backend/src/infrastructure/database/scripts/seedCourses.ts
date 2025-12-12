@@ -2,8 +2,8 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import { SubjectModel } from "../SubjectModel";
 import { CourseModel } from "../CourseModel";
-import { GradeLevel } from "../../../domain/Subject";
 import { Semester } from "../../../domain/types/Semester";
+import { GradeLevel } from "../../../domain/types/GradeLevel";
 
 dotenv.config({ path: "../../.env" }); // Adjust path as needed to find your .env
 

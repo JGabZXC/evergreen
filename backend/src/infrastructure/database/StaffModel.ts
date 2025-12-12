@@ -19,6 +19,13 @@ const StaffSchema = new Schema<Staff & Document>(
 
 StaffSchema.index({ employeeId: 1, isActive: 1 });
 
+StaffSchema.virtual("profile", {
+  ref: "StaffProfile",
+  localField: "employeeId",
+  foreignField: "employeeId",
+  justOne: true,
+});
+
 export const StaffModel = mongoose.model<Staff & Document>(
   "Staff",
   StaffSchema

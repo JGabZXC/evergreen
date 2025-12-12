@@ -285,3 +285,62 @@ export interface TeacherOption {
   lastName: string;
   employeeId: string;
 }
+
+// --- Room Types ---
+export enum RoomType {
+  Lecture = "Lecture",
+  Laboratory = "Laboratory",
+  ComputerLab = "Computer Lab",
+  Gymnasium = "Gymnasium",
+}
+
+export enum RoomStatus {
+  Open = "Open",
+  UnderMaintenance = "Under Maintenance",
+}
+
+export interface Room {
+  _id: string;
+  name: string;
+  type: RoomType;
+  capacity: number;
+  status: RoomStatus;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateRoomPayload {
+  name: string;
+  type: RoomType;
+  capacity: number;
+  status: RoomStatus;
+  isActive: boolean;
+}
+
+export interface UpdateRoomPayload extends Partial<CreateRoomPayload> {}
+
+// --- Section Types ---
+export interface Section {
+  _id: string;
+  adviserId: string;
+  name: string;
+  gradeLevel: GradeLevel;
+  schoolYear: string;
+  capacity: number;
+  currentCapacity: number;
+  designatedRoom?: string; // Room ID
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateSectionPayload {
+  adviserId: string;
+  name: string;
+  gradeLevel: GradeLevel;
+  schoolYear: string;
+  capacity: number;
+  designatedRoom?: string;
+}
+
+export interface UpdateSectionPayload extends Partial<CreateSectionPayload> {}

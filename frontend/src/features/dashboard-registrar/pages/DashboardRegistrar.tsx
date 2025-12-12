@@ -9,6 +9,8 @@ import {
   BookA,
   BookCopy,
   ClipboardList,
+  DoorOpen,
+  LayoutGrid,
 } from "lucide-react";
 import DashboardOverview from "../components/DashboardOverview";
 import ManualEnrollment from "../components/ManualEnrollment";
@@ -20,6 +22,8 @@ import { pageVariants } from "../../../shared/animations";
 import { Link } from "react-router";
 import SidebarItem from "../components/SidebarItem";
 import CourseList from "../components/CourseList";
+import RoomList from "../components/RoomList";
+import SectionList from "../components/SectionList";
 
 export default function DashboardRegistrar() {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -41,6 +45,10 @@ export default function DashboardRegistrar() {
         return <SubjectList />;
       case "courses":
         return <CourseList />;
+      case "rooms":
+        return <RoomList />;
+      case "sections":
+        return <SectionList />;
       default:
         return <DashboardOverview />;
     }
@@ -125,6 +133,20 @@ export default function DashboardRegistrar() {
             isOpen={isSidebarOpen}
             onClick={() => setActiveTab("courses")}
           />
+          <SidebarItem
+            icon={DoorOpen}
+            label="Rooms"
+            isActive={activeTab === "rooms"}
+            isOpen={isSidebarOpen}
+            onClick={() => setActiveTab("rooms")}
+          />
+          <SidebarItem
+            icon={LayoutGrid}
+            label="Sections"
+            isActive={activeTab === "sections"}
+            isOpen={isSidebarOpen}
+            onClick={() => setActiveTab("sections")}
+          />
         </nav>
 
         <div className="h-16 border-t border-base-300 flex items-center shrink-0 bg-base-100 relative z-10">
@@ -167,6 +189,10 @@ export default function DashboardRegistrar() {
                 ? "Subject List"
                 : activeTab === "courses"
                 ? "Course List"
+                : activeTab === "rooms"
+                ? "Room Management"
+                : activeTab === "sections"
+                ? "Section Management"
                 : "Dashboard"}
             </h1>
             <p className="text-base-content/70 mt-1">

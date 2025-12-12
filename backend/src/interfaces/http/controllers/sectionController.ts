@@ -24,7 +24,10 @@ export const createSection = async (
     let errors: { [key: string]: string } = {};
     if (!adviserId || typeof adviserId !== "string") {
       errors.adviserId = "Adviser ID is required and must be a string";
-    } else if ((await StaffModel.findOne({ adviserId })) === null) {
+    } else if (
+      adviserId !== "TBA" &&
+      (await StaffModel.findOne({ adviserId })) === null
+    ) {
       errors.adviserId = "Adviser ID does not exist";
     }
 

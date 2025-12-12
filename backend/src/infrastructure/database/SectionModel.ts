@@ -4,7 +4,7 @@ import { GradeLevel } from "../../domain/types/GradeLevel";
 
 const SectionSchema = new Schema<Section & Document>(
   {
-    adviserId: { type: String, required: true, unique: true },
+    adviserId: { type: String, required: true },
     name: { type: String, required: true },
     gradeLevel: {
       type: String,

@@ -29,6 +29,7 @@ export class GetAllTeacherUseCase {
         .skip(skip)
         .limit(limit)
         .populate("userId")
+        .populate("profile")
         .lean<TeacherDTO[]>(),
       StaffModel.countDocuments(query),
     ]);
