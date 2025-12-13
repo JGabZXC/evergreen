@@ -21,7 +21,7 @@ const EnrollmentRecordSchema = new Schema<EnrollmentRecord & Document>(
       required: true,
     },
     schoolYear: { type: String, required: true },
-    classroom: { type: Schema.Types.ObjectId, ref: "Classroom" },
+    section: { type: Schema.Types.ObjectId, ref: "Section" },
     semester: {
       type: Number,
       enum: Object.values(Semester).map(Number),

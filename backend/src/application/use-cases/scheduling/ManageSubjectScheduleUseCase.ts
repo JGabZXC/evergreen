@@ -7,6 +7,7 @@ import {
   NotFoundError,
   BadRequestError,
 } from "../../../interfaces/http/middleware/HttpErrors";
+import { SubjectTakenModel } from "../../../infrastructure/database/SubjectTakenModel";
 
 export class ManageSubjectScheduleUseCase {
   async execute(data: BaseSubjectSchedule, session?: mongoose.ClientSession) {
@@ -61,12 +62,65 @@ export class ManageSubjectScheduleUseCase {
       );
     }
 
+    // const sectionConflicts = await ClassScheduleModel.find({
+    //   classroomId: data.classroomId,
+    //   schoolYear: data.schoolYear,
+    //   semester: data.semester,
+    //   subject: { $ne: data.subject },
+    // }).session(session || null);
+
+    // this.checkConflicts(data.schedules, sectionConflicts, "This section already has a class scheduled");
+
+    // for (const newSlot of data.schedules) {
+    //   if (newSlot.room && newSlot.room !== "TBA") {
+    //     const roomConflicts = await ClassScheduleModel.find({
+    //       "schedules.room": newSlot.room,
+    //       "schedules.day": newSlot.day,
+    //       schoolYear: data.schoolYear,
+    //       semester: data.semester,
+    //       classroomId: { $ne: data.classroomId }, // Ignore conflicts within same section
+    //     }).session(session || null);
+
+    //     // Filter Strict Time Overlaps
+    //     const flatConflicts = roomConflicts
+    //       .flatMap((c) => c.schedules)
+    //       .filter((s) => s.room === newSlot.room);
+
+    //     for (const existingSlot of flatConflicts) {
+    //       if (this.isOverlap(newSlot, existingSlot)) {
+    //         throw new ConflictError(
+    //           `Room ${newSlot.room} is already occupied on ${newSlot.day} between ${existingSlot.startTime} - ${existingSlot.endTime}`
+    //         );
+    //       }
+    //     }
+    //   }
+    // }
+
     // 4. Create Schedule
 
     try {
       const [schedule] = await SubjectScheduleModel.create([data], {
         session: session || null,
       });
+
+      if (schedule && schedule.teacherId !== "TBA") {
+        console.log(
+          `Syncing teacher ${schedule.teacherId} for subject ${data.subject} schedules`
+        );
+
+        await SubjectTakenModel.updateMany(
+          {
+            subject: new mongoose.Types.ObjectId(data.subject.toString()), // Ensure ObjectId
+            schoolYear: data.schoolYear,
+            semester: data.semester,
+          },
+          {
+            $set: { teacherId: schedule.teacherId },
+          },
+          session ? { session } : {}
+        );
+      }
+
       return schedule;
     } catch (error: any) {
       if (error.code === 11000) {

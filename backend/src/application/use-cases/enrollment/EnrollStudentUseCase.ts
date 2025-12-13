@@ -65,24 +65,26 @@ export class EnrollStudentUseCase {
       }
 
       // 4. REQ 4: Delegate Classroom Allocation
-      let classroom;
-      if (input.classroom) {
+      let section;
+      if (input.section) {
         // Manual Selection
-        classroom = await this.allocationService.validateManualSelection(
-          input.classroom.toString(),
+        section = await this.allocationService.validateManualSelection(
+          input.section.toString(),
           input.gradeLevel
         );
       } else {
         // Automatic / Load Balanced Selection
-        classroom = await this.allocationService.findBestAvailableSection(
-          input.gradeLevel
-        );
+        const allocationResult =
+          await this.allocationService.findBestAvailableSection(
+            input.gradeLevel
+          );
+        section = Array.isArray(allocationResult)
+          ? allocationResult[0]
+          : allocationResult;
       }
 
-      if (!classroom) {
-        throw new BadRequestError(
-          "No suitable classroom found for enrollment."
-        );
+      if (!section) {
+        throw new BadRequestError("No suitable section found for enrollment.");
       }
 
       // 5. Delegate: Advising (Determine Subjects)
@@ -103,7 +105,6 @@ export class EnrollStudentUseCase {
 
       // 6. Fetch Schedule for Teacher Mapping
       const classSchedules = await SubjectScheduleModel.find({
-        classroomId: classroom._id,
         semester: input.semester,
         schoolYear: input.schoolYear,
       });
@@ -119,7 +120,7 @@ export class EnrollStudentUseCase {
         [
           {
             studentId: input.studentId,
-            classroomId: classroom._id,
+            section: section._id,
             gradeLevel: input.gradeLevel,
             enrollmentDate: new Date(),
             status: EnrollmentStatus.Enrolled,
@@ -138,7 +139,6 @@ export class EnrollStudentUseCase {
         return {
           studentId: input.studentId,
           subject: subject._id,
-          classroomId: classroom._id,
           teacherId: assignedTeacher,
           schoolYear: input.schoolYear,
           semester: input.semester,
@@ -157,7 +157,7 @@ export class EnrollStudentUseCase {
       // 9. Persistence: Update Section Capacity
       // Use atomic increment to ensure thread safety
       await SectionModel.findByIdAndUpdate(
-        classroom._id,
+        section._id,
         { $inc: { currentCapacity: 1 } },
         { session }
       );

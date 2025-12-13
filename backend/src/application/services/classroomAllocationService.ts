@@ -37,10 +37,34 @@ export class ClassroomAllocationService {
 
   async findBestAvailableSection(gradeLevel: GradeLevel) {
     // Find section with lowest capacity that isn't full
-    const availableSection = await SectionModel.findOne({
-      gradeLevel: gradeLevel,
-      $expr: { $lt: ["$currentCapacity", "$capacity"] },
-    }).sort({ currentCapacity: 1 }); // Load balancing
+
+    const availableSection = await SectionModel.aggregate([
+      {
+        $match: {
+          gradeLevel: gradeLevel,
+        },
+      },
+      {
+        $lookup: {
+          from: "rooms",
+          localField: "designatedRoom",
+          foreignField: "_id",
+          as: "designatedRoom",
+        },
+      },
+      {
+        $unwind: "$designatedRoom",
+      },
+      {
+        $match: {
+          $expr: { $lt: ["$currentCapacity", "$designatedRoom.capacity"] },
+        },
+      },
+      {
+        $limit: 1,
+      },
+      { $sort: { currentCapacity: 1 } },
+    ]);
 
     if (!availableSection) {
       throw new BadRequestError(
