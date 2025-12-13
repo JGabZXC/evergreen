@@ -36,12 +36,12 @@ export class GetAllScheduleUseCase {
       SubjectScheduleModel.find(query)
         .skip(skip)
         .limit(limit)
-        .populate("classroomId")
         .populate("subject")
         .populate({
           path: "teacher",
           populate: "userId",
         })
+        .populate("schedules.room")
         .lean<SubjectScheduleDTO[]>(),
       SubjectScheduleModel.countDocuments(query),
     ]);

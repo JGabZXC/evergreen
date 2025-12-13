@@ -6,10 +6,10 @@ import { BaseSubjectSchedule } from "../../../domain/SubjectSchedule";
 import {
   GetAllScheduleUseCase,
   GetScheduleUseCase,
-  ManageClassScheduleUseCase,
+  ManageSubjectScheduleUseCase,
 } from "../../../application/use-cases/scheduling";
 
-const manageClassScheduleUseCase = new ManageClassScheduleUseCase();
+const manageSubjectScheduleUseCase = new ManageSubjectScheduleUseCase();
 const getAllScheduleUseCase = new GetAllScheduleUseCase();
 const getScheduleUseCase = new GetScheduleUseCase();
 
@@ -109,7 +109,6 @@ export const updateSchedule = async (
     }
 
     const scheduleData: BaseSubjectSchedule = {
-      classroomId,
       subject,
       teacherId: teacherId || "TBA", // Default to TBA if not provided
       schedules,
@@ -119,7 +118,7 @@ export const updateSchedule = async (
 
     // 3. Execute Use Case
     const updatedSchedule =
-      await manageClassScheduleUseCase.execute(scheduleData);
+      await manageSubjectScheduleUseCase.execute(scheduleData);
 
     // 4. Return Response
     return res.status(HttpStatus.OK).json({

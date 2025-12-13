@@ -4,18 +4,24 @@ import {
   NotFoundError,
 } from "../../interfaces/http/middleware/HttpErrors";
 import { GradeLevel } from "../../domain/types/GradeLevel";
+import { SectionDTO } from "../../interfaces/http/types/SectionDTO";
 
 export class ClassroomAllocationService {
   async validateManualSelection(
     classroomId: string,
     targetGradeLevel: GradeLevel
   ) {
-    const classroom = await SectionModel.findById(classroomId);
+    const classroom =
+      await SectionModel.findById<SectionDTO>(classroomId).populate(
+        "designatedRoom"
+      );
 
-    if (!classroom) throw new NotFoundError("Classroom not found.");
+    if (!classroom) throw new NotFoundError("Section not found.");
 
-    if (classroom.currentCapacity >= classroom.capacity) {
-      throw new BadRequestError(`Classroom ${classroom.name} is full.`);
+    if (classroom.currentCapacity >= classroom.designatedRoom?.capacity!) {
+      throw new BadRequestError(
+        `Room ${classroom.designatedRoom?.name} is full.`
+      );
     }
 
     if (classroom.gradeLevel !== targetGradeLevel) {

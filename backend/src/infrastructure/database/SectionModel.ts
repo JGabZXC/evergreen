@@ -4,7 +4,7 @@ import { GradeLevel } from "../../domain/types/GradeLevel";
 
 const SectionSchema = new Schema<Section & Document>(
   {
-    adviserId: { type: String, required: true },
+    adviserId: { type: String },
     name: { type: String, required: true },
     gradeLevel: {
       type: String,
@@ -19,7 +19,10 @@ const SectionSchema = new Schema<Section & Document>(
   { timestamps: true }
 );
 
-SectionSchema.index({ name: 1, schoolYear: 1 }, { unique: true });
+SectionSchema.index(
+  { name: 1, gradeLevel: 1, schoolYear: 1 },
+  { unique: true }
+);
 
 export const SectionModel = mongoose.model<Section & Document>(
   "Section",

@@ -9,13 +9,12 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { apiPrivate } from "../../../config/axiosPrivate";
-import type { CourseOption } from "../types";
 import { parseError } from "../../../utils/parseErrors";
 import { toast } from "react-toastify";
+import { useCourses } from "../hooks/useCourses";
 
 export default function CreateStudent() {
-  const [courses, setCourses] = useState<CourseOption[]>([]);
-  const [loadingCourses, setLoadingCourses] = useState(false);
+  const { courses, loading: loadingCourses } = useCourses(1, 100);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null | Record<string, string>>(
     null
@@ -26,21 +25,6 @@ export default function CreateStudent() {
     password: "",
     course: "",
   });
-
-  useEffect(() => {
-    const fetchCourses = async () => {
-      setLoadingCourses(true);
-      try {
-        const response = await apiPrivate.get("/api/registrar/course");
-        setCourses(response.data.courses || []);
-      } catch (err) {
-        console.error("Failed to fetch courses", err);
-      } finally {
-        setLoadingCourses(false);
-      }
-    };
-    fetchCourses();
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

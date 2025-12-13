@@ -4,10 +4,16 @@ import {
   getTeachersOption,
 } from "../services/scheduleServices";
 import { apiPrivate } from "../../../config/axiosPrivate";
-import type { Classroom, Subject, Teacher, Course } from "../types";
+import type {
+  SubjectSchedule,
+  Subject,
+  Teacher,
+  Course,
+  Section,
+} from "../types";
 
 export const useScheduleOptions = (isOpen: boolean) => {
-  const [sections, setSections] = useState<Classroom[]>([]);
+  const [sections, setSections] = useState<Section[]>([]);
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
   const [loadingOptions, setLoadingOptions] = useState(false);

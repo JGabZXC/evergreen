@@ -29,7 +29,11 @@ export class GetAllSectionUseCase {
     }
 
     const [sections, totalDocs] = await Promise.all([
-      SectionModel.find(query).skip(skip).limit(limit).lean<SectionDTO[]>(),
+      SectionModel.find(query)
+        .skip(skip)
+        .limit(limit)
+        .populate("designatedRoom")
+        .lean<SectionDTO[]>(),
       SectionModel.countDocuments(query),
     ]);
     const totalPages = Math.ceil(totalDocs / limit);

@@ -3,12 +3,12 @@ import {
   getSchedules,
   createOrUpdateSchedule,
 } from "../services/scheduleServices";
-import type { ClassSchedule } from "../types";
+import type { SubjectSchedule } from "../types";
 import { toast } from "react-toastify";
 import { getCurrentSchoolYear } from "../../../utils/schoolYear";
 
 export const useTeacherScheduling = () => {
-  const [schedules, setSchedules] = useState<ClassSchedule[]>([]);
+  const [schedules, setSchedules] = useState<SubjectSchedule[]>([]);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -54,7 +54,9 @@ export const useTeacherScheduling = () => {
       setIsModalOpen(false);
       fetchSchedules();
     } catch (error: any) {
-      alert(error.response?.data?.error?.message || "Failed to save schedule");
+      toast.error(
+        error.response?.data?.error?.message || "Failed to save schedule"
+      );
     }
   };
 

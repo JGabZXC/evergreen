@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import {
   X,
   Plus,
@@ -10,22 +11,20 @@ import {
   Search,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useScheduleOptions } from "../hooks/useScheduleOptions";
-import type { CreateSchedulePayload, Subject } from "../types";
-import { apiPrivate } from "../../../config/axiosPrivate";
+import { useSubjects } from "../hooks/useSubjects";
+import { useTeachers } from "../hooks/useTeachers";
+import { useRooms } from "../hooks/useRooms";
+import { useCourses } from "../hooks/useCourses";
+import { useSections } from "../hooks/useSections";
+import type { CreateSchedulePayload, Subject, Room, TimeSlot } from "../types";
 
 const generateId = () => {
   return Date.now().toString(36) + Math.random().toString(36).substring(2);
 };
 
-interface ScheduleSlot {
-  day: "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun";
-  startTime: string;
-  endTime: string;
-}
-
-interface ScheduleSlotWithId extends ScheduleSlot {
-  id: string;
+interface LocalTimeSlot extends Omit<TimeSlot, "_id"> {
+  localId: string;
+  room: string; // Backend expects string
 }
 
 interface AddScheduleModalProps {
@@ -39,8 +38,32 @@ export default function AddScheduleModal({
   onClose,
   onSave,
 }: AddScheduleModalProps) {
-  const { sections, teachers, courses, loadingOptions } =
-    useScheduleOptions(isOpen);
+  const [subjectSearch, setSubjectSearch] = useState("");
+  const [subjectPage, setSubjectPage] = useState(1);
+  const [subjectList, setSubjectList] = useState<Subject[]>([]);
+  const [hasMoreSubjects, setHasMoreSubjects] = useState(true);
+
+  const [roomSearch, setRoomSearch] = useState("");
+  const [roomPage, setRoomPage] = useState(1);
+  const [roomList, setRoomList] = useState<Room[]>([]);
+  const [hasMoreRooms, setHasMoreRooms] = useState(true);
+
+  const { subjects, loading: loadingSubjects } = useSubjects(
+    subjectPage,
+    20,
+    subjectSearch
+  );
+
+  const { rooms: roomData, loading: loadingRooms } = useRooms(
+    roomPage,
+    20,
+    roomSearch
+  );
+
+  const { teachers, loading: loadingTeachers } = useTeachers(1, 100, true);
+  const { courses, loading: loadingCourses } = useCourses(1, 100);
+  const { sections, loading: loadingSections } = useSections(1, 100);
+
   const [selectedCourseId, setSelectedCourseId] = useState("");
   const [formData, setFormData] = useState({
     classroomId: "",
@@ -50,65 +73,69 @@ export default function AddScheduleModal({
     semester: 1,
   });
 
-  // Subject Search & Infinite Scroll State
-  const [subjectList, setSubjectList] = useState<Subject[]>([]);
-  const [subjectSearch, setSubjectSearch] = useState("");
-  const [subjectPage, setSubjectPage] = useState(1);
-  const [hasMoreSubjects, setHasMoreSubjects] = useState(true);
-  const [loadingSubjects, setLoadingSubjects] = useState(false);
-  const [isSubjectDropdownOpen, setIsSubjectDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  const [schedules, setSchedules] = useState<ScheduleSlotWithId[]>([
+  const [schedules, setSchedules] = useState<LocalTimeSlot[]>([
     {
-      id: generateId(),
+      localId: generateId(),
       day: "Mon",
       startTime: "",
       endTime: "",
+      room: "",
     },
   ]);
 
-  // Fetch Subjects (Paginated & Search)
-  const fetchSubjects = useCallback(
-    async (page: number, search: string, signal?: AbortSignal) => {
-      setLoadingSubjects(true);
-      try {
-        const res = await apiPrivate.get("/api/subject", {
-          params: { page, limit: 20, search, active: true },
-          signal,
-        });
-        const newSubjects = res.data.subjects || [];
-        setSubjectList((prev) =>
-          page === 1 ? newSubjects : [...prev, ...newSubjects]
-        );
-        setHasMoreSubjects(newSubjects.length === 20);
-      } catch (error: any) {
-        if (error.name !== "CanceledError" && error.name !== "AbortError") {
-          console.error("Failed to fetch subjects", error);
-        }
-      } finally {
-        if (!signal?.aborted) setLoadingSubjects(false);
-      }
-    },
-    []
-  );
+  const [isSubjectDropdownOpen, setIsSubjectDropdownOpen] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState({
+    top: 0,
+    left: 0,
+    width: 0,
+  });
+  const subjectTriggerRef = useRef<HTMLDivElement>(null);
+  const subjectDropdownRef = useRef<HTMLDivElement>(null);
 
-  // Effect: Fetch subjects when search/page changes (if no course selected)
   useEffect(() => {
-    if (selectedCourseId) return;
+    if (subjects && !selectedCourseId) {
+      if (subjectPage === 1) {
+        setSubjectList(subjects);
+      } else {
+        setSubjectList((prev) => {
+          const newSubs = subjects.filter(
+            (s) => !prev.some((p) => p._id === s._id)
+          );
+          return [...prev, ...newSubs];
+        });
+      }
+      setHasMoreSubjects(subjects.length === 20);
+    }
+  }, [subjects, subjectPage, selectedCourseId]);
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => {
-      fetchSubjects(subjectPage, subjectSearch, controller.signal);
-    }, 300);
+  useEffect(() => {
+    if (!selectedCourseId) {
+      setSubjectPage(1);
+      setSubjectList([]);
+    }
+  }, [subjectSearch, selectedCourseId]);
 
-    return () => {
-      clearTimeout(timeoutId);
-      controller.abort();
-    };
-  }, [subjectPage, subjectSearch, selectedCourseId, fetchSubjects]);
+  useEffect(() => {
+    if (roomData) {
+      if (roomPage === 1) {
+        setRoomList(roomData);
+      } else {
+        setRoomList((prev) => {
+          const newRooms = roomData.filter(
+            (r) => !prev.some((p) => p._id === r._id)
+          );
+          return [...prev, ...newRooms];
+        });
+      }
+      setHasMoreRooms(roomData.length === 20);
+    }
+  }, [roomData, roomPage]);
 
-  // Effect: Handle Course Selection
+  useEffect(() => {
+    setRoomPage(1);
+    setRoomList([]);
+  }, [roomSearch]);
+
   useEffect(() => {
     if (selectedCourseId) {
       const course = courses.find((c) => c._id === selectedCourseId);
@@ -126,16 +153,9 @@ export default function AddScheduleModal({
         setSubjectList(uniqueSubs);
         setHasMoreSubjects(false);
       }
-    } else {
-      // Reset to fetch mode
-      setSubjectList([]);
-      setSubjectPage(1);
-      setHasMoreSubjects(true);
-      setSubjectSearch("");
     }
   }, [selectedCourseId, courses]);
 
-  // Handle Scroll for Infinite Loading
   const handleSubjectScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
     if (
@@ -148,13 +168,28 @@ export default function AddScheduleModal({
     }
   };
 
-  // Close dropdown when clicking outside
+  const handleRoomScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+    if (
+      scrollHeight - scrollTop <= clientHeight + 50 &&
+      hasMoreRooms &&
+      !loadingRooms
+    ) {
+      setRoomPage((prev) => prev + 1);
+    }
+  };
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
+      const target = event.target as Node;
+      const isOutsideTrigger =
+        subjectTriggerRef.current &&
+        !subjectTriggerRef.current.contains(target);
+      const isOutsideContent =
+        subjectDropdownRef.current &&
+        !subjectDropdownRef.current.contains(target);
+
+      if (isOutsideTrigger && isOutsideContent) {
         setIsSubjectDropdownOpen(false);
       }
     };
@@ -162,13 +197,27 @@ export default function AddScheduleModal({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const toggleSubjectDropdown = () => {
+    if (!isSubjectDropdownOpen && subjectTriggerRef.current) {
+      const rect = subjectTriggerRef.current.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + 5,
+        left: rect.left,
+        width: rect.width,
+      });
+    }
+    setIsSubjectDropdownOpen(!isSubjectDropdownOpen);
+  };
+
   const handleSlotChange = (
     id: string,
-    field: keyof ScheduleSlot,
+    field: keyof LocalTimeSlot,
     value: string
   ) => {
     setSchedules((prev) =>
-      prev.map((slot) => (slot.id === id ? { ...slot, [field]: value } : slot))
+      prev.map((slot) =>
+        slot.localId === id ? { ...slot, [field]: value } : slot
+      )
     );
   };
 
@@ -176,23 +225,24 @@ export default function AddScheduleModal({
     setSchedules([
       ...schedules,
       {
-        id: generateId(),
+        localId: generateId(),
         day: "Mon",
         startTime: "",
         endTime: "",
+        room: "",
       },
     ]);
   };
 
   const removeSlot = (id: string) => {
     if (schedules.length > 1) {
-      setSchedules((prev) => prev.filter((slot) => slot.id !== id));
+      setSchedules((prev) => prev.filter((slot) => slot.localId !== id));
     }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const cleanedSchedules = schedules.map(({ id, ...rest }) => rest);
+    const cleanedSchedules = schedules.map(({ localId, ...rest }) => rest);
     const payload = {
       ...formData,
       schedules: cleanedSchedules,
@@ -223,7 +273,11 @@ export default function AddScheduleModal({
         </div>
 
         <div className="p-6 overflow-y-auto flex-1">
-          {loadingOptions ? (
+          {loadingSections ||
+          loadingCourses ||
+          loadingRooms ||
+          loadingSubjects ||
+          loadingTeachers ? (
             <div className="flex flex-col items-center justify-center h-40 gap-2">
               <Loader2 className="animate-spin text-primary" size={32} />
               <span className="text-sm opacity-50">Loading options...</span>
@@ -257,7 +311,16 @@ export default function AddScheduleModal({
                     <select
                       className="select select-bordered w-full pl-10"
                       value={selectedCourseId}
-                      onChange={(e) => setSelectedCourseId(e.target.value)}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setSelectedCourseId(val);
+                        if (!val) {
+                          setSubjectList([]);
+                          setSubjectPage(1);
+                          setHasMoreSubjects(true);
+                          setSubjectSearch("");
+                        }
+                      }}
                     >
                       <option value="">All Courses (Show All Subjects)</option>
                       {courses.map((c) => (
@@ -270,9 +333,7 @@ export default function AddScheduleModal({
                 </div>
 
                 <div className="form-control">
-                  <label className="label font-medium">
-                    Section (Classroom)
-                  </label>
+                  <label className="label font-medium">Section</label>
                   <select
                     required
                     className="select select-bordered w-full"
@@ -293,29 +354,27 @@ export default function AddScheduleModal({
                 </div>
 
                 {/* Custom Subject Dropdown */}
-                <div className="form-control" ref={dropdownRef}>
+                <div className="form-control">
                   <label className="label font-medium">
                     Subject
                     <span className="badge badge-xs badge-ghost ml-2">
                       {subjectList.length} available
                     </span>
                   </label>
-                  <div className="dropdown w-full">
+                  <div className="w-full">
                     <div
+                      ref={subjectTriggerRef}
                       tabIndex={0}
                       role="button"
-                      className={`input input-bordered w-full flex items-center justify-between ${
+                      className={`input input-bordered w-full flex items-center justify-between cursor-pointer ${
                         !formData.subject ? "text-base-content/60" : ""
                       }`}
-                      onClick={() =>
-                        setIsSubjectDropdownOpen(!isSubjectDropdownOpen)
-                      }
+                      onClick={toggleSubjectDropdown}
                     >
                       <span className="truncate">
                         {formData.subject
-                          ? subjectList.find(
-                              (s) => s._id === formData.subject
-                            )?.name ||
+                          ? subjectList.find((s) => s._id === formData.subject)
+                              ?.name ||
                             subjectList.find(
                               (s) => s.subjectId === formData.subject
                             )?.name ||
@@ -324,50 +383,59 @@ export default function AddScheduleModal({
                       </span>
                       <Search size={16} className="opacity-50" />
                     </div>
-                    {isSubjectDropdownOpen && (
-                      <div
-                        tabIndex={0}
-                        className="dropdown-content z-1 menu p-2 shadow bg-base-100 rounded-box w-full max-h-60 overflow-y-auto flex-nowrap"
-                        onScroll={handleSubjectScroll}
-                      >
-                        {!selectedCourseId && (
-                          <div className="p-2 sticky top-0 bg-base-100 z-10">
-                            <input
-                              type="text"
-                              className="input input-sm input-bordered w-full"
-                              placeholder="Search subject..."
-                              value={subjectSearch}
-                              onChange={(e) => setSubjectSearch(e.target.value)}
-                              autoFocus
-                            />
-                          </div>
-                        )}
-                        {subjectList.map((s) => (
-                          <li
-                            key={s._id}
-                            onClick={() => {
-                              setFormData({ ...formData, subject: s._id });
-                              setIsSubjectDropdownOpen(false);
-                            }}
-                          >
-                            <a>
-                              <span className="font-bold">{s.subjectId}</span> -{" "}
-                              {s.name}
-                            </a>
-                          </li>
-                        ))}
-                        {loadingSubjects && (
-                          <li className="disabled">
-                            <a>Loading...</a>
-                          </li>
-                        )}
-                        {!loadingSubjects && subjectList.length === 0 && (
-                          <li className="disabled">
-                            <a>No subjects found</a>
-                          </li>
-                        )}
-                      </div>
-                    )}
+                    {isSubjectDropdownOpen &&
+                      createPortal(
+                        <div
+                          ref={subjectDropdownRef}
+                          className="menu p-2 shadow bg-base-100 rounded-box fixed z-9999 max-h-60 overflow-y-auto flex-nowrap border border-base-200"
+                          style={{
+                            top: dropdownPosition.top,
+                            left: dropdownPosition.left,
+                            width: dropdownPosition.width,
+                          }}
+                          onScroll={handleSubjectScroll}
+                        >
+                          {!selectedCourseId && (
+                            <div className="p-2 sticky top-0 bg-base-100 z-10">
+                              <input
+                                type="text"
+                                className="input input-sm input-bordered w-full"
+                                placeholder="Search subject..."
+                                value={subjectSearch}
+                                onChange={(e) =>
+                                  setSubjectSearch(e.target.value)
+                                }
+                                autoFocus
+                              />
+                            </div>
+                          )}
+                          {subjectList.map((s) => (
+                            <li
+                              key={s._id}
+                              onClick={() => {
+                                setFormData({ ...formData, subject: s._id });
+                                setIsSubjectDropdownOpen(false);
+                              }}
+                            >
+                              <a>
+                                <span className="font-bold">{s.subjectId}</span>{" "}
+                                - {s.name}
+                              </a>
+                            </li>
+                          ))}
+                          {loadingSubjects && (
+                            <li className="disabled">
+                              <a>Loading...</a>
+                            </li>
+                          )}
+                          {!loadingSubjects && subjectList.length === 0 && (
+                            <li className="disabled">
+                              <a>No subjects found</a>
+                            </li>
+                          )}
+                        </div>,
+                        document.body
+                      )}
                   </div>
                 </div>
 
@@ -432,7 +500,7 @@ export default function AddScheduleModal({
                 <AnimatePresence initial={false}>
                   {schedules.map((slot) => (
                     <motion.div
-                      key={slot.id}
+                      key={slot.localId}
                       initial={{ opacity: 0, height: 0, overflow: "hidden" }}
                       animate={{
                         opacity: 1,
@@ -448,7 +516,11 @@ export default function AddScheduleModal({
                             className="select select-bordered select-sm w-full"
                             value={slot.day}
                             onChange={(e) =>
-                              handleSlotChange(slot.id, "day", e.target.value)
+                              handleSlotChange(
+                                slot.localId,
+                                "day",
+                                e.target.value
+                              )
                             }
                           >
                             {[
@@ -476,7 +548,7 @@ export default function AddScheduleModal({
                             value={slot.startTime}
                             onChange={(e) =>
                               handleSlotChange(
-                                slot.id,
+                                slot.localId,
                                 "startTime",
                                 e.target.value
                               )
@@ -490,7 +562,7 @@ export default function AddScheduleModal({
                             value={slot.endTime}
                             onChange={(e) =>
                               handleSlotChange(
-                                slot.id,
+                                slot.localId,
                                 "endTime",
                                 e.target.value
                               )
@@ -498,10 +570,74 @@ export default function AddScheduleModal({
                           />
                         </div>
 
+                        {/* Room Dropdown in Slot */}
+                        <div className="w-full md:w-48 relative group">
+                          <div className="dropdown w-full">
+                            <div
+                              tabIndex={0}
+                              role="button"
+                              className="input input-bordered input-sm w-full flex items-center justify-between"
+                            >
+                              <span className="truncate">
+                                {slot.room
+                                  ? roomList.find((r) => r._id === slot.room)
+                                      ?.name || "Selected Room"
+                                  : "Select Room"}
+                              </span>
+                              <Search size={14} className="opacity-50" />
+                            </div>
+                            <div
+                              tabIndex={0}
+                              className="dropdown-content z-50 menu p-2 shadow bg-base-100 rounded-box w-full max-h-40 overflow-y-auto flex-nowrap"
+                              onScroll={handleRoomScroll}
+                            >
+                              <div className="p-2 sticky top-0 bg-base-100 z-10">
+                                <input
+                                  type="text"
+                                  className="input input-xs input-bordered w-full"
+                                  placeholder="Search room..."
+                                  value={roomSearch}
+                                  onChange={(e) =>
+                                    setRoomSearch(e.target.value)
+                                  }
+                                />
+                              </div>
+                              {roomList.map((r) => (
+                                <li
+                                  key={r._id}
+                                  onClick={() => {
+                                    handleSlotChange(
+                                      slot.localId,
+                                      "room",
+                                      r._id
+                                    );
+                                    // Close dropdown hack (blur)
+                                    if (
+                                      document.activeElement instanceof
+                                      HTMLElement
+                                    ) {
+                                      document.activeElement.blur();
+                                    }
+                                  }}
+                                >
+                                  <a>
+                                    {r.name} ({r.type})
+                                  </a>
+                                </li>
+                              ))}
+                              {loadingRooms && (
+                                <li className="disabled">
+                                  <a>Loading...</a>
+                                </li>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
                         <button
                           type="button"
                           className="btn btn-sm btn-ghost text-error"
-                          onClick={() => removeSlot(slot.id)}
+                          onClick={() => removeSlot(slot.localId)}
                           disabled={schedules.length === 1}
                         >
                           <Trash2 size={16} />
@@ -531,7 +667,7 @@ export default function AddScheduleModal({
             type="submit"
             form="schedule-form"
             className="btn btn-primary gap-2"
-            disabled={loadingOptions}
+            disabled={loadingSections}
           >
             <Save size={18} />
             Save Schedule

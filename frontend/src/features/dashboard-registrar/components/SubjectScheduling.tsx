@@ -33,7 +33,6 @@ export default function SubjectScheduling() {
     handleSaveSchedule,
   } = useTeacherScheduling();
 
-  console.log(schedules);
   return (
     <div className="space-y-6">
       {/* Controls Header */}
@@ -151,11 +150,6 @@ export default function SubjectScheduling() {
                             ? schedule.subject.name
                             : "Unknown Subject"}
                         </h3>
-                        <p className="text-xs text-base-content/60 font-medium">
-                          {typeof schedule.classroomId === "object"
-                            ? schedule.classroomId.name
-                            : "Unknown Section"}
-                        </p>
                       </div>
                     </div>
 
@@ -205,7 +199,9 @@ export default function SubjectScheduling() {
                             </div>
                             <div className="flex items-center gap-1 ml-auto font-mono text-secondary font-bold">
                               <LayoutDashboard size={12} />
-                              {slot.room}
+                              {typeof slot.room === "object"
+                                ? slot.room.name
+                                : slot.room}
                             </div>
                           </div>
                         ))}

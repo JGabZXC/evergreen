@@ -7,6 +7,7 @@ import {
   GraduationCap,
   Calendar,
   Search,
+  Building,
 } from "lucide-react";
 import {
   useSections,
@@ -206,7 +207,12 @@ export default function SectionList() {
                       <div>
                         <h3 className="font-bold text-lg">{section.name}</h3>
                         <p className="text-xs text-base-content/60">
-                          Adviser ID: {section.adviserId}
+                          Adviser ID:{" "}
+                          {section.adviserId
+                            ? typeof section.adviserId === "object"
+                              ? section.adviserId.employeeId
+                              : section.adviserId
+                            : "TBA"}
                         </p>
                       </div>
                     </div>
@@ -215,6 +221,14 @@ export default function SectionList() {
                   <div className="divider my-2"></div>
 
                   <div className="space-y-2 text-sm">
+                    <div className="flex items-center gap-2 text-base-content/70">
+                      <Building size={16} />
+                      <span>
+                        {typeof section.designatedRoom === "object"
+                          ? section.designatedRoom.name
+                          : section.designatedRoom}
+                      </span>
+                    </div>
                     <div className="flex items-center gap-2 text-base-content/70">
                       <GraduationCap size={16} />
                       <span>{section.gradeLevel}</span>
@@ -229,7 +243,10 @@ export default function SectionList() {
                         Capacity
                       </span>
                       <span className="badge badge-ghost">
-                        {section.currentCapacity} / {section.capacity}
+                        {section.currentCapacity} /{" "}
+                        {typeof section.designatedRoom === "object"
+                          ? section.designatedRoom.capacity
+                          : "N/A"}
                       </span>
                     </div>
                   </div>

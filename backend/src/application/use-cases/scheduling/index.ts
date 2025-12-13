@@ -1,9 +1,9 @@
 import { GetAllScheduleUseCase } from "./GetAllScheduleUseCase";
 import { GetScheduleUseCase } from "./GetScheduleUseCase";
-import { ManageClassScheduleUseCase } from "./ManageClassScheduleUseCase";
+import { ManageSubjectScheduleUseCase } from "./ManageSubjectScheduleUseCase";
 
 export {
   GetAllScheduleUseCase,
   GetScheduleUseCase,
-  ManageClassScheduleUseCase,
+  ManageSubjectScheduleUseCase,
 };

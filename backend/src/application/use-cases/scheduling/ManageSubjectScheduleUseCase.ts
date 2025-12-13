@@ -13,8 +13,6 @@ export class ManageSubjectScheduleUseCase {
     // 1. Validate Time Format & Logic
     this.validateTimeSlots(data.schedules);
 
-    // 1.1 NEW: Validate Internal Duplicates
-    // Ensure the user didn't accidentally send two overlapping times in the same request
     this.checkInternalDuplicates(data.schedules);
 
     // 2. CHECK ROOM EXISTENCE & EXTERNAL CONFLICTS
@@ -64,16 +62,24 @@ export class ManageSubjectScheduleUseCase {
     }
 
     // 4. Create Schedule
-    const [schedule] = await SubjectScheduleModel.create([data], {
-      session: session || null,
-    });
 
-    return schedule;
+    try {
+      const [schedule] = await SubjectScheduleModel.create([data], {
+        session: session || null,
+      });
+      return schedule;
+    } catch (error: any) {
+      if (error.code === 11000) {
+        throw new ConflictError(
+          "A schedule for this subject, school year, and semester already exists."
+        );
+      }
+      throw error;
+    }
   }
 
   // --- HELPER FUNCTIONS ---
 
-  // Checks if the user submitted overlapping times in the SAME array
   private checkInternalDuplicates(schedules: TimeSlot[]) {
     const sorted = [...schedules].sort((a, b) => {
       const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];

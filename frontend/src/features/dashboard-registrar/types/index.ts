@@ -1,5 +1,4 @@
 // --- Enums  ---
-
 export enum GradeLevel {
   Grade1 = "G-1",
   Grade2 = "G-2",
@@ -25,6 +24,18 @@ export enum Semester {
   First = 1,
   Second = 2,
   Third = 3,
+}
+
+export enum RoomType {
+  Lecture = "Lecture",
+  Laboratory = "Laboratory",
+  ComputerLab = "Computer Lab",
+  Gymnasium = "Gymnasium",
+}
+
+export enum RoomStatus {
+  Open = "Open",
+  UnderMaintenance = "Under Maintenance",
 }
 
 // --- Shared Sub-Interfaces ---
@@ -131,13 +142,24 @@ export interface Subject {
   // updatedAt: string;
 }
 
-export interface Classroom {
+export interface Section {
   _id: string;
-  name: string; // Section Name
+  adviserId: Staff | string; // ID or Populated
+  name: string;
   gradeLevel: GradeLevel;
-  capacity: number;
+  schoolYear: string;
   currentCapacity: number;
-  adviserId?: string; // Teacher ID
+  designatedRoom?: string | Room; // Room ID
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Room {
+  _id: string;
+  name: string;
+  type: RoomType;
+  capacity: number;
+  status: RoomStatus;
   createdAt: string;
   updatedAt: string;
 }
@@ -145,15 +167,15 @@ export interface Classroom {
 // --- Schedule Interfaces ---
 
 export interface TimeSlot {
+  _id: string;
   day: "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun";
   startTime: string;
   endTime: string;
-  _id?: string;
+  room: string | Room;
 }
 
-export interface ClassSchedule {
+export interface SubjectSchedule {
   _id: string;
-  classroomId: string | Classroom; // ID or Populated
   subject: string | Subject; // ID or Populated
   teacherId: string; // ID or Populated
   schoolYear: string;
@@ -214,11 +236,11 @@ export interface StudentResponse extends PaginatedResponse {
 }
 
 export interface ScheduleResponse extends PaginatedResponse {
-  schedules: ClassSchedule[];
+  schedules: SubjectSchedule[];
 }
 
-export interface ClassroomResponse extends PaginatedResponse {
-  classrooms: Classroom[];
+export interface RoomResponse extends PaginatedResponse {
+  rooms: Room[];
 }
 
 export interface TeacherResponse extends PaginatedResponse {
@@ -286,17 +308,6 @@ export interface TeacherOption {
 }
 
 // --- Room Types ---
-export enum RoomType {
-  Lecture = "Lecture",
-  Laboratory = "Laboratory",
-  ComputerLab = "Computer Lab",
-  Gymnasium = "Gymnasium",
-}
-
-export enum RoomStatus {
-  Open = "Open",
-  UnderMaintenance = "Under Maintenance",
-}
 
 export interface Room {
   _id: string;
@@ -318,20 +329,6 @@ export interface CreateRoomPayload {
 }
 
 export interface UpdateRoomPayload extends Partial<CreateRoomPayload> {}
-
-// --- Section Types ---
-export interface Section {
-  _id: string;
-  adviserId: string;
-  name: string;
-  gradeLevel: GradeLevel;
-  schoolYear: string;
-  capacity: number;
-  currentCapacity: number;
-  designatedRoom?: string; // Room ID
-  createdAt: string;
-  updatedAt: string;
-}
 
 export interface CreateSectionPayload {
   adviserId: string;
