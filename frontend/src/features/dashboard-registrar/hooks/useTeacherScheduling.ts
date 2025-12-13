@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import {
   getSchedules,
-  createOrUpdateSchedule,
+  createSchedule,
+  updateSchedule,
 } from "../services/scheduleServices";
 import type { SubjectSchedule } from "../types";
 import { toast } from "react-toastify";
@@ -47,16 +48,30 @@ export const useTeacherScheduling = () => {
     return () => controller.abort();
   }, [fetchSchedules]);
 
-  const handleSaveSchedule = async (payload: any) => {
+  const handleCreateSchedule = async (payload: any) => {
     try {
-      await createOrUpdateSchedule(payload);
-      toast.success("Schedule saved successfully");
+      await createSchedule(payload);
+      toast.success("Schedule created successfully");
       setIsModalOpen(false);
       fetchSchedules();
     } catch (error: any) {
       toast.error(
-        error.response?.data?.error?.message || "Failed to save schedule"
+        error.response?.data?.error?.message || "Failed to create schedule"
       );
+    }
+  };
+
+  const handleUpdateSchedule = async (id: string, payload: any) => {
+    try {
+      await updateSchedule(id, payload);
+      toast.success("Schedule updated successfully");
+      fetchSchedules();
+      return true;
+    } catch (error: any) {
+      toast.error(
+        error.response?.data?.error?.message || "Failed to update schedule"
+      );
+      return false;
     }
   };
 
@@ -70,6 +85,8 @@ export const useTeacherScheduling = () => {
     semester,
     setSemester,
     fetchSchedules,
-    handleSaveSchedule,
+    handleSaveSchedule: handleCreateSchedule, // Alias for backward compatibility if needed
+    handleCreateSchedule,
+    handleUpdateSchedule,
   };
 };

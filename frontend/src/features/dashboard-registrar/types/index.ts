@@ -251,11 +251,15 @@ export interface CourseResponse extends PaginatedResponse {
   courses: Course[];
 }
 
+export interface SectionResponse extends PaginatedResponse {
+  sections: Section[];
+}
+
 // --- Payload Interfaces (Requests) ---
 
 export interface CreditPayload {
   studentId: string;
-  subjectId: string;
+  subject: string;
   previousSchool: string;
   finalGrade: number;
 }
@@ -269,7 +273,6 @@ export interface EnrollPayload {
 }
 
 export interface CreateSchedulePayload {
-  classroomId: string;
   subject: string;
   teacherId: string; // "TBA" or Employee ID
   schoolYear: string;

@@ -98,7 +98,7 @@ export default function ManualEnrollment() {
     try {
       const payload = selectedCredits.map((subId) => ({
         studentId: student.studentId,
-        subjectId: subId,
+        subject: subId,
         previousSchool: previousSchool,
         finalGrade: 1.0, // Default passing grade
       }));
@@ -141,11 +141,11 @@ export default function ManualEnrollment() {
     }
   };
 
-  const toggleCreditSubject = (subjectId: string) => {
-    if (selectedCredits.includes(subjectId)) {
-      setSelectedCredits(selectedCredits.filter((id) => id !== subjectId));
+  const toggleCreditSubject = (subject: string) => {
+    if (selectedCredits.includes(subject)) {
+      setSelectedCredits(selectedCredits.filter((id) => id !== subject));
     } else {
-      setSelectedCredits([...selectedCredits, subjectId]);
+      setSelectedCredits([...selectedCredits, subject]);
     }
   };
 
@@ -423,9 +423,9 @@ export default function ManualEnrollment() {
                 {allSubjects.map((sub) => (
                   <div
                     key={sub._id}
-                    onClick={() => toggleCreditSubject(sub.subjectId)}
+                    onClick={() => toggleCreditSubject(sub._id)}
                     className={`p-3 rounded-lg border cursor-pointer transition-all flex justify-between items-center group ${
-                      selectedCredits.includes(sub.subjectId)
+                      selectedCredits.includes(sub._id)
                         ? "border-warning bg-warning/5"
                         : "border-base-200 hover:border-warning/50 hover:bg-base-200/50"
                     }`}
@@ -441,7 +441,7 @@ export default function ManualEnrollment() {
                         {sub.description || "No description"}
                       </div>
                     </div>
-                    {selectedCredits.includes(sub.subjectId) && (
+                    {selectedCredits.includes(sub._id) && (
                       <CheckCircle2
                         size={18}
                         className="text-warning shrink-0"

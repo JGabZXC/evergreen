@@ -7,11 +7,13 @@ import {
   GetAllScheduleUseCase,
   GetScheduleUseCase,
   ManageSubjectScheduleUseCase,
+  UpdateSubjectScheduleUseCase,
 } from "../../../application/use-cases/scheduling";
 
 const manageSubjectScheduleUseCase = new ManageSubjectScheduleUseCase();
 const getAllScheduleUseCase = new GetAllScheduleUseCase();
 const getScheduleUseCase = new GetScheduleUseCase();
+const updateSubjectScheduleUseCase = new UpdateSubjectScheduleUseCase();
 
 export const getSchedule = async (req: AuthenticatedRequest, res: Response) => {
   let {
@@ -71,27 +73,22 @@ export const getSchedule = async (req: AuthenticatedRequest, res: Response) => {
   }
 };
 
-export const updateSchedule = async (
+export const createSchedule = async (
   req: AuthenticatedRequest,
   res: Response
 ) => {
   try {
-    const { classroomId, subject, teacherId, schedules, schoolYear, semester } =
-      req.body;
+    const { subject, teacherId, schedules, schoolYear, semester } = req.body;
     const errors: { [key: string]: string } = {};
 
-    if (!classroomId || !subject || !schoolYear || !semester || !schedules) {
+    if (!subject || !schoolYear || !semester || !schedules) {
       throw new BadRequestError(
-        "Missing required fields: classroomId, subjectId, schoolYear, semester, or schedules."
+        "Missing required fields: subjectId, schoolYear, semester, or schedules."
       );
     }
 
     if (!Array.isArray(schedules) || schedules.length === 0) {
       errors.schedules = "Schedules cannot be empty and must be an array.";
-    }
-
-    if (!classroomId) {
-      errors.classroomId = "Classroom ID is required.";
     }
 
     if (!subject) {
@@ -121,6 +118,32 @@ export const updateSchedule = async (
       await manageSubjectScheduleUseCase.execute(scheduleData);
 
     // 4. Return Response
+    return res.status(HttpStatus.OK).json({
+      message: "Class schedule created successfully",
+      schedule: updatedSchedule,
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const updateSchedule = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    const { id } = req.params;
+    const updates = req.body;
+
+    if (!id) {
+      throw new BadRequestError("Schedule ID is required");
+    }
+
+    const updatedSchedule = await updateSubjectScheduleUseCase.execute(
+      id,
+      updates
+    );
+
     return res.status(HttpStatus.OK).json({
       message: "Class schedule updated successfully",
       schedule: updatedSchedule,

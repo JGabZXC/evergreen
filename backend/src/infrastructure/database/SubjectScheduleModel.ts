@@ -12,7 +12,7 @@ const SubjectScheduleSchema = new Schema<SubjectSchedule & Document>(
   {
     // classroomId: {
     //   type: Schema.Types.ObjectId,
-    //   ref: "Classroom",
+    //   ref: "Section", // Changed from Classroom to Section as per SectionModel
     //   required: true,
     // },
     subject: { type: Schema.Types.ObjectId, ref: "Subject", required: true },

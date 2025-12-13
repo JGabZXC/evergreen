@@ -1,11 +1,12 @@
 import type {
   ScheduleResponse,
   SubjectResponse,
-  ClassroomResponse,
   TeacherResponse,
   Subject,
-  Classroom,
   Teacher,
+  Section,
+  SubjectSchedule,
+  SectionResponse,
 } from "../types";
 import { apiPrivate } from "../../../config/axiosPrivate";
 
@@ -28,10 +29,20 @@ export const getSchedules = async (
   return response.data;
 };
 
-export const createOrUpdateSchedule = async (data: any) => {
+export const createSchedule = async (data: any) => {
   const response = await apiPrivate.post("/api/schedule", data);
   return response.data;
 };
+
+export const updateSchedule = async (id: string, data: any) => {
+  const response = await apiPrivate.patch(`/api/schedule/${id}`, data);
+  return response.data;
+};
+
+/**
+ * @deprecated Use createSchedule instead
+ */
+export const createOrUpdateSchedule = createSchedule;
 
 // --- Helper Fetchers for Dropdowns ---
 
@@ -47,12 +58,12 @@ export const getSubjectsOption = async (
 
 export const getSectionsOption = async (
   signal?: AbortSignal
-): Promise<Classroom[]> => {
-  const response = await apiPrivate.get<ClassroomResponse>(
+): Promise<Section[]> => {
+  const response = await apiPrivate.get<SectionResponse>(
     "/api/registrar/classroom?limit=100",
     { signal }
   );
-  return response.data.classrooms;
+  return response.data.sections;
 };
 
 export const getTeachersOption = async (

@@ -15,8 +15,13 @@ import { useSubjects } from "../hooks/useSubjects";
 import { useTeachers } from "../hooks/useTeachers";
 import { useRooms } from "../hooks/useRooms";
 import { useCourses } from "../hooks/useCourses";
-import { useSections } from "../hooks/useSections";
-import type { CreateSchedulePayload, Subject, Room, TimeSlot } from "../types";
+import type {
+  CreateSchedulePayload,
+  Subject,
+  Room,
+  TimeSlot,
+  SubjectSchedule,
+} from "../types";
 
 const generateId = () => {
   return Date.now().toString(36) + Math.random().toString(36).substring(2);
@@ -31,12 +36,14 @@ interface AddScheduleModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (data: CreateSchedulePayload) => void;
+  initialData?: SubjectSchedule | null;
 }
 
 export default function AddScheduleModal({
   isOpen,
   onClose,
   onSave,
+  initialData,
 }: AddScheduleModalProps) {
   const [subjectSearch, setSubjectSearch] = useState("");
   const [subjectPage, setSubjectPage] = useState(1);
@@ -62,11 +69,9 @@ export default function AddScheduleModal({
 
   const { teachers, loading: loadingTeachers } = useTeachers(1, 100, true);
   const { courses, loading: loadingCourses } = useCourses(1, 100);
-  const { sections, loading: loadingSections } = useSections(1, 100);
 
   const [selectedCourseId, setSelectedCourseId] = useState("");
   const [formData, setFormData] = useState({
-    classroomId: "",
     subject: "",
     teacherId: "",
     schoolYear: "2025-2026",
@@ -82,6 +87,53 @@ export default function AddScheduleModal({
       room: "",
     },
   ]);
+
+  // Populate form when initialData changes
+  useEffect(() => {
+    if (isOpen && initialData) {
+      setFormData({
+        subject:
+          typeof initialData.subject === "object"
+            ? initialData.subject._id
+            : initialData.subject,
+        teacherId:
+          typeof initialData.teacher === "object"
+            ? initialData.teacher.employeeId
+            : initialData.teacherId || "",
+        schoolYear: initialData.schoolYear,
+        semester: Number(initialData.semester),
+      });
+
+      if (initialData.schedules && initialData.schedules.length > 0) {
+        setSchedules(
+          initialData.schedules.map((s) => ({
+            localId: generateId(),
+            day: s.day,
+            startTime: s.startTime,
+            endTime: s.endTime,
+            room: typeof s.room === "object" ? s.room._id : s.room,
+          }))
+        );
+      }
+    } else if (isOpen && !initialData) {
+      // Reset form
+      setFormData({
+        subject: "",
+        teacherId: "",
+        schoolYear: "2025-2026",
+        semester: 1,
+      });
+      setSchedules([
+        {
+          localId: generateId(),
+          day: "Mon",
+          startTime: "",
+          endTime: "",
+          room: "",
+        },
+      ]);
+    }
+  }, [isOpen, initialData]);
 
   const [isSubjectDropdownOpen, setIsSubjectDropdownOpen] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({
@@ -262,9 +314,13 @@ export default function AddScheduleModal({
       >
         <div className="flex justify-between items-center p-5 border-b border-base-200 bg-base-200/50">
           <div>
-            <h2 className="text-xl font-bold">Add Class Schedule</h2>
+            <h2 className="text-xl font-bold">
+              {initialData ? "Edit Class Schedule" : "Add Class Schedule"}
+            </h2>
             <p className="text-xs text-base-content/60">
-              Assign a subject and time to a section.
+              {initialData
+                ? "Update schedule details."
+                : "Assign a subject and time to a section."}
             </p>
           </div>
           <button onClick={onClose} className="btn btn-sm btn-circle btn-ghost">
@@ -273,8 +329,7 @@ export default function AddScheduleModal({
         </div>
 
         <div className="p-6 overflow-y-auto flex-1">
-          {loadingSections ||
-          loadingCourses ||
+          {loadingCourses ||
           loadingRooms ||
           loadingSubjects ||
           loadingTeachers ? (
@@ -332,28 +387,6 @@ export default function AddScheduleModal({
                   </div>
                 </div>
 
-                <div className="form-control">
-                  <label className="label font-medium">Section</label>
-                  <select
-                    required
-                    className="select select-bordered w-full"
-                    value={formData.classroomId}
-                    onChange={(e) =>
-                      setFormData({ ...formData, classroomId: e.target.value })
-                    }
-                  >
-                    <option value="" disabled>
-                      Select Section...
-                    </option>
-                    {sections.map((s) => (
-                      <option key={s._id} value={s._id}>
-                        {s.name} ({s.gradeLevel})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Custom Subject Dropdown */}
                 <div className="form-control">
                   <label className="label font-medium">
                     Subject
@@ -667,7 +700,12 @@ export default function AddScheduleModal({
             type="submit"
             form="schedule-form"
             className="btn btn-primary gap-2"
-            disabled={loadingSections}
+            disabled={
+              loadingCourses ||
+              loadingRooms ||
+              loadingSubjects ||
+              loadingTeachers
+            }
           >
             <Save size={18} />
             Save Schedule
