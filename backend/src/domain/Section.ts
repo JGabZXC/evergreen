@@ -6,7 +6,7 @@ export interface BaseSection {
   name: string; // This is the section name
   gradeLevel: GradeLevel;
   schoolYear: string;
-  capacity: number;
+  // capacity: number;
   currentCapacity: number;
   designatedRoom?: Schema.Types.ObjectId;
 }

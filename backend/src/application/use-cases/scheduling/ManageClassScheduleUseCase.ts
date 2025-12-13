@@ -1,31 +1,51 @@
 import mongoose from "mongoose";
-import {
-  BaseSubjectSchedule,
-  SubjectSchedule,
-  TimeSlot,
-} from "../../../domain/SubjectSchedule";
+import { BaseSubjectSchedule, TimeSlot } from "../../../domain/SubjectSchedule";
 import { SubjectScheduleModel } from "../../../infrastructure/database/SubjectScheduleModel";
+import { RoomModel } from "../../../infrastructure/database/RoomModel";
 import {
   ConflictError,
-  BadRequestError,
   NotFoundError,
+  BadRequestError,
 } from "../../../interfaces/http/middleware/HttpErrors";
-import { SubjectModel } from "../../../infrastructure/database/SubjectModel";
-import { SubjectTakenModel } from "../../../infrastructure/database/SubjectTakenModel";
 
-export class ManageClassScheduleUseCase {
+export class ManageSubjectScheduleUseCase {
   async execute(data: BaseSubjectSchedule, session?: mongoose.ClientSession) {
     // 1. Validate Time Format & Logic
     this.validateTimeSlots(data.schedules);
 
-    // 2. VALIDATE SUBJECT EXISTENCE [NEW]
-    // Check if the subject actually exists in the Subject collection
-    const subjectExists = await SubjectModel.findById(data.subject).session(
-      session || null
-    );
+    // 1.1 NEW: Validate Internal Duplicates
+    // Ensure the user didn't accidentally send two overlapping times in the same request
+    this.checkInternalDuplicates(data.schedules);
 
-    if (!subjectExists) {
-      throw new NotFoundError(`Subject with ID '${data.subject}' not found.`);
+    // 2. CHECK ROOM EXISTENCE & EXTERNAL CONFLICTS
+    for (const newSlot of data.schedules) {
+      // Ensure Room Exists
+      const room = await RoomModel.findById(newSlot.room).session(
+        session || null
+      );
+      if (!room)
+        throw new NotFoundError(`Room with ID ${newSlot.room} not found`);
+
+      // Check DB for conflicts in this Room
+      const roomConflicts = await SubjectScheduleModel.find({
+        "schedules.room": newSlot.room,
+        "schedules.day": newSlot.day,
+        schoolYear: data.schoolYear,
+        semester: data.semester,
+      }).session(session || null);
+
+      // Filter exact overlaps
+      const flatConflicts = roomConflicts
+        .flatMap((c) => c.schedules)
+        .filter((s) => s.room.toString() === newSlot.room.toString());
+
+      for (const existingSlot of flatConflicts) {
+        if (this.isOverlap(newSlot, existingSlot)) {
+          throw new ConflictError(
+            `Room '${room.name}' is already occupied on ${newSlot.day} ${existingSlot.startTime}-${existingSlot.endTime}`
+          );
+        }
+      }
     }
 
     // 3. CHECK TEACHER CONFLICTS
@@ -34,7 +54,6 @@ export class ManageClassScheduleUseCase {
         teacherId: data.teacherId,
         schoolYear: data.schoolYear,
         semester: data.semester,
-        subject: { $ne: data.subject },
       }).session(session || null);
 
       this.checkConflicts(
@@ -44,53 +63,46 @@ export class ManageClassScheduleUseCase {
       );
     }
 
-    // 4. CHECK CLASSROOM (SECTION) CONFLICTS
-    const sectionConflicts = await SubjectScheduleModel.find({
-      classroomId: data.classroomId,
-      schoolYear: data.schoolYear,
-      semester: data.semester,
-      subject: { $ne: data.subject },
-    }).session(session || null);
-
-    this.checkConflicts(
-      data.schedules,
-      sectionConflicts,
-      "This section already has a class scheduled"
-    );
-
-    // 5. Persist Data (Upsert)
-    const schedule = await SubjectScheduleModel.findOneAndUpdate(
-      {
-        classroomId: data.classroomId,
-        subject: data.subject,
-        schoolYear: data.schoolYear,
-      },
-      {
-        ...data,
-        teacherId: data.teacherId || "TBA",
-      },
-      { new: true, upsert: true, session: session || null }
-    );
-
-    if (schedule) {
-      await SubjectTakenModel.updateMany(
-        {
-          classroomId: data.classroomId,
-          subject: data.subject,
-          schoolYear: data.schoolYear,
-          semester: data.semester,
-        },
-        {
-          $set: { teacherId: schedule.teacherId },
-        },
-        session ? { session } : undefined
-      );
-    }
+    // 4. Create Schedule
+    const [schedule] = await SubjectScheduleModel.create([data], {
+      session: session || null,
+    });
 
     return schedule;
   }
 
   // --- HELPER FUNCTIONS ---
+
+  // Checks if the user submitted overlapping times in the SAME array
+  private checkInternalDuplicates(schedules: TimeSlot[]) {
+    const sorted = [...schedules].sort((a, b) => {
+      const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+      if (a.day !== b.day) {
+        return days.indexOf(a.day) - days.indexOf(b.day);
+      }
+
+      return this.toMinutes(a.startTime) - this.toMinutes(b.startTime);
+    });
+
+    for (let i = 0; i < sorted.length - 1; i++) {
+      const current = sorted[i];
+      const next = sorted[i + 1];
+
+      if (!current || !next) continue;
+
+      if (current.day === next.day) {
+        const currentEnd = this.toMinutes(current.endTime);
+        const nextStart = this.toMinutes(next.startTime);
+
+        if (currentEnd > nextStart) {
+          throw new BadRequestError(
+            `Overlapping time slots detected on ${current.day}: ${current.startTime}-${current.endTime} overlaps with ${next.startTime}-${next.endTime}`
+          );
+        }
+      }
+    }
+  }
 
   private validateTimeSlots(schedules: TimeSlot[]) {
     for (const slot of schedules) {
@@ -104,15 +116,15 @@ export class ManageClassScheduleUseCase {
 
   private checkConflicts(
     newSchedules: TimeSlot[],
-    existingRecords: any[], // Type as any or the Mongoose Interface
-    errorMessagePrefix: string
+    existingRecords: any[],
+    errorMsg: string
   ) {
     for (const record of existingRecords) {
       for (const existingSlot of record.schedules) {
         for (const newSlot of newSchedules) {
           if (this.isOverlap(newSlot, existingSlot)) {
             throw new ConflictError(
-              `${errorMessagePrefix} on ${newSlot.day} between ${newSlot.startTime} - ${newSlot.endTime}`
+              `${errorMsg} on ${newSlot.day} ${newSlot.startTime}-${newSlot.endTime}`
             );
           }
         }
@@ -122,23 +134,19 @@ export class ManageClassScheduleUseCase {
 
   private isOverlap(slotA: TimeSlot, slotB: TimeSlot): boolean {
     if (slotA.day !== slotB.day) return false;
-
-    const startA = this.toMinutes(slotA.startTime);
-    const endA = this.toMinutes(slotA.endTime);
-    const startB = this.toMinutes(slotB.startTime);
-    const endB = this.toMinutes(slotB.endTime);
-
-    // Overlap logic: (StartA < EndB) && (EndA > StartB)
-    return startA < endB && endA > startB;
+    const sA = this.toMinutes(slotA.startTime);
+    const eA = this.toMinutes(slotA.endTime);
+    const sB = this.toMinutes(slotB.startTime);
+    const eB = this.toMinutes(slotB.endTime);
+    // (StartA < EndB) and (EndA > StartB)
+    return sA < eB && eA > sB;
   }
 
   private toMinutes(time: string): number {
-    const parts = time.split(":");
-    const hours = Number(parts[0]);
-    const minutes = Number(parts[1]);
-    if (isNaN(hours) || isNaN(minutes)) {
+    const [h, m] = time.split(":").map(Number);
+    if (!h || !m) {
       throw new BadRequestError(`Invalid time format: ${time}`);
     }
-    return hours * 60 + minutes;
+    return h * 60 + m;
   }
 }

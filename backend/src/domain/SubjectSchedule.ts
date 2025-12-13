@@ -6,10 +6,11 @@ export interface TimeSlot {
   day: "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun";
   startTime: string;
   endTime: string;
+  room: Schema.Types.ObjectId;
 }
 
 export interface BaseSubjectSchedule {
-  classroomId: Schema.Types.ObjectId;
+  // classroomId: Schema.Types.ObjectId;
   subject: Schema.Types.ObjectId;
   teacherId: string; // Employee ID
   schedules: TimeSlot[];
