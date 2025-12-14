@@ -1,6 +1,7 @@
 # Backend Dockerfile
-FROM node:20-alpine as base
+FROM node:20-slim as base
 WORKDIR /app
+# RUN apk add --no-cache libc6-compat
 COPY package*.json ./
 RUN npm install
 

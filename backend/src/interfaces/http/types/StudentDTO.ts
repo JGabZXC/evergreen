@@ -5,7 +5,10 @@ import {
 } from "../../../domain/Student";
 import { CourseDTO } from "./CourseDTO";
 import { ErollmentRecordDTO } from "./EnrollmentDTO";
-export type BaseStudentProfileDTO = Omit<BaseStudentProfile, "dateOfBirth"> & {
+export type BaseStudentProfileDTO = Omit<
+  BaseStudentProfile,
+  "studentId" | "dateOfBirth"
+> & {
   dateOfBirth: string;
 };
 

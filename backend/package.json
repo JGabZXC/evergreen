@@ -9,7 +9,7 @@
     "start": "node dist/server.js",
     "lint": "eslint \"src/**/*.{ts,js}\" --max-warnings=0",
     "test": "vitest run",
-    "test:unit": "vitest run .test.ts --exclude .int.test.ts --reporter=verbose",
+    "test:unit": "vitest run .test.ts --exclude \"**/*.int.test.ts\" --reporter=verbose",
     "test:int": "vitest run .int.test.ts --reporter=verbose"
   },
   "dependencies": {
