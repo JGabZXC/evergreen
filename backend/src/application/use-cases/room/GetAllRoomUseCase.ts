@@ -1,3 +1,4 @@
+import { FilterQuery } from "mongoose";
 import { RoomStatus, RoomType } from "../../../domain/Room";
 import { RoomModel } from "../../../infrastructure/database/RoomModel";
 import { RoomDTO } from "../../../interfaces/http/types/RoomDTO";
@@ -12,10 +13,7 @@ export interface FilterRooms {
 
 export class GetAllRoomUseCase {
   async execute(filter: FilterRooms = {}, skip = 0, limit = 10) {
-    const query: Record<
-      string,
-      string | number | boolean | Record<string, any>
-    > = {};
+    const query: FilterQuery<FilterRooms> = {};
     if (filter.name) query.name = { $regex: filter.name, $options: "i" };
     if (filter.type) query.type = filter.type;
     if (filter.capacity) query.capacity = filter.capacity;

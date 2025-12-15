@@ -4,7 +4,7 @@ export type UserDTO = Omit<
   User,
   "password" | "createdAt" | "updatedAt" | "_id"
 > & {
-  id: string;
+  _id: string;
   createdAt: string;
   updatedAt: string;
 };

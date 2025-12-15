@@ -1,3 +1,4 @@
+import { FilterQuery } from "mongoose";
 import { SectionModel } from "../../../infrastructure/database/SectionModel";
 import { SectionDTO } from "../../../interfaces/http/types/SectionDTO";
 
@@ -9,32 +10,18 @@ export interface FilterSection {
 }
 
 export class GetAllSectionUseCase {
-  async execute(filter: FilterSection = {}, skip: number, limit: number) {
-    const query: Record<string, string | number | Record<string, unknown>> = {};
-
-    if (filter.search) {
-      query["name"] = { $regex: filter.search, $options: "i" };
-    }
-
-    if (filter.gradeLevel) {
-      query["gradeLevel"] = filter.gradeLevel;
-    }
-
-    if (filter.schoolYear) {
-      query["schoolYear"] = filter.schoolYear;
-    }
-
-    if (filter.capacity) {
-      query["capacity"] = { $gte: filter.capacity };
-    }
-
+  async execute(
+    filter: FilterQuery<FilterSection> = {},
+    skip: number,
+    limit: number
+  ) {
     const [sections, totalDocs] = await Promise.all([
-      SectionModel.find(query)
+      SectionModel.find(filter)
         .skip(skip)
         .limit(limit)
         .populate("designatedRoom")
         .lean<SectionDTO[]>(),
-      SectionModel.countDocuments(query),
+      SectionModel.countDocuments(filter),
     ]);
     const totalPages = Math.ceil(totalDocs / limit);
     return {

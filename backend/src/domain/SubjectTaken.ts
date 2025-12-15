@@ -19,7 +19,7 @@ export interface BaseSubjectTaken {
   subject: Schema.Types.ObjectId | Subject;
   teacherId: string; // "TBA" or ObjectId
   studentId: string;
-  classroomId: Schema.Types.ObjectId;
+  classroomId: Schema.Types.ObjectId; // Room
   schoolYear: string;
   semester: Semester;
 
@@ -35,7 +35,6 @@ export interface BaseSubjectTaken {
   teacher?: StaffDTO;
   student?: StudentDTO;
   classroom?: SectionDTO;
-  scheduleDetails?: SubjectScheduleDTO;
 }
 
 export interface SubjectTaken extends BaseSubjectTaken {

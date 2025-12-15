@@ -12,7 +12,6 @@ export class GetStudentGradesUseCase {
         path: "teacher",
         select: "firstName lastName",
       })
-      .populate("scheduleDetails")
       .lean<SubjectTakenDTO>();
 
     return grades;

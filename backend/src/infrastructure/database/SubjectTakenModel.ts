@@ -56,18 +56,6 @@ SubjectTakenSchema.virtual("classroom", {
   justOne: true,
 });
 
-SubjectTakenSchema.virtual("scheduleDetails", {
-  ref: "SubjectSchedule",
-  localField: "classroomId",
-  foreignField: "classroomId",
-  match: (doc: SubjectSchedule) => ({
-    subject: doc.subject,
-    schoolYear: doc.schoolYear,
-    semester: doc.semester,
-  }),
-  justOne: true,
-});
-
 export const SubjectTakenModel = mongoose.model(
   "SubjectTaken",
   SubjectTakenSchema
