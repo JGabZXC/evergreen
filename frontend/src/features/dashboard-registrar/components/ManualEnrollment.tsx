@@ -1,29 +1,29 @@
-// frontend/src/features/dashboard-registrar/components/ManualEnrollment.tsx
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Save,
   Search,
   UserCheck,
   AlertCircle,
-  CheckCircle2,
   Calendar,
   ArrowRightCircle,
   Award,
-  X,
   School,
   GraduationCap,
 } from "lucide-react";
 import { toast } from "react-toastify";
-// [FIX] Imports pointed to the correct service file defined previously
 import {
   creditStudentSubjects,
   enrollStudent,
-  getAllSubjects,
 } from "../services/enrollmentService";
-import { getStudents } from "../services/studentService";
+import { getStudent } from "../services/studentService";
 import { GradeLevel, Semester } from "../types";
-import type { Subject, Student } from "../types";
+import type { Student, CurriculumItem } from "../types";
+import CreditSubjectsModal, { type CreditItem } from "./CreditSubjectsModal";
+import {
+  getCurrentSchoolYear,
+  getSchoolYearOptions,
+} from "../../../utils/schoolYear";
 
 // --- Types ---
 type EnrollmentType = "new" | "transferee" | "existing";
@@ -34,35 +34,15 @@ export default function ManualEnrollment() {
   const [isSearching, setIsSearching] = useState(false);
   const [student, setStudent] = useState<Student | null>(null);
 
-  // Data for Crediting
-  const [allSubjects, setAllSubjects] = useState<Subject[]>([]);
+  const [allSubjects, setAllSubjects] = useState<CurriculumItem[]>([]);
   const [isCreditModalOpen, setIsCreditModalOpen] = useState(false);
-  const [selectedCredits, setSelectedCredits] = useState<string[]>([]);
 
-  // [NEW] Previous School State
   const [previousSchool, setPreviousSchool] = useState("");
 
-  // Form States
   const [selectedSemester, setSelectedSemester] = useState(Semester.First);
   const [gradeLevel, setGradeLevel] = useState(GradeLevel.Grade11);
-  const [schoolYear, setSchoolYear] = useState("2024-2025");
+  const [schoolYear, setSchoolYear] = useState(getCurrentSchoolYear());
   const [section, setSection] = useState("");
-
-  // Load subjects on mount
-  useEffect(() => {
-    const loadSubjects = async () => {
-      try {
-        const data = await getAllSubjects();
-        // [FIX] Access the .subjects array from the paginated response
-        if (data && Array.isArray(data.subjects)) {
-          setAllSubjects(data.subjects);
-        }
-      } catch (e) {
-        console.error("Failed to load subjects", e);
-      }
-    };
-    loadSubjects();
-  }, []);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,10 +51,12 @@ export default function ManualEnrollment() {
     setStudent(null);
 
     try {
-      // [FIX] Added missing getStudents import usage
-      const data = await getStudents(1, 1, "all", searchId);
-      if (data.students && data.students.length > 0) {
-        setStudent(data.students[0]);
+      const data = await getStudent(searchId);
+      if (data) {
+        setStudent(data);
+        const curriculum = data.course?.curriculum || [];
+        const studentSubjects = curriculum.flatMap((item) => item);
+        setAllSubjects(studentSubjects);
         toast.success("Student found!");
       } else {
         toast.error("Student ID not found. Register them first.");
@@ -86,29 +68,25 @@ export default function ManualEnrollment() {
     }
   };
 
-  const handleSaveCredits = async () => {
-    if (selectedCredits.length === 0 || !student) return;
+  const handleSaveCredits = async (credits: CreditItem[]) => {
+    if (credits.length === 0 || !student) return;
 
-    // [FIX] Validate Previous School
     if (!previousSchool.trim()) {
       toast.error("Please enter the Previous School name.");
       return;
     }
 
     try {
-      const payload = selectedCredits.map((subId) => ({
+      const payload = credits.map((item) => ({
         studentId: student.studentId,
-        subject: subId,
+        subject: item.subjectId,
         previousSchool: previousSchool,
-        finalGrade: 1.0, // Default passing grade
+        finalGrade: item.finalGrade,
       }));
 
       await creditStudentSubjects(payload);
-      toast.success(
-        `${selectedCredits.length} subjects credited successfully!`
-      );
+      toast.success(`${credits.length} subjects credited successfully!`);
       setIsCreditModalOpen(false);
-      setSelectedCredits([]);
       // Optional: We keep previousSchool filled in case they want to add more credits from same school
     } catch (error) {
       console.error(error);
@@ -138,14 +116,6 @@ export default function ManualEnrollment() {
       setPreviousSchool("");
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Enrollment failed.");
-    }
-  };
-
-  const toggleCreditSubject = (subject: string) => {
-    if (selectedCredits.includes(subject)) {
-      setSelectedCredits(selectedCredits.filter((id) => id !== subject));
-    } else {
-      setSelectedCredits([...selectedCredits, subject]);
     }
   };
 
@@ -287,7 +257,8 @@ export default function ManualEnrollment() {
                   {enrollmentType === "transferee" && (
                     <div className="bg-warning/10 border border-warning/20 p-4 rounded-xl">
                       <div className="flex items-center gap-2 text-warning font-bold text-xs uppercase mb-2">
-                        <School size={14} /> Transferee Requirement
+                        <School size={14} className="z-10" /> Transferee
+                        Requirement
                       </div>
                       <input
                         type="text"
@@ -330,22 +301,27 @@ export default function ManualEnrollment() {
                       >
                         <option value={Semester.First}>1st Semester</option>
                         <option value={Semester.Second}>2nd Semester</option>
-                        <option value={Semester.Third}>Summer</option>
+                        <option value={Semester.Third}>3rd Semester</option>
                       </select>
                     </div>
                     <div className="form-control">
                       <label className="label font-bold">School Year</label>
                       <div className="relative">
                         <Calendar
-                          className="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/50"
+                          className="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/50 z-10"
                           size={16}
                         />
-                        <input
-                          type="text"
-                          className="input input-bordered pl-10 w-full"
+                        <select
+                          className="select select-bordered pl-10 w-full"
                           value={schoolYear}
                           onChange={(e) => setSchoolYear(e.target.value)}
-                        />
+                        >
+                          {getSchoolYearOptions().map((sy) => (
+                            <option key={sy} value={sy}>
+                              {sy}
+                            </option>
+                          ))}
+                        </select>
                       </div>
                     </div>
                     <div className="form-control">
@@ -378,94 +354,15 @@ export default function ManualEnrollment() {
       </div>
 
       {/* Credit Transfer Modal */}
-      {isCreditModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-base-100 w-full max-w-3xl rounded-xl shadow-2xl flex flex-col max-h-[80vh] overflow-hidden"
-          >
-            <div className="p-4 border-b border-base-200 flex justify-between items-center bg-base-200/50">
-              <h3 className="font-bold text-lg flex gap-2 items-center">
-                <Award className="text-warning" /> Credit Subjects
-              </h3>
-              <button
-                onClick={() => setIsCreditModalOpen(false)}
-                className="btn btn-sm btn-circle btn-ghost"
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            <div className="p-4 overflow-y-auto flex-1 bg-base-100">
-              {/* Validation Warning inside Modal */}
-              {!previousSchool && (
-                <div className="alert alert-error text-xs mb-4 shadow-sm">
-                  <AlertCircle size={16} />
-                  <span>
-                    Please enter the Previous School name in the main form
-                    before saving.
-                  </span>
-                </div>
-              )}
-
-              <p className="text-sm opacity-70 mb-4">
-                Select subjects from the curriculum that{" "}
-                <span className="font-bold">
-                  {student?.profile
-                    ? `${student.profile.firstName} ${student.profile.lastName}`
-                    : `${student?.studentId}`}
-                </span>{" "}
-                has already passed.
-              </p>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                {allSubjects.map((sub) => (
-                  <div
-                    key={sub._id}
-                    onClick={() => toggleCreditSubject(sub._id)}
-                    className={`p-3 rounded-lg border cursor-pointer transition-all flex justify-between items-center group ${
-                      selectedCredits.includes(sub._id)
-                        ? "border-warning bg-warning/5"
-                        : "border-base-200 hover:border-warning/50 hover:bg-base-200/50"
-                    }`}
-                  >
-                    <div className="overflow-hidden">
-                      <div className="font-bold text-sm text-base-content group-hover:text-primary transition-colors">
-                        {sub.subjectId}
-                      </div>
-                      <div
-                        className="text-xs opacity-70 truncate max-w-[200px]"
-                        title={sub.description}
-                      >
-                        {sub.description || "No description"}
-                      </div>
-                    </div>
-                    {selectedCredits.includes(sub._id) && (
-                      <CheckCircle2
-                        size={18}
-                        className="text-warning shrink-0"
-                      />
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="p-4 border-t border-base-200 flex justify-between items-center bg-base-200/30">
-              <span className="text-sm font-bold text-base-content/70">
-                {selectedCredits.length} subjects selected
-              </span>
-              <button
-                onClick={handleSaveCredits}
-                className="btn btn-primary btn-sm gap-2"
-                disabled={!previousSchool} // Disable if previous school missing
-              >
-                <Save size={16} /> Save Credits
-              </button>
-            </div>
-          </motion.div>
-        </div>
+      {student && (
+        <CreditSubjectsModal
+          isOpen={isCreditModalOpen}
+          onClose={() => setIsCreditModalOpen(false)}
+          student={student}
+          allSubjects={allSubjects}
+          previousSchool={previousSchool}
+          onSave={handleSaveCredits}
+        />
       )}
     </div>
   );

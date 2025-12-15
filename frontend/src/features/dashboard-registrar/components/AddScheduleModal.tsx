@@ -22,6 +22,10 @@ import type {
   TimeSlot,
   SubjectSchedule,
 } from "../types";
+import {
+  getCurrentSchoolYear,
+  getSchoolYearOptions,
+} from "../../../utils/schoolYear";
 
 const generateId = () => {
   return Date.now().toString(36) + Math.random().toString(36).substring(2);
@@ -74,7 +78,7 @@ export default function AddScheduleModal({
   const [formData, setFormData] = useState({
     subject: "",
     teacherId: "",
-    schoolYear: "2025-2026",
+    schoolYear: getCurrentSchoolYear(),
     semester: 1,
   });
 
@@ -120,7 +124,7 @@ export default function AddScheduleModal({
       setFormData({
         subject: "",
         teacherId: "",
-        schoolYear: "2025-2026",
+        schoolYear: getCurrentSchoolYear(),
         semester: 1,
       });
       setSchedules([
@@ -496,15 +500,19 @@ export default function AddScheduleModal({
                 <div className="grid grid-cols-2 gap-2">
                   <div className="form-control">
                     <label className="label font-medium">School Year</label>
-                    <input
-                      type="text"
-                      required
-                      className="input input-bordered w-full"
+                    <select
+                      className="select select-bordered w-full"
                       value={formData.schoolYear}
                       onChange={(e) =>
                         setFormData({ ...formData, schoolYear: e.target.value })
                       }
-                    />
+                    >
+                      {getSchoolYearOptions().map((year) => (
+                        <option key={year} value={year}>
+                          SY {year}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   <div className="form-control">
                     <label className="label font-medium">Semester</label>

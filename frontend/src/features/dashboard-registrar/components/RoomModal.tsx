@@ -127,7 +127,7 @@ export default function RoomModal({
               className="input input-bordered w-full"
               value={capacity}
               onChange={(e) => setCapacity(Number(e.target.value))}
-              min={1}
+              min={0}
               required
             />
           </div>

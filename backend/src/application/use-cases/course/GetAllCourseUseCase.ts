@@ -26,6 +26,7 @@ export class GetAllCourseUseCase {
         .lean<CourseDTO[]>(),
       CourseModel.countDocuments(query),
     ]);
+
     const totalPages = Math.ceil(totalDocs / limit);
     return { totalDocs, totalPages, courses };
   }

@@ -1,15 +1,26 @@
+import { Student, StudentProfile } from "../../../domain/Student";
 import { StudentModel } from "../../../infrastructure/database/StudentModel";
 import { StudentProfileModel } from "../../../infrastructure/database/StudentProfileModel";
 import { NotFoundError } from "../../../interfaces/http/middleware/HttpErrors";
+import mongoose, { FilterQuery } from "mongoose";
 
 export class GetStudentUseCase {
-  async execute(id: string): Promise<any> {
-    // Try to find by _id first, then studentId
-    let student = await StudentModel.findOne({
-      $or: [{ _id: id }, { studentId: id }],
-      isActive: true,
-    })
-      .populate("course")
+  async execute(id: string): Promise<Student & { profile?: StudentProfile }> {
+    const query: FilterQuery<any> = { isActive: true };
+
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      query._id = id;
+    } else {
+      query.studentId = id;
+    }
+
+    let student = await StudentModel.findOne(query)
+      .populate({
+        path: "course",
+        populate: {
+          path: "curriculum.subject",
+        },
+      })
       .lean();
 
     if (!student) {
@@ -28,9 +39,12 @@ export class GetStudentUseCase {
       studentId: student.studentId,
     }).lean();
 
-    return {
-      ...student,
-      profile,
-    };
+    const result = { ...student } as Student & { profile?: StudentProfile };
+
+    if (profile) {
+      result.profile = profile as unknown as StudentProfile;
+    }
+
+    return result;
   }
 }
