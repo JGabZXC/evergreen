@@ -1,172 +1,121 @@
-import { motion } from "framer-motion";
-import { fadeInUp, staggerContainer } from "../../../shared/animations";
-import type { TeacherDashboardData } from "../types";
-import TeacherProfileSummary from "../components/TeacherProfileSummary";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { BookOpen, Users, Clock, Calendar } from "lucide-react";
 import StatsCard from "../components/StatsCard";
-import TeachingLoadTable from "../components/TeachingLoadTable";
 import FacultyTasks from "../components/FacultyTasks";
-import { EventsWidget } from "../../dashboard-student/components/EventsWidget";
-
-// --- MOCK DATA ---
-const MOCK_DATA: TeacherDashboardData = {
-  profile: {
-    id: "t-1",
-    name: "Prof. John Doe",
-    employeeId: "EMP-9921",
-    department: "College of Computer Studies",
-    position: "Senior Lecturer",
-    avatarUrl:
-      "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp", // Placeholder
-  },
-  stats: [
-    { label: "Total Students", value: "142", icon: "students", trend: "+12%" },
-    { label: "Classes Taught", value: "4", icon: "classes" },
-    { label: "Pending Grades", value: "2", icon: "pending" },
-  ],
-  load: [
-    {
-      code: "CS 101",
-      name: "Intro to Computing",
-      schedule: "MW 08:00-09:30",
-      room: "Lab 1",
-      enrolled: 45,
-    },
-    {
-      code: "CS 102",
-      name: "Data Structures",
-      schedule: "TTh 10:00-11:30",
-      room: "Lab 3",
-      enrolled: 38,
-    },
-    {
-      code: "IT 205",
-      name: "Web Development",
-      schedule: "F 13:00-16:00",
-      room: "Lab 5",
-      enrolled: 40,
-    },
-    {
-      code: "CS 300",
-      name: "Thesis Advisory",
-      schedule: "Sat 09:00-12:00",
-      room: "Consultation Rm",
-      enrolled: 19,
-    },
-  ],
-  tasks: [
-    {
-      id: "1",
-      title: "Grade CS 101 Midterms",
-      deadline: "Due Tomorrow",
-      priority: "high",
-      type: "grading",
-    },
-    {
-      id: "2",
-      title: "Submit Syllabus for CS 102",
-      deadline: "Due in 3 days",
-      priority: "normal",
-      type: "admin",
-    },
-    {
-      id: "3",
-      title: "Department Meeting",
-      deadline: "Fri, 2:00 PM",
-      priority: "normal",
-      type: "admin",
-    },
-  ],
-  news: [
-    {
-      id: "1",
-      title: "Faculty Research Grant Open",
-      summary: "Applications for the 2025 research grant are now accepted.",
-      date: "Oct 20",
-      category: "Research",
-    },
-    {
-      id: "2",
-      title: "New grading system update",
-      summary: "System maintenance scheduled for this weekend.",
-      date: "Oct 18",
-      category: "Admin",
-    },
-  ],
-  events: [
-    {
-      id: "1",
-      title: "Faculty General Assembly",
-      date: "Nov 15",
-      location: "Main Hall",
-      type: "academic",
-    },
-    {
-      id: "2",
-      title: "Curriculum Review",
-      date: "Dec 01",
-      location: "Conference Room A",
-      type: "academic",
-    },
-  ],
-};
+import { useAuth } from "../../auth/hooks/useAuth";
+import { getCurrentSchoolYear } from "../../../utils/schoolYear";
+import TeachingLoadTable from "../components/TeachingLoadTable";
+import Gradebook from "../components/GradeBook";
+import { pageVariants } from "../../../shared/animations";
 
 export function DashboardTeacher() {
-  const data = MOCK_DATA;
+  const { user } = useAuth();
+  const [selectedClass, setSelectedClass] = useState<{
+    scheduleId: string;
+    subjectName: string;
+  } | null>(null);
 
   return (
-    <div className="p-6 bg-base-200/50 min-h-screen">
-      <motion.div
-        className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6"
-        initial="hidden"
-        animate="visible"
-        variants={staggerContainer}
-      >
-        {/* Top Row: Profile & Stats */}
-        <motion.div className="lg:col-span-1" variants={fadeInUp}>
-          <TeacherProfileSummary profile={data.profile} />
-        </motion.div>
-
-        <motion.div className="lg:col-span-2" variants={fadeInUp}>
-          <StatsCard stats={data.stats} />
-        </motion.div>
-
-        {/* Middle Row: Teaching Load & Tasks */}
-        <motion.div className="lg:col-span-2" variants={fadeInUp}>
-          <TeachingLoadTable classes={data.load} />
-        </motion.div>
-
-        <motion.div className="lg:col-span-1" variants={fadeInUp}>
-          <FacultyTasks tasks={data.tasks} />
-        </motion.div>
-
-        {/* Bottom Row: Events & News */}
-        <motion.div className="lg:col-span-1" variants={fadeInUp}>
-          <EventsWidget events={data.events} />
-        </motion.div>
-
-        <motion.div className="lg:col-span-2" variants={fadeInUp}>
-          {/* Reusing a simplified News View for Teacher */}
-          <div className="card bg-base-100 shadow-xl border border-base-200 h-full dark:border-white/10">
-            <div className="card-body">
-              <h3 className="card-title mb-4">Faculty Announcements</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {data.news.map((news) => (
-                  <div
-                    key={news.id}
-                    className="border rounded-lg p-4 hover:bg-base-200 transition-colors"
-                  >
-                    <span className="badge badge-sm badge-secondary mb-2">
-                      {news.category}
-                    </span>
-                    <h4 className="font-bold">{news.title}</h4>
-                    <p className="text-sm text-gray-500 mt-1">{news.summary}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
+    <motion.div
+      variants={pageVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      className="space-y-6 p-4 md:p-6"
+    >
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-base-content">
+            Faculty Dashboard
+          </h1>
+          <p className="text-base-content/70">
+            Welcome back,{" "}
+            <span className="font-semibold text-primary">{user?.email}</span>
+          </p>
+        </div>
+        <div className="flex items-center gap-2 bg-base-200 px-4 py-2 rounded-lg shadow-sm">
+          <Calendar className="text-primary" size={20} />
+          <div className="text-right">
+            <p className="text-xs text-base-content/60 uppercase font-bold">
+              School Year
+            </p>
+            <p className="font-bold text-base-content">
+              {getCurrentSchoolYear()}
+            </p>
           </div>
-        </motion.div>
-      </motion.div>
-    </div>
+        </div>
+      </div>
+
+      {/* Quick Stats Row */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <StatsCard
+          title="Total Classes"
+          value="8"
+          icon={<BookOpen size={24} />}
+          color="text-blue-600"
+          bgColor="bg-blue-100"
+        />
+        <StatsCard
+          title="Total Students"
+          value="245"
+          icon={<Users size={24} />}
+          color="text-green-600"
+          bgColor="bg-green-100"
+        />
+        <StatsCard
+          title="Pending Grades"
+          value="3"
+          icon={<Clock size={24} />}
+          color="text-orange-600"
+          bgColor="bg-orange-100"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Main Content Area (Teaching Load / Gradebook) */}
+        <div className="lg:col-span-2">
+          <AnimatePresence mode="wait">
+            {selectedClass ? (
+              <Gradebook
+                key="gradebook"
+                scheduleId={selectedClass.scheduleId}
+                subjectName={selectedClass.subjectName}
+                onBack={() => setSelectedClass(null)}
+              />
+            ) : (
+              <TeachingLoadTable
+                key="teaching-load"
+                onSelectClass={(scheduleId, subjectName) =>
+                  setSelectedClass({ scheduleId, subjectName })
+                }
+              />
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Sidebar Widgets */}
+        <div className="space-y-6">
+          <FacultyTasks
+            tasks={[
+              {
+                id: "1",
+                title: "Submit Midterm Grades",
+                deadline: "Oct 25",
+                type: "grading",
+                priority: "high",
+              },
+              {
+                id: "2",
+                title: "Department Meeting",
+                deadline: "Oct 28",
+                type: "admin",
+                priority: "normal",
+              },
+            ]}
+          />
+        </div>
+      </div>
+    </motion.div>
   );
 }

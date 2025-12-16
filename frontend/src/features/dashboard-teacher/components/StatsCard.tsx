@@ -1,36 +1,36 @@
-import { FileTextIcon, GraduationCapIcon, UsersIcon } from "lucide-react";
-import type { QuickStat } from "../types";
+import React from "react";
+import { motion } from "framer-motion";
 
-export default function StatsCard({ stats }: { stats: QuickStat[] }) {
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-full">
-      {stats.map((stat, idx) => (
-        <div
-          key={idx}
-          className="card bg-base-100 shadow-lg border border-base-200 dark:border-white/10"
-        >
-          <div className="card-body p-4 flex items-center justify-between flex-row">
-            <div>
-              <p className="text-xs text-gray-500 uppercase font-bold">
-                {stat.label}
-              </p>
-              <p className="text-2xl font-black text-primary">{stat.value}</p>
-              {stat.trend && (
-                <span className="text-xs text-success font-bold">
-                  {stat.trend}
-                </span>
-              )}
-            </div>
-            <div className="p-3 bg-primary/10 rounded-full text-primary">
-              {stat.icon === "students" && <UsersIcon className="w-6 h-6" />}
-              {stat.icon === "classes" && (
-                <GraduationCapIcon className="w-6 h-6" />
-              )}
-              {stat.icon === "pending" && <FileTextIcon className="w-6 h-6" />}
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
+interface StatsCardProps {
+  title: string;
+  value: string | number;
+  icon: React.ReactNode;
+  color: string; // e.g., "text-primary"
+  bgColor?: string; // e.g., "bg-primary/10"
 }
+
+const StatsCard: React.FC<StatsCardProps> = ({
+  title,
+  value,
+  icon,
+  color,
+  bgColor = "bg-base-200",
+}) => {
+  return (
+    <motion.div
+      whileHover={{ y: -5 }}
+      className="stats shadow-lg border border-base-200 bg-base-100 w-full"
+    >
+      <div className="stat">
+        <div className={`stat-figure ${color} p-2 rounded-full ${bgColor}`}>
+          {icon}
+        </div>
+        <div className="stat-title text-base-content/70">{title}</div>
+        <div className={`stat-value ${color}`}>{value}</div>
+        <div className="stat-desc">From last semester</div>
+      </div>
+    </motion.div>
+  );
+};
+
+export default StatsCard;

@@ -1,41 +1,57 @@
 import type { TaskItem } from "../types";
+import { motion } from "framer-motion";
+import { CheckCircle2, Clock } from "lucide-react";
 
 export default function FacultyTasks({ tasks }: { tasks: TaskItem[] }) {
   return (
-    <div className="card bg-base-100 shadow-xl border border-base-200 h-full dark:border-white/10">
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.3 }}
+      className="card bg-base-100 shadow-xl h-full"
+    >
       <div className="card-body">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="card-title text-lg">Action Items</h3>
-          <div className="badge badge-error badge-outline">
+          <h3 className="card-title text-lg flex items-center gap-2">
+            <CheckCircle2 className="w-5 h-5 text-secondary" />
+            Action Items
+          </h3>
+          <div className="badge badge-secondary badge-outline">
             {tasks.length} Pending
           </div>
         </div>
 
         <div className="space-y-2">
-          {tasks.map((task) => (
-            <div
+          {tasks.map((task, index) => (
+            <motion.div
               key={task.id}
-              className="flex items-center gap-3 p-3 rounded-lg border border-base-200 hover:border-secondary transition-colors cursor-pointer bg-base-50"
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: index * 0.1 }}
+              className="flex items-center gap-3 p-3 rounded-lg bg-base-200 hover:bg-base-300 transition-colors cursor-pointer group"
             >
               <input
                 type="checkbox"
                 className="checkbox checkbox-sm checkbox-secondary"
               />
               <div className="flex-1 min-w-0">
-                <p className="font-bold text-sm text-base-content">
+                <p className="font-bold text-sm group-hover:text-secondary transition-colors">
                   {task.title}
                 </p>
-                <p className="text-xs text-gray-500">{task.deadline}</p>
+                <div className="flex items-center gap-1 text-xs text-gray-500 mt-1">
+                  <Clock className="w-3 h-3" />
+                  {task.deadline}
+                </div>
               </div>
               {task.type === "grading" ? (
                 <div className="badge badge-sm badge-warning">Grading</div>
               ) : (
                 <div className="badge badge-sm badge-ghost">Admin</div>
               )}
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
