@@ -1,17 +1,22 @@
 import { Router } from "express";
 import { authGuard } from "../middleware/authGuard";
-import { isRegistrar } from "../middleware/permissions";
+import { isRegistrar, requireRole } from "../middleware/permissions";
 import {
   getSchedule,
   createSchedule,
   updateSchedule,
 } from "../controllers/scheduleController";
+import { StaffRole } from "../../../domain/types/Role";
 
 const router = Router();
 
 router
   .route("/")
-  .get(authGuard, isRegistrar, getSchedule)
+  .get(
+    authGuard,
+    requireRole(StaffRole.Registrar, StaffRole.Teacher),
+    getSchedule
+  )
   .post(authGuard, isRegistrar, createSchedule);
 
 router

@@ -6,6 +6,7 @@ import { getTeacher } from "../controllers/teacherController";
 const router = Router();
 
 router.route("/").get(authGuard, isRegistrar, getTeacher);
+router.route("/me").get(authGuard, getTeacher);
 
 router.route("/:teacherId").post(authGuard, isRegistrar, getTeacher);
 

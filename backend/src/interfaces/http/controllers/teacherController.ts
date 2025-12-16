@@ -3,13 +3,15 @@ import { GetTeacherUseCase } from "../../../application/use-cases/teacher/GetTea
 import { GetAllTeacherUseCase } from "../../../application/use-cases/teacher/GetAllTeacherUseCase";
 import { BadRequestError } from "../middleware/HttpErrors";
 import { HttpStatus } from "../../../domain/HttpStatus";
+import { AuthenticatedRequest } from "../middleware/authGuard";
+import { StaffRole } from "../../../domain/types/Role";
 
 const getTeacherUseCase = new GetTeacherUseCase();
 const getAllTeacherUseCase = new GetAllTeacherUseCase();
 
-export const getTeacher = async (req: Request, res: Response) => {
+export const getTeacher = async (req: AuthenticatedRequest, res: Response) => {
   let { page = 1, limit = 10, isActive } = req.query;
-  const { teacherId } = req.params;
+  let { teacherId } = req.params;
   const queryFilter: Record<string, boolean> = {};
 
   if (isActive) {
@@ -33,8 +35,15 @@ export const getTeacher = async (req: Request, res: Response) => {
 
   const skip = (Number(page) - 1) * Number(limit);
 
+  if (req.path.includes("/me") || !teacherId) {
+    if (req.user!.role === StaffRole.Teacher) {
+      teacherId = req.user?.employeeId;
+    }
+  }
+
   try {
     let teachers;
+
     if (teacherId) {
       teachers = await getTeacherUseCase.execute(teacherId as string);
     } else {

@@ -8,9 +8,8 @@ import {
 } from "../../../application/use-cases/subject_taken/index";
 import { FilterQuery } from "mongoose";
 import { FilterSubjectTaken } from "../../../application/use-cases/subject_taken/GetAllSubjectTakenUseCase";
-import { BaseSubjectTaken } from "../../../domain/SubjectTaken";
-import { SubjectTakenDTO } from "../types/SubjectTakenDTO";
 import { Role, StaffRole, StudentRole } from "../../../domain/types/Role";
+import { SubjectTakenDTO } from "../types/SubjectTakenDTO";
 
 const getSubjectTakenUseCase = new GetSubjectTakenUseCase();
 const getAllSubjectTakenUseCase = new GetAllSubjectTakenUseCase();
@@ -55,6 +54,10 @@ export const getSubjectTaken = async (
     studentId = req.user!.studentId;
   }
 
+  if (req.user!.role === StaffRole.Teacher) {
+    teacherId = req.user!.employeeId || "";
+  }
+
   try {
     let subjectsTaken;
 
@@ -64,6 +67,11 @@ export const getSubjectTaken = async (
       subjectsTaken = await getSubjectTakenUseCase.execute(filter);
     } else {
       const filter: FilterQuery<FilterSubjectTaken> = {};
+
+      if (req.user!.role === StaffRole.Teacher) {
+        teacherId = req.user!.employeeId || "";
+      }
+
       if (subject) filter.subject = String(subject);
       if (studentId) filter.studentId = String(studentId);
       if (teacherId) filter.teacherId = String(teacherId);
@@ -97,7 +105,7 @@ export const updateSubjectTaken = async (
   res: Response
 ) => {
   const { id } = req.params;
-  const {
+  let {
     subject,
     teacherId,
     studentId,
@@ -111,6 +119,10 @@ export const updateSubjectTaken = async (
     throw new BadRequestError(
       "SubjectTaken ID is required and must be a string"
     );
+  }
+
+  if (req.user!.role === StaffRole.Teacher) {
+    teacherId = ""; // Ensure teacherId is not changed by a teacher
   }
 
   try {

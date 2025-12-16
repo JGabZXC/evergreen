@@ -9,6 +9,7 @@ import {
   ManageSubjectScheduleUseCase,
   UpdateSubjectScheduleUseCase,
 } from "../../../application/use-cases/scheduling";
+import { StaffRole } from "../../../domain/types/Role";
 
 const manageSubjectScheduleUseCase = new ManageSubjectScheduleUseCase();
 const getAllScheduleUseCase = new GetAllScheduleUseCase();
@@ -46,6 +47,10 @@ export const getSchedule = async (req: AuthenticatedRequest, res: Response) => {
   const skip = (Number(page) - 1) * Number(limit);
 
   const filter: Record<string, string | number> = {};
+
+  if (req.user?.role === StaffRole.Teacher) {
+    filter.teacherId = req.user.employeeId || "";
+  }
   if (schoolYear) filter.schoolYear = schoolYear as string;
   if (semester) filter.semester = Number(semester);
   if (classroomId) filter.classroomId = classroomId as string;

@@ -13,10 +13,20 @@ router.use(authGuard);
 
 router
   .route("/")
-  .get(requireRole(StaffRole.Registrar, StudentRole.Student), getSubjectTaken);
+  .get(
+    requireRole(StaffRole.Registrar, StudentRole.Student, StaffRole.Teacher),
+    getSubjectTaken
+  );
 
 router
   .route("/:id")
-  .get(requireRole(StaffRole.Registrar, StudentRole.Student), getSubjectTaken)
-  .patch(isRegistrar, updateSubjectTaken);
+  .get(
+    requireRole(StaffRole.Registrar, StudentRole.Student, StaffRole.Teacher),
+    getSubjectTaken
+  )
+  .patch(
+    requireRole(StaffRole.Registrar, StaffRole.Teacher),
+    updateSubjectTaken
+  );
+
 export default router;
