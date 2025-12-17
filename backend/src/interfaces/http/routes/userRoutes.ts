@@ -2,19 +2,19 @@ import { Router } from "express";
 import { authGuard } from "../middleware/authGuard";
 import {
   changePassword,
-  createProfile,
-  getProfile,
+  getUser,
   updateProfile,
 } from "../controllers/userController";
 
 const router = Router();
 
+router.route("/change-password").post(authGuard, changePassword);
+
 router
   .route("/profile")
-  .get(authGuard, getProfile)
-  .patch(authGuard, updateProfile)
-  .post(authGuard, createProfile);
+  .get(authGuard, getUser)
+  .patch(authGuard, updateProfile);
 
-router.route("/change-password").post(authGuard, changePassword);
+router.route("/:id").get(authGuard, getUser).patch(authGuard, updateProfile);
 
 export default router;

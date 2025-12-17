@@ -1,70 +1,51 @@
 import { Response } from "express";
 import { HttpStatus } from "../../../domain/HttpStatus";
-import { StudentRole } from "../../../domain/types/Role";
+import { StaffRole, StudentRole } from "../../../domain/types/Role";
 import { AuthenticatedRequest } from "../middleware/authGuard";
-import { BadRequestError } from "../middleware/HttpErrors";
+import { BadRequestError, ForbiddenError } from "../middleware/HttpErrors";
 import {
-  GetStaffProfileUseCase,
-  GetStudentProfileUseCase,
-  UpdateStaffProfileUseCase,
-  UpdateStudentProfileUseCase,
+  GetUserUseCase,
   UpdatePasswordUseCase,
-  CreateStudentProfileUseCase,
-  CreateStaffProfileUseCase,
+  UpdateStaffUseCase,
+  UpdateStudentUseCase,
 } from "../../../application/use-cases/user/index";
+import { FilterQuery } from "mongoose";
+import GetAllUserUseCase, {
+  GetAllUserFilter,
+} from "../../../application/use-cases/user/GetAllUserUseCase";
 
-// STUDENT
-const createStudentProfileUseCase = new CreateStudentProfileUseCase();
-const updateStudentProfileUseCase = new UpdateStudentProfileUseCase();
-const getStudentProfileUseCase = new GetStudentProfileUseCase();
-// STAFF
-const createStaffProfileUseCase = new CreateStaffProfileUseCase();
-const updateStaffProfileUseCase = new UpdateStaffProfileUseCase();
-const getStaffProfileUseCase = new GetStaffProfileUseCase();
+const getUserUseCase = new GetUserUseCase();
+const getAllUserUseCase = new GetAllUserUseCase();
+const updateStudentUseCase = new UpdateStudentUseCase();
+const updateStaffUseCase = new UpdateStaffUseCase();
 const updatePasswordUseCase = new UpdatePasswordUseCase();
 
-export const getProfile = async (req: AuthenticatedRequest, res: Response) => {
-  try {
-    let profile;
-    if (req.user!.role! === StudentRole.Student) {
-      profile = await getStudentProfileUseCase.execute(req.user!.studentId!);
-    } else {
-      profile = await getStaffProfileUseCase.execute(req.user!.employeeId!);
-    }
+export const getUser = async (req: AuthenticatedRequest, res: Response) => {
+  let { page = 1, limit = 10, email, role, active, embed } = req.query;
+  let userId = req.params.id;
 
-    return res.status(HttpStatus.OK).json({ profile });
-  } catch (err: any) {
-    throw err;
+  if (userId && typeof userId !== "string") {
+    throw new BadRequestError("User ID must be a string");
   }
-};
 
-export const createProfile = async (
-  req: AuthenticatedRequest,
-  res: Response
-) => {
+  if (req.user?.role === StudentRole.Student) userId = req.user._id;
+  const skip = (Number(page) - 1) * Number(limit);
   try {
-    let createdProfile;
-    const existingProfile =
-      req.user!.role! === StudentRole.Student
-        ? await getStudentProfileUseCase.execute(req.user!.studentId!)
-        : await getStaffProfileUseCase.execute(req.user!.employeeId!);
-
-    if (existingProfile) {
-      throw new BadRequestError("Profile already exists");
-    }
-
-    if (req.user!.role! === StudentRole.Student) {
-      createdProfile = await createStudentProfileUseCase.execute(
-        req.user!.studentId!,
-        req.body
-      );
+    let users;
+    if (userId) {
+      users = await getUserUseCase.execute(userId as string);
     } else {
-      createdProfile = await createStaffProfileUseCase.execute(
-        req.user!.employeeId!,
-        req.body
-      );
+      const filter: FilterQuery<GetAllUserFilter> = {};
+      if (email) filter.email = String(email);
+      if (role) filter.role = String(role);
+      if (active) filter.active = active === "true";
+      if (embed) filter.embed = embed === "true";
+
+      users = await getAllUserUseCase.execute(filter, skip, Number(limit));
+
+      return res.status(HttpStatus.OK).json({ ...users });
     }
-    return res.status(HttpStatus.CREATED).json({ profile: createdProfile });
+    return res.status(HttpStatus.OK).json(users);
   } catch (err: any) {
     throw err;
   }
@@ -75,15 +56,37 @@ export const updateProfile = async (
   res: Response
 ) => {
   try {
+    let userId = req.params.id;
+
+    if (!userId) throw new BadRequestError("User ID is required");
+
+    if (
+      req.user!.role !== StaffRole.Registrar &&
+      req.user!.role !== StaffRole.Admin
+    ) {
+      userId = req.user!._id!;
+    }
+
+    // Fetch target user to determine role and get studentId/employeeId
+    const targetUser = await getUserUseCase.execute(userId);
+
+    if (!targetUser) throw new BadRequestError("Target user not found");
+
     let updatedProfile;
-    if (req.user!.role! === StudentRole.Student) {
-      updatedProfile = await updateStudentProfileUseCase.execute(
-        req.user!.studentId!,
+    if (targetUser.role === StudentRole.Student) {
+      if (!targetUser.student) {
+        throw new BadRequestError("Student record not found for user");
+      }
+      updatedProfile = await updateStudentUseCase.execute(
+        targetUser.student.studentId,
         req.body
       );
     } else {
-      updatedProfile = await updateStaffProfileUseCase.execute(
-        req.user!.employeeId!,
+      if (!targetUser.staff) {
+        throw new BadRequestError("Staff record not found for user");
+      }
+      updatedProfile = await updateStaffUseCase.execute(
+        targetUser.staff.employeeId,
         req.body
       );
     }
