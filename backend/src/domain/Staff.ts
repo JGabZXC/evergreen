@@ -1,4 +1,5 @@
 import { Schema } from "mongoose";
+import { TeacherDetails } from "./TeacherDetails";
 
 export interface Address {
   street: string;
@@ -8,7 +9,6 @@ export interface Address {
 }
 
 export interface BaseStaffProfile {
-  employeeId: string;
   firstName: string;
   lastName: string;
   dateOfBirth: Date;
@@ -16,17 +16,17 @@ export interface BaseStaffProfile {
   address?: Address;
   department: string;
   hireDate: Date;
+  teacherDetails?: TeacherDetails;
 }
 
 export interface StaffProfile extends BaseStaffProfile {
-  _id: Schema.Types.ObjectId;
-  createdAt: Date;
-  updatedAt: Date;
+  // Embedded
 }
 
 export interface BaseStaff {
   userId: Schema.Types.ObjectId;
   employeeId: string;
+  profile?: StaffProfile;
 }
 
 export interface Staff extends BaseStaff {

@@ -1,4 +1,6 @@
 import { User } from "../../../domain/User";
+import { StaffDTO } from "./StaffDTO";
+import { StudentDTO } from "./StudentDTO";
 
 export type UserDTO = Omit<
   User,
@@ -7,4 +9,9 @@ export type UserDTO = Omit<
   _id: string;
   createdAt: string;
   updatedAt: string;
+};
+
+export type UserDTOPopulated = UserDTO & {
+  student?: StudentDTO;
+  staff?: StaffDTO;
 };

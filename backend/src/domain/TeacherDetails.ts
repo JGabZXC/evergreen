@@ -7,14 +7,11 @@ export interface Degree {
 }
 
 export interface BaseTeacherDetails {
-  employeeId: string;
   specializations?: string[];
   masteralDegree?: Degree[];
   doctoralDegree?: Degree[];
 }
 
 export interface TeacherDetails extends BaseTeacherDetails {
-  _id: Schema.Types.ObjectId;
-  createdAt: Date;
-  updatedAt: Date;
+  // _id: Schema.Types.ObjectId; // Embedded, might not need own ID unless specified
 }

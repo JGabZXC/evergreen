@@ -3,22 +3,8 @@ import { apiPrivate } from "../../../config/axiosPrivate";
 import { toast } from "react-toastify";
 import Loading from "../../../shared/components/Loading";
 import { motion } from "framer-motion";
-import { ArrowLeft, Save, User } from "lucide-react";
-
-interface StudentGrade {
-  _id: string; // subjectTakenId
-  student: {
-    firstName: string;
-    lastName: string;
-    studentId: string;
-  };
-  prelim?: number;
-  midterm?: number;
-  final?: number;
-  finalGrade?: number;
-  remarks?: string;
-  status?: string;
-}
+import { ArrowLeft, User } from "lucide-react";
+import type { SubjectTaken } from "../types";
 
 interface GradebookProps {
   scheduleId: string;
@@ -27,7 +13,7 @@ interface GradebookProps {
 }
 
 const Gradebook = ({ scheduleId, subjectName, onBack }: GradebookProps) => {
-  const [students, setStudents] = useState<StudentGrade[]>([]);
+  const [students, setStudents] = useState<SubjectTaken[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -41,7 +27,7 @@ const Gradebook = ({ scheduleId, subjectName, onBack }: GradebookProps) => {
     const fetchStudents = async () => {
       try {
         const { data } = await apiPrivate.get(
-          `/subject-taken?scheduleId=${scheduleId}`
+          `/api/subject-taken?scheduleId=${scheduleId}`
         );
         setStudents(data.subjectTakens);
       } catch (error) {
@@ -131,12 +117,9 @@ const Gradebook = ({ scheduleId, subjectName, onBack }: GradebookProps) => {
                         </div>
                       </div>
                       <div>
-                        <div className="font-bold">
-                          {student.student.lastName},{" "}
-                          {student.student.firstName}
-                        </div>
+                        <div className="font-bold">Name Goes Here</div>
                         <div className="text-sm opacity-50">
-                          {student.student.studentId}
+                          {student.student?.studentId}
                         </div>
                       </div>
                     </div>

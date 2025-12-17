@@ -19,6 +19,7 @@ export enum SubjectStatus {
 // --- Domain Interfaces ---
 export interface Student {
   _id: string;
+  studentId: string;
   course: Course;
   userId: string;
   isActive: boolean;

@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { StaffProfileModel } from "../../../infrastructure/database/StaffProfileModel";
+import { StaffModel } from "../../../infrastructure/database/StaffModel";
 import { flattenObject } from "../../../interfaces/http/utils/flattenObject";
 import {
   BaseStaffProfileDTO,
@@ -16,18 +16,19 @@ export class UpdateStaffProfileUseCase {
     if (profileData.dateOfBirth)
       profileData.dateOfBirth = formatDateToUTC(profileData.dateOfBirth);
 
-    const flattenedObject = flattenObject(profileData);
+    // Wrap in profile to target embedded field
+    const flattenedObject = flattenObject({ profile: profileData });
     try {
-      const updatedProfile = await StaffProfileModel.findOneAndUpdate(
+      const updatedStaff = await StaffModel.findOneAndUpdate(
         { employeeId },
         { $set: flattenedObject },
         { new: true, session: session ?? null }
-      ).lean<StaffProfileDTO>();
+      ).lean();
 
-      if (!updatedProfile) {
-        throw new Error("Profile update failed or profile not found");
+      if (!updatedStaff || !updatedStaff.profile) {
+        throw new Error("Profile update failed or staff not found");
       }
-      return updatedProfile;
+      return updatedStaff.profile as StaffProfileDTO;
     } catch (err: any) {
       throw err;
     }

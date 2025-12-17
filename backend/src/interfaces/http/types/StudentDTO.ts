@@ -5,30 +5,26 @@ import {
 } from "../../../domain/Student";
 import { CourseDTO } from "./CourseDTO";
 import { ErollmentRecordDTO } from "./EnrollmentDTO";
-export type BaseStudentProfileDTO = Omit<
-  BaseStudentProfile,
-  "studentId" | "dateOfBirth"
-> & {
+import { UserDTO } from "./UserDTO";
+
+export type BaseStudentProfileDTO = Omit<BaseStudentProfile, "dateOfBirth"> & {
   dateOfBirth: string;
 };
 
-export type StudentProfileDTO = Omit<
-  StudentProfile,
-  "createdAt" | "updatedAt" | "_id"
-> & {
-  _id: string;
-  createdAt: string;
-  updatedAt: string;
-};
+export type StudentProfileDTO = BaseStudentProfileDTO;
 
-export type StudentDTO = Omit<Student, "_id" | "userId"> & {
+export type StudentDTO = Omit<Student, "_id" | "userId" | "profile"> & {
   _id: string;
   course: CourseDTO;
   userId: string;
+  profile?: StudentProfileDTO;
+};
+
+export type PopulatedStudentDTO = Omit<StudentDTO, "userId"> & {
+  userId: UserDTO;
 };
 
 export type StudentAggregateDTO = StudentDTO & {
   course: CourseDTO;
-  profile?: StudentProfileDTO;
   latestEnrollment?: ErollmentRecordDTO;
 };

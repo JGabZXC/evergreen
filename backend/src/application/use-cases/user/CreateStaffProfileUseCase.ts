@@ -1,6 +1,9 @@
 import mongoose from "mongoose";
-import { StaffProfileModel } from "../../../infrastructure/database/StaffProfileModel";
-import { BadRequestError } from "../../../interfaces/http/middleware/HttpErrors";
+import { StaffModel } from "../../../infrastructure/database/StaffModel";
+import {
+  BadRequestError,
+  NotFoundError,
+} from "../../../interfaces/http/middleware/HttpErrors";
 import { formatDateToUTC } from "../../../interfaces/http/utils/date";
 import { BaseStaffProfileDTO } from "../../../interfaces/http/types/StaffDTO";
 
@@ -11,27 +14,21 @@ export class CreateStaffProfileUseCase {
     session?: mongoose.ClientSession
   ) {
     try {
-      const existingProfile = await StaffProfileModel.findOne({ employeeId });
+      const staff = await StaffModel.findOne({ employeeId });
+      if (!staff) throw new NotFoundError("Staff not found");
+
       profileData.dateOfBirth = formatDateToUTC(profileData.dateOfBirth);
 
-      if (existingProfile) {
-        throw new BadRequestError(
-          "Profile already exists for this staff member"
-        );
-      }
+      const updatedStaff = await StaffModel.findOneAndUpdate(
+        { employeeId },
+        { $set: { profile: profileData } },
+        { new: true, session }
+      ).lean();
 
-      const [profile] = await StaffProfileModel.create(
-        [
-          {
-            ...profileData,
-          },
-        ],
-        { session }
-      );
+      if (!updatedStaff || !updatedStaff.profile)
+        throw new Error("Profile creation failed");
 
-      if (!profile) throw new Error("Profile creation failed");
-
-      return profile;
+      return updatedStaff.profile;
     } catch (err: any) {
       throw err;
     }

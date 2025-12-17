@@ -9,21 +9,20 @@ export type BaseStaffProfileDTO = Omit<
   hireDate: string;
 };
 
-export type StaffProfileDTO = Omit<
-  StaffProfile,
-  "createdAt" | "updatedAt" | "_id"
-> & {
-  _id: string;
-  createdAt: string;
-  updatedAt: string;
-};
+export type StaffProfileDTO = BaseStaffProfileDTO;
 
-export type StaffDTO = Omit<Staff, "_id" | "userId"> & {
+export type StaffDTO = Omit<Staff, "_id" | "userId" | "profile"> & {
   _id: string;
   userId: string;
+  profile?: StaffProfileDTO;
 };
 
-export type TeacherDTO = Omit<Staff, "_id" | "userId"> & {
+export type PopulatedStaffDTO = Omit<StaffDTO, "userId"> & {
+  userId: UserDTO | string;
+};
+
+export type TeacherDTO = Omit<Staff, "_id" | "userId" | "profile"> & {
   _id: string;
   userId: UserDTO;
+  profile?: StaffProfileDTO;
 };

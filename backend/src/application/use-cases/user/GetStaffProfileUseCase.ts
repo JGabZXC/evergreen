@@ -1,10 +1,12 @@
-import { StaffProfileModel } from "../../../infrastructure/database/StaffProfileModel";
+import { StaffModel } from "../../../infrastructure/database/StaffModel";
 import { StaffProfileDTO } from "../../../interfaces/http/types/StaffDTO";
 
 export class GetStaffProfileUseCase {
   async execute(employeeId: string) {
-    return await StaffProfileModel.findOne({
+    const staff = await StaffModel.findOne({
       employeeId,
-    }).lean<StaffProfileDTO>();
+    }).lean();
+
+    return staff?.profile as StaffProfileDTO | null;
   }
 }

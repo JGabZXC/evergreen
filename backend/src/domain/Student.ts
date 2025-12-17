@@ -16,7 +16,6 @@ export interface GuardianDetails {
 }
 
 export interface BaseStudentProfile {
-  studentId: string;
   firstName: string;
   lastName: string;
   dateOfBirth: Date;
@@ -27,15 +26,14 @@ export interface BaseStudentProfile {
 }
 
 export interface StudentProfile extends BaseStudentProfile {
-  _id: Schema.Types.ObjectId;
-  createdAt: Date;
-  updatedAt: Date;
+  // Embedded
 }
 
 export interface BaseStudent {
   userId: Schema.Types.ObjectId;
   studentId: string;
   course: Schema.Types.ObjectId;
+  profile?: StudentProfile;
 }
 
 export interface Student extends BaseStudent {
@@ -45,6 +43,5 @@ export interface Student extends BaseStudent {
 
 export interface StudentAggregate extends Omit<Student, "course"> {
   course: Course;
-  profile?: StudentProfile;
   latestEnrollment?: EnrollmentRecord;
 }

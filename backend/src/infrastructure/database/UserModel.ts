@@ -16,7 +16,7 @@ const UserSchema = new Schema<User & Document>(
     },
     active: { type: Boolean, default: true },
   },
-  { timestamps: true }
+  { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
 
 UserSchema.index({ role: 1, active: 1 });
@@ -26,6 +26,20 @@ UserSchema.set("toJSON", {
     const { __v, password, ...userObject } = ret;
     return userObject;
   },
+});
+
+UserSchema.virtual("student", {
+  ref: "Student",
+  localField: "_id",
+  foreignField: "userId",
+  justOne: true,
+});
+
+UserSchema.virtual("staff", {
+  ref: "Staff",
+  localField: "_id",
+  foreignField: "userId",
+  justOne: true,
 });
 
 UserSchema.post("save", async function (doc, next) {
