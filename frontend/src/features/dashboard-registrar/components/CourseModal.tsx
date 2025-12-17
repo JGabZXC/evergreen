@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { X, Plus, Trash2, Search } from "lucide-react";
 import { useSubjects } from "../hooks/useSubjects";
+import { type CreateCoursePayload } from "../types";
 import {
   GradeLevel,
   Semester,
-  type CreateCoursePayload,
   type Course,
-} from "../types";
+} from "../../../shared/types/index.ts";
 
 interface CourseModalProps {
   isOpen: boolean;

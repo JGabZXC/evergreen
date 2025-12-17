@@ -24,6 +24,24 @@ SectionSchema.index(
   { unique: true }
 );
 
+// Prevent multiple sections from occupying the same room in the same school year
+SectionSchema.index(
+  { designatedRoom: 1, schoolYear: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { designatedRoom: { $exists: true } },
+  }
+);
+
+// Prevent a teacher from advising multiple sections in the same school year
+SectionSchema.index(
+  { adviserId: 1, schoolYear: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { adviserId: { $exists: true } },
+  }
+);
+
 export const SectionModel = mongoose.model<Section & Document>(
   "Section",
   SectionSchema

@@ -3,24 +3,18 @@ import { apiPrivate } from "../../../config/axiosPrivate";
 import Loading from "../../../shared/components/Loading";
 import { motion, AnimatePresence } from "framer-motion";
 import { BookOpen, Calendar, ArrowRight, Eye } from "lucide-react";
-
-interface ScheduleDTO {
-  _id: string;
-  subject: {
-    subjectId: string;
-    description: string;
-  };
-  schedules: { day: string; startTime: string; endTime: string; room: any }[];
-}
+import type { SubjectSchedule } from "../../../shared/types/index.ts";
 
 interface TeachingLoadTableProps {
   onSelectClass: (scheduleId: string, subjectName: string) => void;
 }
 
 const TeachingLoadTable = ({ onSelectClass }: TeachingLoadTableProps) => {
-  const [classes, setClasses] = useState<ScheduleDTO[]>([]);
+  const [classes, setClasses] = useState<SubjectSchedule[]>([]);
   const [loading, setLoading] = useState(true);
-  const [viewSchedule, setViewSchedule] = useState<ScheduleDTO | null>(null);
+  const [viewSchedule, setViewSchedule] = useState<SubjectSchedule | null>(
+    null
+  );
 
   useEffect(() => {
     const fetchSchedule = async () => {
@@ -80,9 +74,15 @@ const TeachingLoadTable = ({ onSelectClass }: TeachingLoadTableProps) => {
                       className="hover"
                     >
                       <td className="font-bold text-primary">
-                        {cls.subject.subjectId}
+                        {typeof cls.subject === "object"
+                          ? cls.subject.subjectId
+                          : cls.subject}
                       </td>
-                      <td>{cls.subject.description}</td>
+                      <td>
+                        {typeof cls.subject === "object"
+                          ? cls.subject.description
+                          : ""}
+                      </td>
                       <td>
                         <div className="flex items-center gap-2">
                           <button
@@ -94,7 +94,12 @@ const TeachingLoadTable = ({ onSelectClass }: TeachingLoadTableProps) => {
                           </button>
                           <button
                             onClick={() =>
-                              onSelectClass(cls._id, cls.subject.description)
+                              onSelectClass(
+                                cls._id,
+                                typeof cls.subject === "object"
+                                  ? cls.subject.description ?? ""
+                                  : ""
+                              )
                             }
                             className="btn btn-sm btn-primary gap-2"
                           >
@@ -128,8 +133,13 @@ const TeachingLoadTable = ({ onSelectClass }: TeachingLoadTableProps) => {
               </h3>
               <div className="py-2">
                 <p className="text-sm text-gray-500 mb-4">
-                  {viewSchedule.subject.subjectId} -{" "}
-                  {viewSchedule.subject.description}
+                  {typeof viewSchedule.subject === "object"
+                    ? viewSchedule.subject.subjectId
+                    : viewSchedule.subject}{" "}
+                  -{" "}
+                  {typeof viewSchedule.subject === "object"
+                    ? viewSchedule.subject.description ?? ""
+                    : ""}
                 </p>
                 <div className="space-y-3">
                   {viewSchedule.schedules.map((sch, i) => (
@@ -146,7 +156,9 @@ const TeachingLoadTable = ({ onSelectClass }: TeachingLoadTableProps) => {
                         </span>
                       </div>
                       <div className="text-sm text-gray-500">
-                        {sch.room?.name || "Room TBA"}
+                        {typeof sch.room === "object"
+                          ? sch.room.name
+                          : "Room TBA"}
                       </div>
                     </div>
                   ))}

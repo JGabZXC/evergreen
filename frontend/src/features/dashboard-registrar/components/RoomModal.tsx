@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { X } from "lucide-react";
+import { type CreateRoomPayload } from "../types";
 import {
-  RoomType,
   RoomStatus,
-  type CreateRoomPayload,
+  RoomType,
   type Room,
-} from "../types";
+} from "../../../shared/types/index.ts";
 
 interface RoomModalProps {
   isOpen: boolean;

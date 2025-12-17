@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { getAllRooms, createRoom, updateRoom } from "../services/roomService";
-import type { Room, CreateRoomPayload, UpdateRoomPayload } from "../types";
+import type { CreateRoomPayload, UpdateRoomPayload } from "../types";
+import type { Room } from "../../../shared/types/index.ts";
 
 export const useRooms = (
   page = 1,

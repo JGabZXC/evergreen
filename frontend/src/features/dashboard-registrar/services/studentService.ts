@@ -1,5 +1,5 @@
 import { apiPrivate } from "../../../config/axiosPrivate";
-import type { StudentResponse, Student } from "../types";
+import type { StudentAggregate, StudentResponse } from "../types";
 
 export const getStudents = async (
   page = 1,
@@ -22,6 +22,6 @@ export const getStudents = async (
 };
 
 export const getStudent = async (id: string) => {
-  const response = await apiPrivate.get<Student>(`/api/student/${id}`);
+  const response = await apiPrivate.get<StudentAggregate>(`/api/student/${id}`);
   return response.data;
 };

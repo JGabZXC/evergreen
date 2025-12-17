@@ -10,7 +10,7 @@ export const SubjectTakenSchema = new Schema<BaseSubjectTaken & Document>(
     studentId: { type: String, required: true },
     classroomId: {
       type: Schema.Types.ObjectId,
-      ref: "Classroom",
+      ref: "Room",
     },
     schoolYear: { type: String, required: true },
     semester: {
@@ -49,12 +49,12 @@ SubjectTakenSchema.virtual("student", {
   justOne: true,
 });
 
-SubjectTakenSchema.virtual("classroom", {
-  ref: "Classroom",
-  localField: "classroomId",
-  foreignField: "_id",
-  justOne: true,
-});
+// SubjectTakenSchema.virtual("classroom", {
+//   ref: "Classroom",
+//   localField: "classroomId",
+//   foreignField: "_id",
+//   justOne: true,
+// });
 
 export const SubjectTakenModel = mongoose.model(
   "SubjectTaken",

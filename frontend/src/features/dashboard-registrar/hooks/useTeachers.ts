@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { getAllTeachers } from "../services/teacherService";
-import type { Teacher } from "../types";
+import type { Teacher } from "../../../shared/types/index.ts";
 
 export const useTeachers = (page = 1, limit = 10, isActive = true) => {
   const [teachers, setTeachers] = useState<Teacher[]>([]);

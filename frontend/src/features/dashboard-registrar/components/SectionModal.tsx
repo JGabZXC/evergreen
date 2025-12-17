@@ -1,56 +1,73 @@
 import { useState, useEffect, useRef } from "react";
 import { X } from "lucide-react";
-import { GradeLevel, type CreateSectionPayload, type Section } from "../types";
+import { type Section } from "../types";
 import { useRooms } from "../hooks/useRooms";
 import { useTeachers } from "../hooks/useTeachers";
 import { getCurrentSchoolYear } from "../../../utils/schoolYear";
+import { GradeLevel } from "../../../shared/types/index.ts";
+import { useCreateSection, useUpdateSection } from "../hooks/useSections";
+import { toast } from "react-toastify";
 
 interface SectionModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: CreateSectionPayload) => Promise<boolean>;
+  onSuccess: () => void;
   initialData?: Section | null;
-  isLoading: boolean;
 }
 
 export default function SectionModal({
   isOpen,
   onClose,
-  onSubmit,
+  onSuccess,
   initialData,
-  isLoading,
 }: SectionModalProps) {
   const modalRef = useRef<HTMLDialogElement>(null);
   const [name, setName] = useState("");
   const [adviserId, setAdviserId] = useState("TBA");
   const [gradeLevel, setGradeLevel] = useState<GradeLevel>(GradeLevel.Grade1);
-  const [schoolYear, setSchoolYear] = useState(getCurrentSchoolYear()); // Should be dynamic
-  const [capacity, setCapacity] = useState(40);
+  const [schoolYear, setSchoolYear] = useState(getCurrentSchoolYear());
   const [designatedRoom, setDesignatedRoom] = useState("");
 
-  // Fetch rooms for selection
+  // Hooks
   const { rooms } = useRooms(1, 100, "", "", "Open");
-  // Fetch teachers for selection
-  const { teachers, loading: loadingTeachers } = useTeachers(true);
-  console.log(teachers);
+  const { teachers, loading: loadingTeachers } = useTeachers();
+  const {
+    create,
+    loading: createLoading,
+    error: createError,
+  } = useCreateSection();
+  const {
+    update,
+    loading: updateLoading,
+    error: updateError,
+  } = useUpdateSection();
 
-  useEffect(() => {
-    if (!modalRef.current) return;
-    if (isOpen) {
-      modalRef.current.showModal();
-    } else {
-      modalRef.current.close();
-    }
-  }, [isOpen]);
+  const isLoading = createLoading || updateLoading;
+
+  // useEffect(() => {
+  //   if (!modalRef.current) return;
+  //   if (isOpen) {
+  //     modalRef.current.showModal();
+  //   } else {
+  //     modalRef.current.close();
+  //   }
+  // }, [isOpen]);
 
   useEffect(() => {
     if (initialData) {
       setName(initialData.name);
-      setAdviserId(initialData.adviserId);
+      setAdviserId(
+        typeof initialData.adviserId === "object"
+          ? initialData.adviserId?.employeeId || "TBA"
+          : (initialData.adviserId as string) || "TBA"
+      );
       setGradeLevel(initialData.gradeLevel);
       setSchoolYear(initialData.schoolYear);
-      setCapacity(initialData.capacity);
-      setDesignatedRoom(initialData.designatedRoom || "");
+      setDesignatedRoom(
+        typeof initialData.designatedRoom === "object"
+          ? initialData.designatedRoom?._id || ""
+          : (initialData.designatedRoom as string) || ""
+      );
     } else {
       resetForm();
     }
@@ -61,27 +78,46 @@ export default function SectionModal({
     setAdviserId("TBA");
     setGradeLevel(GradeLevel.Grade1);
     setSchoolYear(getCurrentSchoolYear());
-    setCapacity(40);
     setDesignatedRoom("");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const success = await onSubmit({
+
+    const payload = {
       name,
       adviserId: adviserId || "TBA",
       gradeLevel,
       schoolYear,
-      capacity,
       designatedRoom: designatedRoom || undefined,
-    });
-    if (success) {
+    };
+
+    try {
+      if (initialData) {
+        await update(initialData._id, payload);
+      } else {
+        await create(payload);
+      }
+
+      toast.success(
+        `Section ${initialData ? "updated" : "created"} successfully`
+      );
+      onSuccess();
       onClose();
+    } catch (err) {
+      const errorMsg = initialData ? updateError : createError;
+      console.error("Failed to save section", err);
+      console.log(errorMsg);
+      if (errorMsg) {
+        toast.error(errorMsg);
+        return;
+      }
+      toast.error("An unexpected error occurred.");
     }
   };
 
   return (
-    <dialog ref={modalRef} className="modal">
+    <dialog ref={modalRef} className={`modal ${isOpen ? "modal-open" : ""}`}>
       <div className="modal-box">
         <button
           type="button"
@@ -95,6 +131,7 @@ export default function SectionModal({
         </h3>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Form fields remain the same */}
           <div className="form-control">
             <label className="label">
               <span className="label-text">Section Name</span>
@@ -156,20 +193,6 @@ export default function SectionModal({
               className="input input-bordered w-full"
               value={schoolYear}
               onChange={(e) => setSchoolYear(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text">Capacity</span>
-            </label>
-            <input
-              type="number"
-              className="input input-bordered w-full"
-              value={capacity}
-              onChange={(e) => setCapacity(Number(e.target.value))}
-              min={1}
               required
             />
           </div>

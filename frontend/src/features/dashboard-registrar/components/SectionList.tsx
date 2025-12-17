@@ -9,15 +9,12 @@ import {
   Search,
   Building,
 } from "lucide-react";
-import {
-  useSections,
-  useCreateSection,
-  useUpdateSection,
-} from "../hooks/useSections";
+import { useSections } from "../hooks/useSections";
 import SectionModal from "./SectionModal";
-import { GradeLevel, type Section, type CreateSectionPayload } from "../types";
+import { type Section } from "../types";
 import { AnimatePresence, motion } from "framer-motion";
 import { getSchoolYearOptions } from "../../../utils/schoolYear";
+import { GradeLevel } from "../../../shared/types/index.ts";
 
 export default function SectionList() {
   const [currentPage, setCurrentPage] = useState(1);
@@ -56,9 +53,6 @@ export default function SectionList() {
     capacity
   );
 
-  const { loading: createLoading, create } = useCreateSection();
-  const { loading: updateLoading, update } = useUpdateSection();
-
   const handleAddClick = () => {
     setSelectedSection(null);
     setIsModalOpen(true);
@@ -69,18 +63,8 @@ export default function SectionList() {
     setIsModalOpen(true);
   };
 
-  const handleModalSubmit = async (data: CreateSectionPayload) => {
-    let success = false;
-    if (selectedSection) {
-      success = await update(selectedSection._id, data);
-    } else {
-      success = await create(data);
-    }
-
-    if (success) {
-      refetch();
-    }
-    return success;
+  const handleModalSuccess = () => {
+    refetch();
   };
 
   const containerVariants = {
@@ -310,9 +294,8 @@ export default function SectionList() {
       <SectionModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSubmit={handleModalSubmit}
+        onSuccess={handleModalSuccess}
         initialData={selectedSection}
-        isLoading={createLoading || updateLoading}
       />
     </div>
   );

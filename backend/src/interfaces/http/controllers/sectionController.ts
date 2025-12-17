@@ -20,7 +20,8 @@ export const createSection = async (
   res: Response
 ) => {
   try {
-    const { adviserId, name, gradeLevel, capacity } = req.body;
+    const { adviserId, name, gradeLevel, schoolYear, designatedRoom } =
+      req.body;
     let errors: { [key: string]: string } = {};
     if (!adviserId || typeof adviserId !== "string") {
       errors.adviserId = "Adviser ID is required and must be a string";
@@ -39,15 +40,26 @@ export const createSection = async (
       errors.gradeLevel = "Grade level is required and must be a string";
     }
 
-    if (!capacity || typeof capacity !== "number") {
-      errors.capacity = "Capacity is required and must be a number";
+    if (designatedRoom && typeof designatedRoom !== "string") {
+      errors.designatedRoom = "Designated room must be a string";
+    }
+
+    if (!schoolYear || typeof schoolYear !== "string") {
+      errors.schoolYear = "School year is required and must be a string";
+    } else if (!/^\d{4}-\d{4}$/.test(schoolYear)) {
+      errors.schoolYear = "School year must be in the format YYYY-YYYY";
     }
 
     if (Object.keys(errors).length > 0) {
       throw new BadRequestError("Validation failed", errors);
     }
 
-    const createdSection = await createSectionUseCase.execute(req.body);
+    const newData = { ...req.body };
+    if (adviserId === "TBA") {
+      newData.adviserId = undefined;
+    }
+
+    const createdSection = await createSectionUseCase.execute(newData);
     return res.status(HttpStatus.CREATED).json(createdSection);
   } catch (err) {
     throw err;

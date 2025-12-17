@@ -2,11 +2,12 @@ import { SubjectTaken } from "../../../domain/SubjectTaken";
 import { SubjectDTO } from "./SubjectDTO";
 
 export type SubjectStatusDTO =
-  | "enrolled"
-  | "passed"
-  | "failed"
-  | "dropped"
-  | "credited";
+  | "Ongoing"
+  | "Passed"
+  | "Failed"
+  | "Dropped"
+  | "Credited"
+  | "Withdrawn";
 
 export type SubjectTakenDTO = Omit<
   SubjectTaken,

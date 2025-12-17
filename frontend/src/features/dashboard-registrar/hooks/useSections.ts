@@ -39,8 +39,6 @@ export const useSections = (
           signal
         );
 
-        console.log(data);
-
         setSections(data.sections || []);
         setTotalPages(data.totalPages || 1);
       } catch (err: any) {
@@ -82,12 +80,11 @@ export const useCreateSection = () => {
     setError(null);
     try {
       await createSection(data);
-      return true;
     } catch (err: any) {
       setError(
         err.response?.data?.error?.message || "Failed to create section"
       );
-      return false;
+      throw err;
     } finally {
       setLoading(false);
     }
@@ -105,12 +102,11 @@ export const useUpdateSection = () => {
     setError(null);
     try {
       await updateSection(id, data);
-      return true;
     } catch (err: any) {
       setError(
         err.response?.data?.error?.message || "Failed to update section"
       );
-      return false;
+      throw err;
     } finally {
       setLoading(false);
     }

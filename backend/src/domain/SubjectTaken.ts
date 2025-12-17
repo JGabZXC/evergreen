@@ -5,6 +5,7 @@ import { SectionDTO } from "../interfaces/http/types/SectionDTO";
 import { StudentDTO } from "../interfaces/http/types/StudentDTO";
 import { StaffDTO } from "../interfaces/http/types/StaffDTO";
 import { SubjectScheduleDTO } from "../interfaces/http/types/SubjectScheduleDTO";
+import { RoomDTO } from "../interfaces/http/types/RoomDTO";
 
 export enum SubjectStatus {
   Ongoing = "Ongoing",
@@ -34,7 +35,6 @@ export interface BaseSubjectTaken {
   // VIRTUALS
   teacher?: StaffDTO;
   student?: StudentDTO;
-  classroom?: SectionDTO;
 }
 
 export interface SubjectTaken extends BaseSubjectTaken {

@@ -8,13 +8,13 @@ import {
   Filter,
   CheckCircle2,
 } from "lucide-react";
-import { Semester } from "../types";
 import {
   useSubjects,
   useCreateSubjects,
   useUpdateSubjects,
 } from "../hooks/useSubjects";
 import { toast } from "react-toastify";
+import { Semester } from "../../../shared/types/index.ts";
 
 // Available grades for filter and form
 const SEMESTER_OPTION = [

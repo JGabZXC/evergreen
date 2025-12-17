@@ -1,3 +1,55 @@
+import type {
+  Course,
+  Room,
+  Semester,
+  Subject,
+  Teacher,
+} from "../../../shared/types/index.ts";
+
+// --- Enums ---
+export enum SubjectStatus {
+  Ongoing = "Ongoing",
+  Passed = "Passed",
+  Failed = "Failed",
+  Dropped = "Dropped",
+  Credited = "Credited",
+  Withdrawn = "Withdrawn",
+}
+
+// --- Domain Interfaces ---
+export interface Student {
+  _id: string;
+  course: Course;
+  userId: string;
+  isActive: boolean;
+}
+
+export interface SubjectTaken {
+  _id: string;
+  subject: Subject;
+  teacherId: string; // "TBA" or ObjectId
+  studentId: string;
+  classroomId: Room; // Room
+  schoolYear: string;
+  semester: Semester;
+
+  // Grades
+  prelim?: number;
+  midterm?: number;
+  final: number;
+  finalGrade: number;
+  remarks?: string;
+  status: SubjectStatus;
+
+  createdAt: string;
+  updatedAt: string;
+
+  // VIRTUALS
+  teacher?: Teacher;
+  student?: Student;
+}
+
+// --- OLD ---
 export interface TeacherProfile {
   id: string;
   name: string;

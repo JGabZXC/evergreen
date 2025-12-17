@@ -17,13 +17,18 @@ import {
   enrollStudent,
 } from "../services/enrollmentService";
 import { getStudent } from "../services/studentService";
-import { GradeLevel, Semester } from "../types";
-import type { Student, CurriculumItem } from "../types";
+
 import CreditSubjectsModal, { type CreditItem } from "./CreditSubjectsModal";
 import {
   getCurrentSchoolYear,
   getSchoolYearOptions,
 } from "../../../utils/schoolYear";
+import {
+  GradeLevel,
+  Semester,
+  type CurriculumItem,
+} from "../../../shared/types/index.ts";
+import type { StudentAggregate } from "../types";
 
 // --- Types ---
 type EnrollmentType = "new" | "transferee" | "existing";
@@ -32,7 +37,7 @@ export default function ManualEnrollment() {
   const [enrollmentType, setEnrollmentType] = useState<EnrollmentType>("new");
   const [searchId, setSearchId] = useState("");
   const [isSearching, setIsSearching] = useState(false);
-  const [student, setStudent] = useState<Student | null>(null);
+  const [student, setStudent] = useState<StudentAggregate | null>(null);
 
   const [allSubjects, setAllSubjects] = useState<CurriculumItem[]>([]);
   const [isCreditModalOpen, setIsCreditModalOpen] = useState(false);

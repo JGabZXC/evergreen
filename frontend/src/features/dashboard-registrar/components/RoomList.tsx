@@ -11,13 +11,13 @@ import {
 } from "lucide-react";
 import { useRooms, useCreateRoom, useUpdateRoom } from "../hooks/useRooms";
 import RoomModal from "./RoomModal";
-import {
-  RoomType,
-  RoomStatus,
-  type Room,
-  type CreateRoomPayload,
-} from "../types";
+import { type CreateRoomPayload } from "../types";
 import { AnimatePresence, motion } from "framer-motion";
+import {
+  RoomStatus,
+  RoomType,
+  type Room,
+} from "../../../shared/types/index.ts";
 
 export default function RoomList() {
   const [searchTerm, setSearchTerm] = useState("");
