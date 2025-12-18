@@ -35,6 +35,7 @@ export const useScheduleOptions = (isOpen: boolean) => {
           setSections(secData);
           setTeachers(teachData);
           setCourses(courseRes.data.courses || []);
+
         } catch (error: any) {
           if (error.name !== "CanceledError" && error.name !== "AbortError") {
             console.error("Failed to load dropdown options", error);
