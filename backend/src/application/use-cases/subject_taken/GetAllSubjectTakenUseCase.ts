@@ -18,6 +18,9 @@ export class GetAllSubjectTakenUseCase {
       SubjectTakenModel.find(filter)
         .skip(skip)
         .limit(limit)
+        .populate("subject")
+        .populate("student")
+        .populate("teacher")
         .lean<SubjectTakenDTO[]>(),
       SubjectTakenModel.countDocuments(filter),
     ]);

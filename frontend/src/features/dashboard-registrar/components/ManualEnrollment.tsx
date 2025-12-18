@@ -27,7 +27,7 @@ import {
   GradeLevel,
   Semester,
   type CurriculumItem,
-} from "../../../shared/types/index.ts";
+} from "../../../shared/types";
 import type { StudentAggregate } from "../types";
 
 // --- Types ---

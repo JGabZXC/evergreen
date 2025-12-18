@@ -4,7 +4,7 @@ import { type Section } from "../types";
 import { useRooms } from "../hooks/useRooms";
 import { useTeachers } from "../hooks/useTeachers";
 import { getCurrentSchoolYear } from "../../../utils/schoolYear";
-import { GradeLevel } from "../../../shared/types/index.ts";
+import { GradeLevel } from "../../../shared/types/";
 import { useCreateSection, useUpdateSection } from "../hooks/useSections";
 import { toast } from "react-toastify";
 

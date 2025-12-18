@@ -13,11 +13,7 @@ import { useRooms, useCreateRoom, useUpdateRoom } from "../hooks/useRooms";
 import RoomModal from "./RoomModal";
 import { type CreateRoomPayload } from "../types";
 import { AnimatePresence, motion } from "framer-motion";
-import {
-  RoomStatus,
-  RoomType,
-  type Room,
-} from "../../../shared/types/index.ts";
+import { RoomStatus, RoomType, type Room } from "../../../shared/types";
 
 export default function RoomList() {
   const [searchTerm, setSearchTerm] = useState("");

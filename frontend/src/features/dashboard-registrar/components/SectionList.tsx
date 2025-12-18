@@ -14,7 +14,7 @@ import SectionModal from "./SectionModal";
 import { type Section } from "../types";
 import { AnimatePresence, motion } from "framer-motion";
 import { getSchoolYearOptions } from "../../../utils/schoolYear";
-import { GradeLevel } from "../../../shared/types/index.ts";
+import { GradeLevel } from "../../../shared/types/";
 
 export default function SectionList() {
   const [currentPage, setCurrentPage] = useState(1);

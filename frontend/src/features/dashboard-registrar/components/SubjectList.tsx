@@ -14,7 +14,7 @@ import {
   useUpdateSubjects,
 } from "../hooks/useSubjects";
 import { toast } from "react-toastify";
-import { Semester } from "../../../shared/types/index.ts";
+import { Semester } from "../../../shared/types";
 
 // Available grades for filter and form
 const SEMESTER_OPTION = [

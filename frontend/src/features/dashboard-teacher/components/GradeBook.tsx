@@ -47,7 +47,7 @@ const Gradebook = ({ scheduleId, subjectName, onBack }: GradebookProps) => {
     }
 
     try {
-      await apiPrivate.patch(`/teacher/${subjectTakenId}`, {
+      await apiPrivate.patch(`/api/teacher/${subjectTakenId}`, {
         subjectTakenId,
         term: editValues.term,
         grade: editValues.grade,
@@ -59,7 +59,7 @@ const Gradebook = ({ scheduleId, subjectName, onBack }: GradebookProps) => {
 
       // Refresh list to see auto-calculated final grades
       const { data } = await apiPrivate.get(
-        `/subject-taken?scheduleId=${scheduleId}`
+        `/api/subject-taken?scheduleId=${scheduleId}`
       );
       setStudents(data.subjectTakens);
     } catch (error) {
@@ -68,6 +68,8 @@ const Gradebook = ({ scheduleId, subjectName, onBack }: GradebookProps) => {
   };
 
   if (loading) return <Loading />;
+
+  console.log(students);
 
   return (
     <motion.div
