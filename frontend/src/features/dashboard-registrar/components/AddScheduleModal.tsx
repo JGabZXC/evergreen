@@ -15,17 +15,17 @@ import { useSubjects } from "../hooks/useSubjects";
 import { useTeachers } from "../hooks/useTeachers";
 import { useRooms } from "../hooks/useRooms";
 import { useCourses } from "../hooks/useCourses";
-import type {
-  CreateSchedulePayload,
-  Subject,
-  Room,
-  TimeSlot,
-  SubjectSchedule,
-} from "../types";
+import type { CreateSchedulePayload } from "../types";
 import {
   getCurrentSchoolYear,
   getSchoolYearOptions,
 } from "../../../utils/schoolYear";
+import type {
+  Room,
+  Subject,
+  SubjectSchedule,
+  TimeSlot,
+} from "../../../shared/types/index.ts";
 
 const generateId = () => {
   return Date.now().toString(36) + Math.random().toString(36).substring(2);

@@ -5,6 +5,7 @@ import type {
   Subject,
   Teacher,
 } from "../../../shared/types/index.ts";
+import type { StudentProfile } from "../../dashboard-student/types/index.ts";
 
 // --- Enums ---
 export enum SubjectStatus {
@@ -22,6 +23,7 @@ export interface Student {
   studentId: string;
   course: Course;
   userId: string;
+  profile?: StudentProfile;
   isActive: boolean;
 }
 

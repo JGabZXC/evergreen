@@ -1,21 +1,12 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  X,
-  Save,
-  User,
-  Calendar,
-  MapPin,
-  Phone,
-  History,
-  GraduationCap,
-} from "lucide-react";
-import type { Student } from "../types";
+import { motion } from "framer-motion";
+import { X, Save, User, Calendar, MapPin, Phone, History } from "lucide-react";
 // import { updateStudentProfile } from "../services/studentService";
 import { toast } from "react-toastify";
+import type { StudentAggregate } from "../types";
 
 interface Props {
-  student: Student | null;
+  student: StudentAggregate | null;
   isOpen: boolean;
   onClose: () => void;
   onUpdate: () => void; // Refresh parent list

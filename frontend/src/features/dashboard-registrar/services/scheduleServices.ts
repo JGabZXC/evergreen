@@ -2,13 +2,11 @@ import type {
   ScheduleResponse,
   SubjectResponse,
   TeacherResponse,
-  Subject,
-  Teacher,
   Section,
-  SubjectSchedule,
   SectionResponse,
 } from "../types";
 import { apiPrivate } from "../../../config/axiosPrivate";
+import type { Subject, Teacher } from "../../../shared/types/index.ts";
 
 export const getSchedules = async (
   params: {

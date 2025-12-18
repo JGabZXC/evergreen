@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import type { Student } from "../types";
 import { Search, Users, Loader2, RefreshCw, Eye } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { getStudents } from "../services/studentService";
 import StudentProfileModal from "./StudentProfileModal";
+import type { StudentAggregate } from "../types";
 
 export default function StudentRecords() {
-  const [students, setStudents] = useState<Student[]>([]);
+  const [students, setStudents] = useState<StudentAggregate[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [viewMode, setViewMode] = useState<"enrolled" | "all">("enrolled");
@@ -14,7 +14,8 @@ export default function StudentRecords() {
   const [totalPages, setTotalPages] = useState(1);
 
   // Modal State
-  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+  const [selectedStudent, setSelectedStudent] =
+    useState<StudentAggregate | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const fetchStudents = async () => {
@@ -47,7 +48,7 @@ export default function StudentRecords() {
     fetchStudents();
   };
 
-  const openModal = (student: Student) => {
+  const openModal = (student: StudentAggregate) => {
     setSelectedStudent(student);
     setIsModalOpen(true);
   };

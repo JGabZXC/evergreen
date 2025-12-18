@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
-import type { Course, CreateCoursePayload } from "../types";
+import type { CreateCoursePayload } from "../types";
 import {
   getAllCourses,
   createCourse,
   updateCourse,
 } from "../services/courseService";
 import { toast } from "react-toastify";
+import type { Course } from "../../../shared/types";
 
 export const useCourses = (
   page = 1,

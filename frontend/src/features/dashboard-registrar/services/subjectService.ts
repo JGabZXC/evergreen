@@ -1,5 +1,6 @@
 import { apiPrivate } from "../../../config/axiosPrivate";
-import type { Subject, SubjectResponse } from "../types";
+import type { Subject } from "../../../shared/types/index.ts";
+import type { SubjectResponse } from "../types";
 
 export const getAllSubjects = async (
   page = 1,

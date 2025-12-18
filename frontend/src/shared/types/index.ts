@@ -62,6 +62,18 @@ export interface TimeSlot {
   room: string | Room;
 }
 
+export interface Degree {
+  field: string;
+  institution: string;
+  yearCompleted: number;
+}
+
+export interface TeacherDetails {
+  specializations?: string[];
+  masteralDegree?: Degree[];
+  doctoralDegree?: Degree[];
+}
+
 // --- Domain Interfaces ---
 export interface Subject {
   _id: string;
@@ -100,11 +112,11 @@ export interface Staff {
     role: string;
   };
   employeeId: string;
+  profile?: StaffProfile;
   isActive: boolean;
 }
 
 export interface StaffProfile {
-  employeeId: string;
   firstName: string;
   lastName: string;
   dateOfBirth: string;
@@ -112,9 +124,7 @@ export interface StaffProfile {
   phoneNumber: string;
   department: string;
   hireDate: string;
-
-  // VIRTUALS
-  staff?: Staff;
+  teacherDetails?: TeacherDetails;
 }
 
 export interface Room {
@@ -157,6 +167,19 @@ export interface SubjectSchedule {
 
   // Virtuals populated by backend
   teacher?: Teacher;
+}
+
+export interface StudentProfile {
+  firstName: string;
+  lastName: string;
+  middleName?: string;
+  dateOfBirth: string;
+  gender: "Male" | "Female" | "Other";
+  civilStatus: "Single" | "Married" | "Widowed" | "Separated";
+  email: string;
+  phoneNumber: string;
+  address: Address;
+  guardian: Guardian;
 }
 
 // --- API Response Interfaces ---

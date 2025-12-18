@@ -1,15 +1,14 @@
 import type {
-  Address,
   Course,
   CurriculumItem,
   GradeLevel,
-  Guardian,
   PaginatedResponse,
   Room,
   RoomStatus,
   RoomType,
   Semester,
   Staff,
+  StudentProfile,
   Subject,
   SubjectSchedule,
   Teacher,
@@ -17,22 +16,6 @@ import type {
 } from "../../../shared/types/index.ts";
 
 // --- Domain Interfaces ---
-export interface StudentProfile {
-  _id: string;
-  studentId: string;
-  firstName: string;
-  lastName: string;
-  middleName?: string;
-  dateOfBirth: string;
-  gender: "Male" | "Female" | "Other";
-  civilStatus: "Single" | "Married" | "Widowed" | "Separated";
-  email: string;
-  phoneNumber: string;
-  address: Address;
-  guardian: Guardian;
-  createdAt: string;
-  updatedAt: string;
-}
 
 export interface EnrollmentRecord {
   _id: string;

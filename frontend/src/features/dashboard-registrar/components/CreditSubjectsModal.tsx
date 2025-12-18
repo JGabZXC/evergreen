@@ -2,7 +2,8 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Award, X, AlertCircle, CheckCircle2, Save } from "lucide-react";
 import { toast } from "react-toastify";
-import type { Student, CurriculumItem } from "../types";
+import type { CurriculumItem } from "../../../shared/types";
+import type { StudentAggregate } from "../types";
 
 export interface CreditItem {
   subjectId: string;
@@ -12,7 +13,7 @@ export interface CreditItem {
 interface CreditSubjectsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  student: Student;
+  student: StudentAggregate;
   allSubjects: CurriculumItem[];
   previousSchool: string;
   onSave: (selectedCredits: CreditItem[]) => void;

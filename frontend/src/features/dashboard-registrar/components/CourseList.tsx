@@ -18,7 +18,8 @@ import {
   useUpdateCourse,
 } from "../hooks/useCourses";
 import CourseModal from "./CourseModal";
-import type { Course, CreateCoursePayload } from "../types";
+import type { CreateCoursePayload } from "../types";
+import type { Course } from "../../../shared/types/index.ts";
 
 export default function CourseList() {
   const [searchTerm, setSearchTerm] = useState("");

@@ -15,7 +15,7 @@ import {
 import AddScheduleModal from "./AddScheduleModal";
 import { useTeacherScheduling } from "../hooks/useTeacherScheduling";
 import { getSchoolYearOptions } from "../../../utils/schoolYear";
-import type { SubjectSchedule } from "../types";
+import type { SubjectSchedule } from "../../../shared/types";
 
 const containerVariants = {
   hidden: { opacity: 0 },
