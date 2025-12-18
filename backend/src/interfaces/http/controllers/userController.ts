@@ -1,18 +1,17 @@
 import { Response } from "express";
+import { FilterQuery } from "mongoose";
 import { HttpStatus } from "../../../domain/HttpStatus";
 import { StaffRole, StudentRole } from "../../../domain/types/Role";
 import { AuthenticatedRequest } from "../middleware/authGuard";
-import { BadRequestError, ForbiddenError } from "../middleware/HttpErrors";
+import { BadRequestError, NotFoundError } from "../middleware/HttpErrors";
 import {
+  GetAllUserUseCase,
   GetUserUseCase,
   UpdatePasswordUseCase,
   UpdateStaffUseCase,
   UpdateStudentUseCase,
 } from "../../../application/use-cases/user/index";
-import { FilterQuery } from "mongoose";
-import GetAllUserUseCase, {
-  GetAllUserFilter,
-} from "../../../application/use-cases/user/GetAllUserUseCase";
+import { GetAllUserFilter } from "../../../application/use-cases/user/GetAllUserUseCase";
 
 const getUserUseCase = new GetUserUseCase();
 const getAllUserUseCase = new GetAllUserUseCase();
@@ -29,6 +28,7 @@ export const getUser = async (req: AuthenticatedRequest, res: Response) => {
   }
 
   if (req.user?.role === StudentRole.Student) userId = req.user._id;
+
   const skip = (Number(page) - 1) * Number(limit);
   try {
     let users;
@@ -36,8 +36,8 @@ export const getUser = async (req: AuthenticatedRequest, res: Response) => {
       users = await getUserUseCase.execute(userId as string);
     } else {
       const filter: FilterQuery<GetAllUserFilter> = {};
-      if (email) filter.email = String(email);
-      if (role) filter.role = String(role);
+      if (email) filter.email = { $regex: email as string, $options: "i" };
+      if (role) filter.role = role;
       if (active) filter.active = active === "true";
       if (embed) filter.embed = embed === "true";
 
@@ -58,40 +58,49 @@ export const updateProfile = async (
   try {
     let userId = req.params.id;
 
-    if (!userId) throw new BadRequestError("User ID is required");
-
     if (
-      req.user!.role !== StaffRole.Registrar &&
-      req.user!.role !== StaffRole.Admin
+      (req.user!.role !== StaffRole.Registrar &&
+        req.user!.role !== StaffRole.Admin) ||
+      !userId
     ) {
       userId = req.user!._id!;
     }
 
-    // Fetch target user to determine role and get studentId/employeeId
     const targetUser = await getUserUseCase.execute(userId);
+    if (!targetUser) throw new NotFoundError("Target user not found");
 
-    if (!targetUser) throw new BadRequestError("Target user not found");
+    if (req.body.isActive !== undefined)
+      throw new BadRequestError(
+        "isActive field cannot be updated via this endpoint"
+      );
+
+    if (req.body.studentId || req.body.employeeId)
+      throw new BadRequestError(
+        "Cannot update studentId or employeeId via this endpoint"
+      );
 
     let updatedProfile;
     if (targetUser.role === StudentRole.Student) {
       if (!targetUser.student) {
-        throw new BadRequestError("Student record not found for user");
+        throw new NotFoundError("Student record not found for user");
       }
+
       updatedProfile = await updateStudentUseCase.execute(
         targetUser.student.studentId,
         req.body
       );
     } else {
       if (!targetUser.staff) {
-        throw new BadRequestError("Staff record not found for user");
+        throw new NotFoundError("Staff record not found for user");
       }
+
       updatedProfile = await updateStaffUseCase.execute(
         targetUser.staff.employeeId,
         req.body
       );
     }
 
-    return res.status(HttpStatus.OK).json({ profile: updatedProfile });
+    return res.status(HttpStatus.OK).json(updatedProfile);
   } catch (err: any) {
     throw err;
   }

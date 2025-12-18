@@ -6,7 +6,6 @@ import {
 } from "../../../interfaces/http/types/StaffDTO";
 import { NotFoundError } from "../../../interfaces/http/middleware/HttpErrors";
 import { flattenObject } from "../../../interfaces/http/utils/flattenObject";
-import { UserDTOPopulated } from "../../../interfaces/http/types/UserDTO";
 
 export class UpdateStaffUseCase {
   async execute(

@@ -5,6 +5,8 @@ import {
   getUser,
   updateProfile,
 } from "../controllers/userController";
+import { requireRole } from "../middleware/permissions";
+import { StaffRole } from "../../../domain/types/Role";
 
 const router = Router();
 
@@ -15,6 +17,9 @@ router
   .get(authGuard, getUser)
   .patch(authGuard, updateProfile);
 
+router
+  .route("/")
+  .get(authGuard, requireRole(StaffRole.Registrar, StaffRole.Admin), getUser);
 router.route("/:id").get(authGuard, getUser).patch(authGuard, updateProfile);
 
 export default router;

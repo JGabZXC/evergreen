@@ -24,7 +24,6 @@ SectionSchema.index(
   { unique: true }
 );
 
-// Prevent multiple sections from occupying the same room in the same school year
 SectionSchema.index(
   { designatedRoom: 1, schoolYear: 1 },
   {
@@ -33,7 +32,6 @@ SectionSchema.index(
   }
 );
 
-// Prevent a teacher from advising multiple sections in the same school year
 SectionSchema.index(
   { adviserId: 1, schoolYear: 1 },
   {

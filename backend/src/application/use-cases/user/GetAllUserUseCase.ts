@@ -12,11 +12,12 @@ export interface GetAllUserFilter {
   embed?: boolean; // To populate Staff or Student data
 }
 
-export default class GetAllUserUseCase {
+export class GetAllUserUseCase {
   async execute(filter: FilterQuery<GetAllUserFilter>, skip = 0, limit = 10) {
     let usersPromise;
 
     if (filter.embed) {
+      filter.embed = undefined; // Remove embed so it doesn't affect the query
       usersPromise = UserModel.find(filter)
         .skip(skip)
         .limit(limit)
