@@ -8,7 +8,7 @@ import {
 } from "../../../application/use-cases/subject_taken/index";
 import { FilterQuery } from "mongoose";
 import { FilterSubjectTaken } from "../../../application/use-cases/subject_taken/GetAllSubjectTakenUseCase";
-import { Role, StaffRole, StudentRole } from "../../../domain/types/Role";
+import { StaffRole, StudentRole } from "../../../domain/types/Role";
 import { SubjectTakenDTO } from "../types/SubjectTakenDTO";
 
 const getSubjectTakenUseCase = new GetSubjectTakenUseCase();
@@ -63,7 +63,7 @@ export const getSubjectTaken = async (
 
     if (id) {
       const filter: FilterQuery<FilterSubjectTaken> = { _id: id };
-      if (studentId) filter.studentId = String(studentId);
+      if (studentId) filter.studentId = studentId;
       subjectsTaken = await getSubjectTakenUseCase.execute(filter);
     } else {
       const filter: FilterQuery<FilterSubjectTaken> = {};
@@ -72,13 +72,13 @@ export const getSubjectTaken = async (
         teacherId = req.user!.employeeId || "";
       }
 
-      if (subject) filter.subject = String(subject);
-      if (studentId) filter.studentId = String(studentId);
-      if (teacherId) filter.teacherId = String(teacherId);
-      if (classroomId) filter.classroomId = String(classroomId);
-      if (schoolYear) filter.schoolYear = String(schoolYear);
-      if (semester) filter.semester = String(semester);
-      if (status) filter.status = String(status);
+      if (subject) filter.subject = subject;
+      if (studentId) filter.studentId = studentId;
+      if (teacherId) filter.teacherId = teacherId;
+      if (classroomId) filter.classroomId = classroomId;
+      if (schoolYear) filter.schoolYear = schoolYear;
+      if (semester) filter.semester = semester;
+      if (status) filter.status = status;
 
       subjectsTaken = await getAllSubjectTakenUseCase.execute(
         filter,
@@ -87,7 +87,7 @@ export const getSubjectTaken = async (
       );
 
       if (
-        subjectsTaken.totalPages > Number(page) &&
+        Number(page) > subjectsTaken.totalPages &&
         subjectsTaken.totalDocs > 0
       ) {
         throw new BadRequestError("Page number exceeds total pages available");

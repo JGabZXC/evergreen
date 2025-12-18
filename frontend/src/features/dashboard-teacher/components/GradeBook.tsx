@@ -1,10 +1,8 @@
-import { useEffect, useState } from "react";
-import { apiPrivate } from "../../../config/axiosPrivate";
-import { toast } from "react-toastify";
+import { useState } from "react";
 import Loading from "../../../shared/components/Loading";
 import { motion } from "framer-motion";
 import { ArrowLeft, User } from "lucide-react";
-import type { SubjectTaken } from "../types";
+import { useGradebook } from "../hooks/useGradebook";
 
 interface GradebookProps {
   scheduleId: string;
@@ -13,8 +11,8 @@ interface GradebookProps {
 }
 
 const Gradebook = ({ scheduleId, subjectName, onBack }: GradebookProps) => {
-  const [students, setStudents] = useState<SubjectTaken[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { students, loading, updateGrade } = useGradebook(scheduleId);
+  console.log(students);
   const [editingId, setEditingId] = useState<string | null>(null);
 
   // Local state for edits before saving
@@ -23,53 +21,25 @@ const Gradebook = ({ scheduleId, subjectName, onBack }: GradebookProps) => {
     grade: number;
   } | null>(null);
 
-  useEffect(() => {
-    const fetchStudents = async () => {
-      try {
-        const { data } = await apiPrivate.get(
-          `/api/subject-taken?scheduleId=${scheduleId}`
-        );
-        setStudents(data.subjectTakens);
-      } catch (error) {
-        console.error("Failed to load grade sheet", error);
-        toast.error("Failed to load grade sheet");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchStudents();
-  }, [scheduleId]);
-
   const handleSaveGrade = async (subjectTakenId: string) => {
     if (!editValues) {
       setEditingId(null);
       return;
     }
 
-    try {
-      await apiPrivate.patch(`/api/teacher/${subjectTakenId}`, {
-        subjectTakenId,
-        term: editValues.term,
-        grade: editValues.grade,
-      });
+    const success = await updateGrade(
+      subjectTakenId,
+      editValues.term,
+      editValues.grade
+    );
 
-      toast.success("Grade updated!");
+    if (success) {
       setEditingId(null);
       setEditValues(null);
-
-      // Refresh list to see auto-calculated final grades
-      const { data } = await apiPrivate.get(
-        `/api/subject-taken?scheduleId=${scheduleId}`
-      );
-      setStudents(data.subjectTakens);
-    } catch (error) {
-      toast.error("Failed to update grade");
     }
   };
 
   if (loading) return <Loading />;
-
-  console.log(students);
 
   return (
     <motion.div
@@ -119,9 +89,13 @@ const Gradebook = ({ scheduleId, subjectName, onBack }: GradebookProps) => {
                         </div>
                       </div>
                       <div>
-                        <div className="font-bold">Name Goes Here</div>
+                        <div className="font-bold">
+                          {student.student?.profile
+                            ? `${student.student.profile.lastName}, ${student.student.profile.firstName}`
+                            : "Unknown Student"}
+                        </div>
                         <div className="text-sm opacity-50">
-                          {student.student?.studentId}
+                          {student.student?.studentId || student.studentId}
                         </div>
                       </div>
                     </div>

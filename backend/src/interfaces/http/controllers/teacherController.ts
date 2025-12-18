@@ -1,6 +1,8 @@
-import { Request, Response } from "express";
+import mongoose from "mongoose";
+import { Response } from "express";
 import { GetTeacherUseCase } from "../../../application/use-cases/teacher/GetTeacherUseCase";
 import { GetAllTeacherUseCase } from "../../../application/use-cases/teacher/GetAllTeacherUseCase";
+import { UpdateGradeUseCase } from "../../../application/use-cases/teacher/UpdateGradeUseCase";
 import { BadRequestError } from "../middleware/HttpErrors";
 import { HttpStatus } from "../../../domain/HttpStatus";
 import { AuthenticatedRequest } from "../middleware/authGuard";
@@ -8,6 +10,35 @@ import { StaffRole } from "../../../domain/types/Role";
 
 const getTeacherUseCase = new GetTeacherUseCase();
 const getAllTeacherUseCase = new GetAllTeacherUseCase();
+const updateGradeUseCase = new UpdateGradeUseCase();
+
+export const updateGrade = async (req: AuthenticatedRequest, res: Response) => {
+  const { subjectTakenId, term, grade, remarks } = req.body;
+  const teacherId = req.user!.employeeId!;
+
+  if (!subjectTakenId || !term || grade === undefined) {
+    throw new BadRequestError("Missing required fields");
+  }
+
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const updatedRecord = await updateGradeUseCase.execute(
+      teacherId,
+      { subjectTakenId, term, grade, remarks },
+      session
+    );
+
+    await session.commitTransaction();
+    return res.status(HttpStatus.OK).json(updatedRecord);
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
+  }
+};
 
 export const getTeacher = async (req: AuthenticatedRequest, res: Response) => {
   let { page = 1, limit = 10, isActive } = req.query;

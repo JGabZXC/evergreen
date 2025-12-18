@@ -20,6 +20,10 @@ export class UpdateGradeUseCase {
     input: GradeInput,
     session: mongoose.ClientSession
   ) {
+    if (input.grade < 0 || input.grade > 100) {
+      throw new BadRequestError("Grade must be between 0 and 100.");
+    }
+
     // 1. Find the record and ensure this teacher owns it (Security)
     const record = await SubjectTakenModel.findOne({
       _id: input.subjectTakenId,

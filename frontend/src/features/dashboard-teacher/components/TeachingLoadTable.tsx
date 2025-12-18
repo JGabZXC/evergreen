@@ -95,7 +95,9 @@ const TeachingLoadTable = ({ onSelectClass }: TeachingLoadTableProps) => {
                           <button
                             onClick={() =>
                               onSelectClass(
-                                cls._id,
+                                typeof cls.subject === "object"
+                                  ? cls.subject._id
+                                  : "",
                                 typeof cls.subject === "object"
                                   ? cls.subject.description ?? ""
                                   : ""

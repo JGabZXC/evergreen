@@ -1,7 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 import { BaseSubjectTaken, SubjectStatus } from "../../domain/SubjectTaken";
 import { Semester } from "../../domain/types/Semester";
-import { SubjectSchedule } from "../../domain/SubjectSchedule";
 
 export const SubjectTakenSchema = new Schema<BaseSubjectTaken & Document>(
   {
@@ -34,6 +33,10 @@ export const SubjectTakenSchema = new Schema<BaseSubjectTaken & Document>(
     timestamps: true,
   }
 );
+
+SubjectTakenSchema.index({ teacherId: 1 });
+SubjectTakenSchema.index({ studentId: 1 });
+SubjectTakenSchema.index({ subject: 1 });
 
 SubjectTakenSchema.virtual("teacher", {
   ref: "Staff",
