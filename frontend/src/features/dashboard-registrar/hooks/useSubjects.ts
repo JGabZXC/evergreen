@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
-import type { Subject, SubjectResponse } from "../types";
+import type { SubjectResponse } from "../types";
 import {
   createSubject,
   getAllSubjects,
   updateSubject,
 } from "../services/subjectService";
 import { toast } from "react-toastify";
+import type { Subject } from "../../../shared/types";
 
 export const useSubjects = (
   page = 1,

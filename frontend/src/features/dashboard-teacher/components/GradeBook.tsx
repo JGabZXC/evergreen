@@ -3,6 +3,7 @@ import Loading from "../../../shared/components/Loading";
 import { motion } from "framer-motion";
 import { ArrowLeft, User } from "lucide-react";
 import { useGradebook } from "../hooks/useGradebook";
+import { getCurrentSchoolYear } from "../../../utils/schoolYear";
 
 interface GradebookProps {
   scheduleId: string;
@@ -11,7 +12,10 @@ interface GradebookProps {
 }
 
 const Gradebook = ({ scheduleId, subjectName, onBack }: GradebookProps) => {
-  const { students, loading, updateGrade } = useGradebook(scheduleId);
+  const { students, loading, updateGrade } = useGradebook(
+    scheduleId,
+    getCurrentSchoolYear()
+  );
   console.log(students);
   const [editingId, setEditingId] = useState<string | null>(null);
 

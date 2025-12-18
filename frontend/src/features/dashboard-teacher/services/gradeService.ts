@@ -1,9 +1,12 @@
 import { apiPrivate } from "../../../config/axiosPrivate";
 import type { SubjectTaken } from "../types";
 
-export const getGrades = async (subjectId: string): Promise<SubjectTaken[]> => {
+export const getGrades = async (
+  subjectId: string,
+  schoolYear: string
+): Promise<SubjectTaken[]> => {
   const { data } = await apiPrivate.get(
-    `/api/subject-taken?subject=${subjectId}`
+    `/api/subject-taken?subject=${subjectId}&schoolYear=${schoolYear}`
   );
   return data.subjectTakens;
 };

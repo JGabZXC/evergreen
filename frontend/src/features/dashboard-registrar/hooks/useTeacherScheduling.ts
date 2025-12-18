@@ -4,9 +4,9 @@ import {
   createSchedule,
   updateSchedule,
 } from "../services/scheduleServices";
-import type { SubjectSchedule } from "../types";
 import { toast } from "react-toastify";
 import { getCurrentSchoolYear } from "../../../utils/schoolYear";
+import type { SubjectSchedule } from "../../../shared/types";
 
 export const useTeacherScheduling = () => {
   const [schedules, setSchedules] = useState<SubjectSchedule[]>([]);
@@ -50,11 +50,16 @@ export const useTeacherScheduling = () => {
 
   const handleCreateSchedule = async (payload: any) => {
     try {
-      await createSchedule(payload);
+      const result = await createSchedule(payload);
+      console.log(result);
+      if (result.warnings && result.warnings.length > 0) {
+        toast.warn(result.warnings.join(", "));
+      }
       toast.success("Schedule created successfully");
       setIsModalOpen(false);
       fetchSchedules();
     } catch (error: any) {
+      console.log(error);
       toast.error(
         error.response?.data?.error?.message || "Failed to create schedule"
       );

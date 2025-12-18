@@ -9,6 +9,7 @@ import {
   Loader2,
   Filter,
   Search,
+  AlertTriangle,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSubjects } from "../hooks/useSubjects";
@@ -54,6 +55,8 @@ export default function AddScheduleModal({
   const [subjectList, setSubjectList] = useState<Subject[]>([]);
   const [hasMoreSubjects, setHasMoreSubjects] = useState(true);
 
+  console.log(subjectList.length);
+
   const [roomSearch, setRoomSearch] = useState("");
   const [roomPage, setRoomPage] = useState(1);
   const [roomList, setRoomList] = useState<Room[]>([]);
@@ -91,6 +94,14 @@ export default function AddScheduleModal({
       room: "",
     },
   ]);
+
+  const [semesterFilters, setSemesterFilters] = useState<number[]>([]);
+
+  const toggleSemesterFilter = (sem: number) => {
+    setSemesterFilters((prev) =>
+      prev.includes(sem) ? prev.filter((s) => s !== sem) : [...prev, sem]
+    );
+  };
 
   // Populate form when initialData changes
   useEffect(() => {
@@ -211,6 +222,56 @@ export default function AddScheduleModal({
       }
     }
   }, [selectedCourseId, courses]);
+
+  const getSemesterWarning = () => {
+    if (!formData.subject || !formData.semester) return null;
+
+    // 1. Find the subject
+    const selectedSub = subjectList.find(
+      (s) => s._id === formData.subject || s.subjectId === formData.subject
+    );
+
+    // 2. Check availability
+    if (
+      selectedSub &&
+      selectedSub.semesterAvailable &&
+      selectedSub.semesterAvailable.length > 0
+    ) {
+      // 3. Compare
+      if (!selectedSub.semesterAvailable.includes(formData.semester)) {
+        return (
+          <div className="mt-2 p-3 bg-warning/10 border border-warning/20 text-warning rounded-lg flex gap-3 text-sm animate-in fade-in slide-in-from-top-1">
+            <AlertTriangle size={18} className="shrink-0 mt-0.5" />
+            <div>
+              <p className="font-bold">Off-Semester Schedule</p>
+              <p className="opacity-90">
+                This subject is usually offered in{" "}
+                <strong>
+                  {selectedSub.semesterAvailable
+                    .map((s) =>
+                      s === 3 ? "Summer" : `${s}${s === 1 ? "st" : "nd"} Sem`
+                    )
+                    .join(" or ")}
+                </strong>
+                . You are scheduling it for the{" "}
+                <strong>
+                  {formData.semester === 3
+                    ? "Summer"
+                    : `${formData.semester}${
+                        formData.semester === 1 ? "st" : "nd"
+                      } Semester`}
+                </strong>
+                .
+              </p>
+            </div>
+          </div>
+        );
+      }
+    }
+    return null;
+  };
+
+  const semesterWarning = getSemesterWarning();
 
   const handleSubjectScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
@@ -444,22 +505,75 @@ export default function AddScheduleModal({
                                 }
                                 autoFocus
                               />
+                              <div className="flex gap-3 mt-2 px-1">
+                                <span className="text-xs opacity-50 self-center">
+                                  Filter:
+                                </span>
+                                {[1, 2, 3].map((sem) => (
+                                  <label
+                                    key={sem}
+                                    className="label cursor-pointer justify-start gap-1.5 p-0"
+                                  >
+                                    <input
+                                      type="checkbox"
+                                      className="checkbox checkbox-xs"
+                                      checked={semesterFilters.includes(sem)}
+                                      onChange={() => toggleSemesterFilter(sem)}
+                                    />
+                                    <span className="label-text text-xs">
+                                      {sem === 3
+                                        ? "Summer"
+                                        : sem === 1
+                                        ? "1st"
+                                        : "2nd"}
+                                    </span>
+                                  </label>
+                                ))}
+                              </div>
                             </div>
                           )}
-                          {subjectList.map((s) => (
-                            <li
-                              key={s._id}
-                              onClick={() => {
-                                setFormData({ ...formData, subject: s._id });
-                                setIsSubjectDropdownOpen(false);
-                              }}
-                            >
-                              <a>
-                                <span className="font-bold">{s.subjectId}</span>{" "}
-                                - {s.name}
-                              </a>
-                            </li>
-                          ))}
+                          {subjectList
+                            .filter((s) => {
+                              if (semesterFilters.length === 0) return true;
+                              return s.semesterAvailable?.some((sem) =>
+                                semesterFilters.includes(sem)
+                              );
+                            })
+                            .map((s) => (
+                              <li
+                                key={s._id}
+                                onClick={() => {
+                                  // Auto-switch semester if needed
+                                  let newSemester = formData.semester;
+                                  if (
+                                    s.semesterAvailable &&
+                                    s.semesterAvailable.length > 0
+                                  ) {
+                                    if (
+                                      !s.semesterAvailable.includes(
+                                        formData.semester
+                                      )
+                                    ) {
+                                      newSemester = s.semesterAvailable[0];
+                                    }
+                                  }
+
+                                  setFormData({
+                                    ...formData,
+                                    subject: s._id,
+                                    semester: newSemester,
+                                  });
+                                  setIsSubjectDropdownOpen(false);
+                                }}
+                              >
+                                <a>
+                                  <span className="font-bold">
+                                    {s.subjectId}
+                                  </span>{" "}
+                                  - {s.name}
+                                </a>
+                              </li>
+                            ))}
                           {loadingSubjects && (
                             <li className="disabled">
                               <a>Loading...</a>
@@ -533,6 +647,9 @@ export default function AddScheduleModal({
                     </select>
                   </div>
                 </div>
+                {semesterWarning && (
+                  <div className="md:col-span-2">{semesterWarning}</div>
+                )}
               </div>
 
               <div className="divider">Time Slots</div>

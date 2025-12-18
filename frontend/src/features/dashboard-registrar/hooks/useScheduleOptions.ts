@@ -4,13 +4,8 @@ import {
   getTeachersOption,
 } from "../services/scheduleServices";
 import { apiPrivate } from "../../../config/axiosPrivate";
-import type {
-  SubjectSchedule,
-  Subject,
-  Teacher,
-  Course,
-  Section,
-} from "../types";
+import type { Section } from "../types";
+import type { Course, Teacher } from "../../../shared/types";
 
 export const useScheduleOptions = (isOpen: boolean) => {
   const [sections, setSections] = useState<Section[]>([]);
@@ -35,7 +30,6 @@ export const useScheduleOptions = (isOpen: boolean) => {
           setSections(secData);
           setTeachers(teachData);
           setCourses(courseRes.data.courses || []);
-
         } catch (error: any) {
           if (error.name !== "CanceledError" && error.name !== "AbortError") {
             console.error("Failed to load dropdown options", error);

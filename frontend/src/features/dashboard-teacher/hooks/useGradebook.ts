@@ -5,8 +5,12 @@ import {
   updateGrade as updateGradeService,
 } from "../services/gradeService";
 import type { SubjectTaken } from "../types";
+import { getCurrentSchoolYear } from "../../../utils/schoolYear";
 
-export const useGradebook = (subjectId: string) => {
+export const useGradebook = (
+  subjectId: string,
+  schoolYear: string = getCurrentSchoolYear()
+) => {
   const [students, setStudents] = useState<SubjectTaken[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -14,7 +18,7 @@ export const useGradebook = (subjectId: string) => {
   const fetchGrades = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await getGrades(subjectId);
+      const data = await getGrades(subjectId, schoolYear);
       setStudents(data);
       setError(null);
     } catch (err) {

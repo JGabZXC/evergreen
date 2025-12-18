@@ -124,8 +124,7 @@ export const createSchedule = async (
 
     // 4. Return Response
     return res.status(HttpStatus.OK).json({
-      message: "Class schedule created successfully",
-      schedule: updatedSchedule,
+      ...updatedSchedule,
     });
   } catch (error) {
     throw error;
@@ -150,8 +149,7 @@ export const updateSchedule = async (
     );
 
     return res.status(HttpStatus.OK).json({
-      message: "Class schedule updated successfully",
-      schedule: updatedSchedule,
+      ...updatedSchedule,
     });
   } catch (error) {
     throw error;
