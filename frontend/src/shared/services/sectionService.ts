@@ -1,4 +1,4 @@
-import { apiPrivate } from "../../../config/axiosPrivate";
+import { apiPrivate } from "../../config/axiosPrivate";
 import type { CreateSectionPayload, UpdateSectionPayload } from "../types";
 
 export const getAllSections = async (
@@ -8,6 +8,7 @@ export const getAllSections = async (
   gradeLevel = "",
   schoolYear = "",
   capacity = "",
+  adviserId = "",
   signal?: AbortSignal
 ) => {
   const queryParams = new URLSearchParams({
@@ -20,6 +21,7 @@ export const getAllSections = async (
     queryParams.append("gradeLevel", gradeLevel);
   if (schoolYear) queryParams.append("schoolYear", schoolYear);
   if (capacity) queryParams.append("capacity", capacity);
+  if (adviserId) queryParams.append("adviserId", adviserId);
 
   const response = await apiPrivate.get(
     `/api/registrar/sections?${queryParams.toString()}`,
@@ -45,6 +47,13 @@ export const updateSection = async (
   const response = await apiPrivate.patch(
     `/api/registrar/sections/${id}`,
     sectionData
+  );
+  return response.data;
+};
+
+export const getSectionStudents = async (id: string) => {
+  const response = await apiPrivate.get(
+    `/api/registrar/sections/${id}/students`
   );
   return response.data;
 };

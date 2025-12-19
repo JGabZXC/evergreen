@@ -9,9 +9,9 @@ import {
   Search,
   Building,
 } from "lucide-react";
-import { useSections } from "../hooks/useSections";
+import { useSections } from "../../../shared/hooks/useSections";
 import SectionModal from "./SectionModal";
-import { type Section } from "../types";
+import { type Section } from "../../../shared/types";
 import { AnimatePresence, motion } from "framer-motion";
 import { getSchoolYearOptions } from "../../../utils/schoolYear";
 import { GradeLevel } from "../../../shared/types/";

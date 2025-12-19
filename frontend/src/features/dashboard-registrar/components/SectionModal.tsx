@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { X } from "lucide-react";
-import { type Section } from "../types";
+import { type Section } from "../../../shared/types";
 import { useRooms } from "../hooks/useRooms";
 import { useTeachers } from "../hooks/useTeachers";
 import { getCurrentSchoolYear } from "../../../utils/schoolYear";
 import { GradeLevel } from "../../../shared/types/";
-import { useCreateSection, useUpdateSection } from "../hooks/useSections";
+import { useSections } from "../../../shared/hooks/useSections";
 import { toast } from "react-toastify";
 
 interface SectionModalProps {
@@ -32,17 +32,13 @@ export default function SectionModal({
   const { rooms } = useRooms(1, 100, "", "", "Open");
   const { teachers, loading: loadingTeachers } = useTeachers();
   const {
-    create,
-    loading: createLoading,
-    error: createError,
-  } = useCreateSection();
-  const {
-    update,
-    loading: updateLoading,
-    error: updateError,
-  } = useUpdateSection();
+    addSection,
+    editSection,
+    loading: sectionLoading,
+    error: sectionError,
+  } = useSections();
 
-  const isLoading = createLoading || updateLoading;
+  const isLoading = sectionLoading;
 
   // useEffect(() => {
   //   if (!modalRef.current) return;
@@ -93,25 +89,24 @@ export default function SectionModal({
     };
 
     try {
+      let success = false;
       if (initialData) {
-        await update(initialData._id, payload);
+        success = await editSection(initialData._id, payload);
       } else {
-        await create(payload);
+        success = await addSection(payload);
       }
 
-      toast.success(
-        `Section ${initialData ? "updated" : "created"} successfully`
-      );
-      onSuccess();
-      onClose();
-    } catch (err) {
-      const errorMsg = initialData ? updateError : createError;
-      console.error("Failed to save section", err);
-      console.log(errorMsg);
-      if (errorMsg) {
-        toast.error(errorMsg);
-        return;
+      if (success) {
+        toast.success(
+          `Section ${initialData ? "updated" : "created"} successfully`
+        );
+        onSuccess();
+        onClose();
+      } else {
+        toast.error(sectionError || "Operation failed");
       }
+    } catch (err) {
+      console.error("Failed to save section", err);
       toast.error("An unexpected error occurred.");
     }
   };

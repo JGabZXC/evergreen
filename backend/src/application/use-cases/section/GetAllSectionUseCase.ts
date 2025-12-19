@@ -7,6 +7,7 @@ export interface FilterSection {
   gradeLevel?: string;
   schoolYear?: string;
   capacity?: number;
+  adviserId?: string;
 }
 
 export class GetAllSectionUseCase {

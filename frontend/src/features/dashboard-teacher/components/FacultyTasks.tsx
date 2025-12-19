@@ -13,7 +13,7 @@ export default function FacultyTasks({ tasks }: { tasks: TaskItem[] }) {
       <div className="card-body">
         <div className="flex justify-between items-center mb-6">
           <h3 className="card-title text-lg flex items-center gap-2">
-            <CheckCircle2 className="w-5 h-5 text-secondary" />
+            <CheckCircle2 className="w-6 h-6 text-secondary" />
             Action Items
           </h3>
           <div className="badge badge-secondary badge-outline">

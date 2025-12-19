@@ -5,7 +5,7 @@ import StatsCard from "../components/StatsCard";
 import FacultyTasks from "../components/FacultyTasks";
 import UpcomingClasses from "../components/UpcomingClasses";
 import RecentAnnouncements from "../components/RecentAnnouncements";
-import PerformanceOverview from "../components/PerformanceOverview";
+import SectionStudentList from "../components/SectionStudentList";
 import HomeroomAnnouncements from "../components/HomeroomAnnouncements";
 import { useAuth } from "../../auth/hooks/useAuth";
 import { getCurrentSchoolYear } from "../../../utils/schoolYear";
@@ -108,7 +108,7 @@ export function DashboardTeacher() {
               />
             )}
           </AnimatePresence>
-          <PerformanceOverview />
+          <SectionStudentList />
           <HomeroomAnnouncements />
         </div>
 

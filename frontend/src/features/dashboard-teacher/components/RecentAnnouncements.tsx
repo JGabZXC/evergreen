@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Bell, Megaphone } from "lucide-react";
+import { Megaphone } from "lucide-react";
 
 const announcements = [
   {
@@ -40,7 +40,7 @@ export default function RecentAnnouncements() {
         </h3>
 
         <div className="space-y-4 min-h-[400px] overflow-y-auto pr-2">
-          {announcements.map((item, index) => (
+          {announcements.map((item) => (
             <div
               key={item.id}
               className="relative pl-4 border-l-2 border-base-300"

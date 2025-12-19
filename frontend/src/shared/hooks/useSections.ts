@@ -16,7 +16,8 @@ export const useSections = (
   search = "",
   gradeLevel = "",
   schoolYear = "",
-  capacity = ""
+  capacity = "",
+  adviserId = ""
 ) => {
   const [sections, setSections] = useState<Section[]>([]);
   const [totalPages, setTotalPages] = useState(1);
@@ -36,6 +37,7 @@ export const useSections = (
           gradeLevel,
           schoolYear,
           capacity,
+          adviserId,
           signal
         );
 
@@ -48,12 +50,10 @@ export const useSections = (
           );
         }
       } finally {
-        if (!signal?.aborted) {
-          setLoading(false);
-        }
+        setLoading(false);
       }
     },
-    [page, limit, search, gradeLevel, schoolYear, capacity]
+    [page, limit, search, gradeLevel, schoolYear, capacity, adviserId]
   );
 
   useEffect(() => {
@@ -62,55 +62,39 @@ export const useSections = (
     return () => controller.abort();
   }, [fetchSections]);
 
+  const addSection = async (sectionData: CreateSectionPayload) => {
+    try {
+      await createSection(sectionData);
+      fetchSections();
+      return true;
+    } catch (err: any) {
+      setError(
+        err.response?.data?.error?.message || "Failed to create section"
+      );
+      return false;
+    }
+  };
+
+  const editSection = async (id: string, sectionData: UpdateSectionPayload) => {
+    try {
+      await updateSection(id, sectionData);
+      fetchSections();
+      return true;
+    } catch (err: any) {
+      setError(
+        err.response?.data?.error?.message || "Failed to update section"
+      );
+      return false;
+    }
+  };
+
   return {
     sections,
     totalPages,
     loading,
     error,
-    refetch: () => fetchSections(),
+    refetch: fetchSections,
+    addSection,
+    editSection,
   };
-};
-
-export const useCreateSection = () => {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const create = async (data: CreateSectionPayload) => {
-    setLoading(true);
-    setError(null);
-    try {
-      await createSection(data);
-    } catch (err: any) {
-      setError(
-        err.response?.data?.error?.message || "Failed to create section"
-      );
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return { create, loading, error };
-};
-
-export const useUpdateSection = () => {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const update = async (id: string, data: UpdateSectionPayload) => {
-    setLoading(true);
-    setError(null);
-    try {
-      await updateSection(id, data);
-    } catch (err: any) {
-      setError(
-        err.response?.data?.error?.message || "Failed to update section"
-      );
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return { update, loading, error };
 };

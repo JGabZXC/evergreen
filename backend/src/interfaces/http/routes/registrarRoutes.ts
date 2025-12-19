@@ -11,6 +11,7 @@ import {
   getSection,
   updateSection,
   createSection,
+  getSectionStudents,
 } from "../controllers/sectionController";
 
 const router = Router();
@@ -26,7 +27,7 @@ router
   .route("/sections")
   .get(
     authGuard,
-    requireRole(StaffRole.Registrar, StudentRole.Student),
+    requireRole(StaffRole.Registrar, StudentRole.Student, StaffRole.Teacher),
     getSection
   )
   .post(authGuard, isRegistrar, createSection);
@@ -35,9 +36,16 @@ router
   .route("/sections/:id")
   .get(
     authGuard,
-    requireRole(StaffRole.Registrar, StudentRole.Student),
+    requireRole(StaffRole.Registrar, StudentRole.Student, StaffRole.Teacher),
     getSection
   )
   .patch(authGuard, isRegistrar, updateSection);
+
+router.get(
+  "/sections/:id/students",
+  authGuard,
+  requireRole(StaffRole.Registrar, StaffRole.Teacher),
+  getSectionStudents
+);
 
 export default router;

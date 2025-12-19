@@ -48,6 +48,28 @@ export interface Address {
   country: string;
 }
 
+export interface Section {
+  _id: string;
+  adviserId: Staff | string; // ID or Populated
+  name: string;
+  gradeLevel: GradeLevel;
+  schoolYear: string;
+  currentCapacity: number;
+  designatedRoom?: string | Room; // Room ID
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateSectionPayload {
+  adviserId: string;
+  name: string;
+  gradeLevel: GradeLevel;
+  schoolYear: string;
+  designatedRoom?: string;
+}
+
+export interface UpdateSectionPayload extends Partial<CreateSectionPayload> {}
+
 export interface Guardian {
   name: string;
   relationship: string;

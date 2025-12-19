@@ -5,6 +5,7 @@ import {
   GetSectionUseCase,
   UpdateSectionUseCase,
 } from "../../../application/use-cases/section";
+import { GetStudentsBySectionUseCase } from "../../../application/use-cases/section/GetStudentsBySectionUseCase";
 import { HttpStatus } from "../../../domain/HttpStatus";
 import { BadRequestError } from "../middleware/HttpErrors";
 import { AuthenticatedRequest } from "../middleware/authGuard";
@@ -14,6 +15,7 @@ const createSectionUseCase = new CreateSectionUseCase();
 const getAllSectionUseCase = new GetAllSectionUseCase();
 const getSectionUseCase = new GetSectionUseCase();
 const updateSectionUseCase = new UpdateSectionUseCase();
+const getStudentsBySectionUseCase = new GetStudentsBySectionUseCase();
 
 export const createSection = async (
   req: AuthenticatedRequest,
@@ -74,6 +76,7 @@ export const getSection = async (req: Request, res: Response) => {
     gradeLevel,
     schoolYear,
     capacity,
+    adviserId,
   } = req.query;
   let { id } = req.params;
 
@@ -120,6 +123,10 @@ export const getSection = async (req: Request, res: Response) => {
         queryFilter.capacity = Number(capacity);
       }
 
+      if (adviserId && typeof adviserId === "string") {
+        queryFilter.adviserId = adviserId;
+      }
+
       sections = await getAllSectionUseCase.execute(
         queryFilter,
         skip,
@@ -146,5 +153,20 @@ export const updateSection = async (
     return res.status(HttpStatus.OK).json(updatedSection);
   } catch (err) {
     throw err;
+  }
+};
+
+export const getSectionStudents = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    if (!id || typeof id !== "string") {
+      throw new BadRequestError("Section ID is required and must be a string");
+    }
+
+    const students = await getStudentsBySectionUseCase.execute(id);
+    res.status(HttpStatus.OK).json(students);
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
   }
 };
