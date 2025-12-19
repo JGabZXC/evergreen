@@ -55,8 +55,6 @@ export default function AddScheduleModal({
   const [subjectList, setSubjectList] = useState<Subject[]>([]);
   const [hasMoreSubjects, setHasMoreSubjects] = useState(true);
 
-  console.log(subjectList.length);
-
   const [roomSearch, setRoomSearch] = useState("");
   const [roomPage, setRoomPage] = useState(1);
   const [roomList, setRoomList] = useState<Room[]>([]);
@@ -112,9 +110,9 @@ export default function AddScheduleModal({
             ? initialData.subject._id
             : initialData.subject,
         teacherId:
-          typeof initialData.teacher === "object"
-            ? initialData.teacher.employeeId
-            : initialData.teacherId || "",
+          initialData?.teacherId === "TBA"
+            ? "TBA"
+            : initialData?.teacher?.employeeId || "TBA",
         schoolYear: initialData.schoolYear,
         semester: Number(initialData.semester),
       });
