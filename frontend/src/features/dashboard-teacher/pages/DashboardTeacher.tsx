@@ -3,18 +3,29 @@ import { motion, AnimatePresence } from "framer-motion";
 import { BookOpen, Users, Clock, Calendar } from "lucide-react";
 import StatsCard from "../components/StatsCard";
 import FacultyTasks from "../components/FacultyTasks";
+import UpcomingClasses from "../components/UpcomingClasses";
+import RecentAnnouncements from "../components/RecentAnnouncements";
+import PerformanceOverview from "../components/PerformanceOverview";
+import HomeroomAnnouncements from "../components/HomeroomAnnouncements";
 import { useAuth } from "../../auth/hooks/useAuth";
 import { getCurrentSchoolYear } from "../../../utils/schoolYear";
 import TeachingLoadTable from "../components/TeachingLoadTable";
 import Gradebook from "../components/GradeBook";
 import { pageVariants } from "../../../shared/animations";
+import { Semester } from "../../../shared/types/index.ts";
+import { useTeacherSchedule } from "../hooks/useTeacherSchedule";
 
 export function DashboardTeacher() {
   const { user } = useAuth();
+  const { schedules, loading } = useTeacherSchedule();
   const [selectedClass, setSelectedClass] = useState<{
     scheduleId: string;
     subjectName: string;
+    semester: Semester;
   } | null>(null);
+  const [currentSemester, setCurrentSemester] = useState<Semester>(
+    Semester.First
+  );
 
   return (
     <motion.div
@@ -74,28 +85,41 @@ export function DashboardTeacher() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Content Area (Teaching Load / Gradebook) */}
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 space-y-6">
           <AnimatePresence mode="wait">
             {selectedClass ? (
               <Gradebook
                 key="gradebook"
                 scheduleId={selectedClass.scheduleId}
                 subjectName={selectedClass.subjectName}
+                semester={selectedClass.semester}
                 onBack={() => setSelectedClass(null)}
               />
             ) : (
               <TeachingLoadTable
                 key="teaching-load"
-                onSelectClass={(scheduleId, subjectName) =>
-                  setSelectedClass({ scheduleId, subjectName })
+                schedules={schedules}
+                loading={loading}
+                selectedSemester={currentSemester}
+                onSemesterChange={setCurrentSemester}
+                onSelectClass={(scheduleId, subjectName, semester) =>
+                  setSelectedClass({ scheduleId, subjectName, semester })
                 }
               />
             )}
           </AnimatePresence>
+          <PerformanceOverview />
+          <HomeroomAnnouncements />
         </div>
 
         {/* Sidebar Widgets */}
         <div className="space-y-6">
+          <UpcomingClasses
+            schedules={schedules}
+            loading={loading}
+            selectedSemester={currentSemester}
+          />
+          <RecentAnnouncements />
           <FacultyTasks
             tasks={[
               {

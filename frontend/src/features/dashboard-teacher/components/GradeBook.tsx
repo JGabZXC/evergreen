@@ -4,17 +4,25 @@ import { motion } from "framer-motion";
 import { ArrowLeft, User } from "lucide-react";
 import { useGradebook } from "../hooks/useGradebook";
 import { getCurrentSchoolYear } from "../../../utils/schoolYear";
+import { Semester } from "../../../shared/types/index.ts";
 
 interface GradebookProps {
   scheduleId: string;
   subjectName: string;
+  semester: Semester;
   onBack: () => void;
 }
 
-const Gradebook = ({ scheduleId, subjectName, onBack }: GradebookProps) => {
+const Gradebook = ({
+  scheduleId,
+  subjectName,
+  semester,
+  onBack,
+}: GradebookProps) => {
   const { students, loading, updateGrade } = useGradebook(
     scheduleId,
-    getCurrentSchoolYear()
+    getCurrentSchoolYear(),
+    semester
   );
   console.log(students);
   const [editingId, setEditingId] = useState<string | null>(null);

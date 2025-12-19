@@ -1,36 +1,35 @@
-import { useEffect, useState } from "react";
-import { apiPrivate } from "../../../config/axiosPrivate";
+import { useState } from "react";
 import Loading from "../../../shared/components/Loading";
 import { motion, AnimatePresence } from "framer-motion";
-import { BookOpen, Calendar, ArrowRight, Eye } from "lucide-react";
-import type { SubjectSchedule } from "../../../shared/types/index.ts";
+import { BookOpen, Calendar, ArrowRight, Eye, Filter } from "lucide-react";
+import { type SubjectSchedule, Semester } from "../../../shared/types/index.ts";
 
 interface TeachingLoadTableProps {
-  onSelectClass: (scheduleId: string, subjectName: string) => void;
+  schedules: SubjectSchedule[];
+  loading: boolean;
+  selectedSemester: Semester;
+  onSemesterChange: (semester: Semester) => void;
+  onSelectClass: (
+    scheduleId: string,
+    subjectName: string,
+    semester: Semester
+  ) => void;
 }
 
-const TeachingLoadTable = ({ onSelectClass }: TeachingLoadTableProps) => {
-  const [classes, setClasses] = useState<SubjectSchedule[]>([]);
-  const [loading, setLoading] = useState(true);
+const TeachingLoadTable = ({
+  schedules,
+  loading,
+  selectedSemester,
+  onSemesterChange,
+  onSelectClass,
+}: TeachingLoadTableProps) => {
   const [viewSchedule, setViewSchedule] = useState<SubjectSchedule | null>(
     null
   );
 
-  useEffect(() => {
-    const fetchSchedule = async () => {
-      try {
-        // Backend now auto-filters by logged-in teacher
-        const { data } = await apiPrivate.get("/api/schedule");
-        console.log(data);
-        setClasses(data.schedules);
-      } catch (err) {
-        console.error("Failed to fetch classes", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchSchedule();
-  }, []);
+  const filteredClasses = schedules.filter(
+    (s) => s.semester === selectedSemester
+  );
 
   if (loading) return <Loading />;
 
@@ -44,28 +43,42 @@ const TeachingLoadTable = ({ onSelectClass }: TeachingLoadTableProps) => {
         className="card bg-base-100 shadow-xl"
       >
         <div className="card-body">
-          <h2 className="card-title text-2xl mb-6 flex items-center gap-2">
-            <BookOpen className="w-6 h-6 text-primary" />
-            My Teaching Load
-          </h2>
-          <div className="overflow-x-auto">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="card-title text-2xl flex items-center gap-2">
+              <BookOpen className="w-6 h-6 text-primary" />
+              My Teaching Load
+            </h2>
+            <div className="flex items-center gap-2">
+              <Filter className="w-4 h-4 text-gray-500" />
+              <select
+                className="select select-bordered select-sm"
+                value={selectedSemester}
+                onChange={(e) => onSemesterChange(Number(e.target.value))}
+              >
+                <option value={Semester.First}>1st Semester</option>
+                <option value={Semester.Second}>2nd Semester</option>
+                <option value={Semester.Third}>Summer</option>
+              </select>
+            </div>
+          </div>
+          <div className="overflow-x-auto min-h-[400px] overflow-y-auto">
             <table className="table table-zebra w-full">
               <thead>
-                <tr className="bg-base-200">
+                <tr className="bg-base-200 sticky top-0 z-10">
                   <th>Subject Code</th>
                   <th>Subject Name</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {classes.length === 0 ? (
+                {filteredClasses.length === 0 ? (
                   <tr>
                     <td colSpan={3} className="text-center py-8 text-gray-500">
-                      No classes assigned yet.
+                      No classes assigned yet for this semester.
                     </td>
                   </tr>
                 ) : (
-                  classes.map((cls, index) => (
+                  filteredClasses.map((cls, index) => (
                     <motion.tr
                       key={cls._id}
                       initial={{ opacity: 0, x: -20 }}
@@ -100,7 +113,8 @@ const TeachingLoadTable = ({ onSelectClass }: TeachingLoadTableProps) => {
                                   : "",
                                 typeof cls.subject === "object"
                                   ? cls.subject.description ?? ""
-                                  : ""
+                                  : "",
+                                cls.semester
                               )
                             }
                             className="btn btn-sm btn-primary gap-2"

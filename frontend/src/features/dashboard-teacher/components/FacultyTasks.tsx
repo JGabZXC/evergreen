@@ -8,10 +8,10 @@ export default function FacultyTasks({ tasks }: { tasks: TaskItem[] }) {
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.3 }}
-      className="card bg-base-100 shadow-xl h-full"
+      className="card bg-base-100 shadow-xl"
     >
       <div className="card-body">
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex justify-between items-center mb-6">
           <h3 className="card-title text-lg flex items-center gap-2">
             <CheckCircle2 className="w-5 h-5 text-secondary" />
             Action Items
@@ -21,7 +21,7 @@ export default function FacultyTasks({ tasks }: { tasks: TaskItem[] }) {
           </div>
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-2 min-h-[400px] overflow-y-auto pr-2">
           {tasks.map((task, index) => (
             <motion.div
               key={task.id}
