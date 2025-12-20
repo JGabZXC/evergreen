@@ -4,10 +4,12 @@ import { Users, Search } from "lucide-react";
 import { useAuth } from "../../../features/auth/hooks/useAuth";
 import { useSections } from "../../../shared/hooks/useSections";
 import { useSectionStudents } from "../../../shared/hooks/useSectionStudents";
+import { Semester } from "../../../shared/types";
 
 export default function SectionStudentList() {
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
+  const [semester, setSemester] = useState(1);
 
   // 1. Fetch Section where adviserId is current user
   const { sections, loading: sectionLoading } = useSections(
@@ -24,18 +26,13 @@ export default function SectionStudentList() {
 
   // 2. Fetch Students for this section
   const { students, loading: studentsLoading } = useSectionStudents(
-    section?._id
+    section?._id,
+    semester
   );
+
+  console.log(students);
 
   const loading = sectionLoading || studentsLoading;
-
-  const filteredStudents = students.filter(
-    (student) =>
-      `${student.profile.firstName} ${student.profile.lastName}`
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      student.studentId.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   if (loading) {
     return (
@@ -77,13 +74,24 @@ export default function SectionStudentList() {
               <Users className="w-5 h-5 text-primary" />
               {section.gradeLevel} - {section.name}
             </h3>
-            <p className="text-xs text-gray-500 mt-1 grow-0!">
-              {students.length} Students Enrolled
-            </p>
+            <div className="flex flex-col items-end gap-1">
+              <select
+                className="select select-bordered select-xs w-full max-w-xs"
+                value={semester}
+                onChange={(e) => setSemester(Number(e.target.value))}
+              >
+                <option value={Semester.First}>1st Semester</option>
+                <option value={Semester.Second}>2nd Semester</option>
+                <option value={Semester.Third}>3rd Semester</option>
+              </select>
+              <p className="text-xs text-gray-500 grow-0!">
+                {students.length} Students Enrolled
+              </p>
+            </div>
           </div>
         </div>
 
-        <div className="min-h-[400px] overflow-y-auto pr-2">
+        <div className="min-h-[400px] max-h-[400px] overflow-y-auto pr-2">
           <div className="relative mb-4">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
@@ -96,8 +104,8 @@ export default function SectionStudentList() {
           </div>
 
           <div className="space-y-4">
-            {filteredStudents.length > 0 ? (
-              filteredStudents.map((student) => (
+            {students.length > 0 ? (
+              students.map((student) => (
                 <div
                   key={student._id}
                   className="p-4 rounded-lg border-l-4 border-primary bg-base-200 relative group"
@@ -106,14 +114,15 @@ export default function SectionStudentList() {
                     <div className="avatar placeholder">
                       <div className="bg-neutral text-neutral-content rounded-full w-10">
                         <span className="text-sm font-bold">
-                          {student.profile.firstName[0]}
-                          {student.profile.lastName[0]}
+                          {student.profile?.firstName[0]}
+                          {student.profile?.lastName[0]}
                         </span>
                       </div>
                     </div>
                     <div>
                       <div className="font-bold text-base-content">
-                        {student.profile.lastName}, {student.profile.firstName}
+                        {student.profile?.lastName},{" "}
+                        {student.profile?.firstName}
                       </div>
                       <div className="text-xs text-base-content/60">
                         {student.studentId}

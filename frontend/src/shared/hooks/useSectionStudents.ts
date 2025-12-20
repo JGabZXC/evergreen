@@ -1,17 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { getSectionStudents } from "../services/sectionService";
+import type { Student } from "../../features/dashboard-teacher/types";
 
-export interface Student {
-  _id: string;
-  studentId: string;
-  profile: {
-    firstName: string;
-    lastName: string;
-  };
-}
-
-export const useSectionStudents = (sectionId?: string) => {
-  const [students, setStudents] = useState<Student[]>([]);
+export const useSectionStudents = (sectionId?: string, semester?: number) => {
+  const [students, setStudents] = useState<Student[] | []>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -23,7 +15,8 @@ export const useSectionStudents = (sectionId?: string) => {
       setError(null);
 
       try {
-        const data = await getSectionStudents(sectionId);
+        const data = await getSectionStudents(sectionId, semester);
+
         setStudents(data);
       } catch (err: any) {
         if (err.name !== "CanceledError" && err.name !== "AbortError") {
@@ -35,7 +28,7 @@ export const useSectionStudents = (sectionId?: string) => {
         setLoading(false);
       }
     },
-    [sectionId]
+    [sectionId, semester]
   );
 
   useEffect(() => {

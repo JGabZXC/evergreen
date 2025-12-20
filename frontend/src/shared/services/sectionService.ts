@@ -1,4 +1,5 @@
 import { apiPrivate } from "../../config/axiosPrivate";
+import type { Student } from "../../features/dashboard-teacher/types";
 import type { CreateSectionPayload, UpdateSectionPayload } from "../types";
 
 export const getAllSections = async (
@@ -51,9 +52,12 @@ export const updateSection = async (
   return response.data;
 };
 
-export const getSectionStudents = async (id: string) => {
-  const response = await apiPrivate.get(
-    `/api/registrar/sections/${id}/students`
+export const getSectionStudents = async (id: string, semester?: number) => {
+  const queryParams = new URLSearchParams();
+  if (semester) queryParams.append("semester", semester.toString());
+
+  const response = await apiPrivate.get<Student[] | []>(
+    `/api/registrar/sections/${id}/students?${queryParams.toString()}`
   );
   return response.data;
 };

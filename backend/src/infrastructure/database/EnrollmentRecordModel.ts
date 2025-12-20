@@ -34,6 +34,7 @@ const EnrollmentRecordSchema = new Schema<EnrollmentRecord & Document>(
 );
 
 EnrollmentRecordSchema.index({ studentId: 1, "subjectTaken.subjectId": 1 });
+EnrollmentRecordSchema.index({ section: 1, semester: 1 });
 
 export const EnrollmentRecordModel = mongoose.model<
   EnrollmentRecord & Document

@@ -21,10 +21,13 @@ export enum SubjectStatus {
 export interface Student {
   _id: string;
   studentId: string;
-  course: Course;
+  course: Course | string;
   userId: string;
   profile?: StudentProfile;
   isActive: boolean;
+
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface SubjectTaken {

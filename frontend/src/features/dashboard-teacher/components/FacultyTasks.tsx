@@ -21,7 +21,7 @@ export default function FacultyTasks({ tasks }: { tasks: TaskItem[] }) {
           </div>
         </div>
 
-        <div className="space-y-2 min-h-[400px] overflow-y-auto pr-2">
+        <div className="space-y-2 min-h-[400px] max-h-[400px] overflow-y-auto pr-2">
           {tasks.map((task, index) => (
             <motion.div
               key={task.id}

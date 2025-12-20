@@ -19,11 +19,11 @@ interface UpcomingClassesProps {
   selectedSemester: Semester;
 }
 
-const UpcomingClasses = ({
+function UpcomingClasses({
   schedules,
   loading,
   selectedSemester,
-}: UpcomingClassesProps) => {
+}: UpcomingClassesProps) {
   const [upcoming, setUpcoming] = useState<UpcomingClass[]>([]);
 
   useEffect(() => {
@@ -127,11 +127,13 @@ const UpcomingClasses = ({
     return (
       <div className="card bg-base-100 shadow-xl">
         <div className="card-body">
-          <h3 className="card-title text-lg flex items-center gap-2">
+          <h3 className="card-title text-lg flex items-center gap-2 mb-6">
             <Calendar className="w-5 h-5 text-primary" />
             Upcoming Classes
           </h3>
-          <p className="text-gray-500">No upcoming classes found.</p>
+          <div className="min-h-[400px] max-h-[400px] overflow-y-auto pr-2">
+            <p className="text-gray-500">No upcoming classes found.</p>
+          </div>
         </div>
       </div>
     );
@@ -186,6 +188,6 @@ const UpcomingClasses = ({
       </div>
     </motion.div>
   );
-};
+}
 
 export default UpcomingClasses;

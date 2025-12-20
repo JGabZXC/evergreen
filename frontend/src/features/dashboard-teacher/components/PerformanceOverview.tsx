@@ -22,7 +22,7 @@ export default function PerformanceOverview() {
           Student Performance
         </h3>
 
-        <div className="min-h-[400px] overflow-y-auto flex flex-col justify-between pr-2">
+        <div className="min-h-[400px] max-h-[400px] overflow-y-auto flex flex-col justify-between pr-2">
           <div className="space-y-4">
             {performanceData.map((item, index) => (
               <div key={index}>

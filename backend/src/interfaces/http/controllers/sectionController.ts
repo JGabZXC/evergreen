@@ -29,7 +29,7 @@ export const createSection = async (
       errors.adviserId = "Adviser ID is required and must be a string";
     } else if (
       adviserId !== "TBA" &&
-      (await StaffModel.findOne({ adviserId })) === null
+      (await StaffModel.findOne({ employeeId: adviserId })) === null
     ) {
       errors.adviserId = "Adviser ID does not exist";
     }
@@ -158,13 +158,24 @@ export const updateSection = async (
 
 export const getSectionStudents = async (req: Request, res: Response) => {
   try {
+    const { semester }: { semester?: string } = req.query;
     const { id } = req.params;
 
     if (!id || typeof id !== "string") {
       throw new BadRequestError("Section ID is required and must be a string");
     }
 
-    const students = await getStudentsBySectionUseCase.execute(id);
+    if (semester && isNaN(Number(semester))) {
+      throw new BadRequestError("Semester must be a number");
+    }
+
+    const semesterNumber = semester ? Number(semester) : undefined;
+    console.log(semesterNumber);
+
+    const students = await getStudentsBySectionUseCase.execute(
+      id,
+      semesterNumber
+    );
     res.status(HttpStatus.OK).json(students);
   } catch (error: any) {
     res.status(500).json({ message: error.message });

@@ -147,7 +147,7 @@ export default function HomeroomAnnouncements() {
           </button>
         </div>
 
-        <div className="space-y-4 min-h-[400px] overflow-y-auto pr-2">
+        <div className="space-y-4 min-h-[400px] max-h-[400px] overflow-y-auto pr-2">
           {announcements.length > 0 ? (
             announcements.map((announcement) => (
               <div

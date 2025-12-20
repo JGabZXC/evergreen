@@ -39,7 +39,7 @@ export default function RecentAnnouncements() {
           Announcements
         </h3>
 
-        <div className="space-y-4 min-h-[400px] overflow-y-auto pr-2">
+        <div className="space-y-4 min-h-[400px] max-h-[400px] overflow-y-auto pr-2">
           {announcements.map((item) => (
             <div
               key={item.id}

@@ -23,7 +23,14 @@ export const createAnnouncement = async (
   res: Response
 ) => {
   try {
-    const { title, content, targetSectionId, isImportant, academicYear, semester } = req.body;
+    const {
+      title,
+      content,
+      targetSectionId,
+      isImportant,
+      academicYear,
+      semester,
+    } = req.body;
     const employeeId = req.user?.employeeId;
 
     if (!employeeId) {

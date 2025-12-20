@@ -194,14 +194,10 @@ export interface SubjectSchedule {
 export interface StudentProfile {
   firstName: string;
   lastName: string;
-  middleName?: string;
   dateOfBirth: string;
-  gender: "Male" | "Female" | "Other";
-  civilStatus: "Single" | "Married" | "Widowed" | "Separated";
-  email: string;
   phoneNumber: string;
   address: Address;
-  guardian: Guardian;
+  guardianDetails: Guardian;
 }
 
 // --- API Response Interfaces ---

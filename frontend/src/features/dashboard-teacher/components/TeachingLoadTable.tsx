@@ -61,7 +61,7 @@ const TeachingLoadTable = ({
               </select>
             </div>
           </div>
-          <div className="overflow-x-auto min-h-[400px] overflow-y-auto">
+          <div className="overflow-x-auto min-h-[400px] max-h-[400px] overflow-y-auto">
             <table className="table table-zebra w-full">
               <thead>
                 <tr className="bg-base-200 sticky top-0 z-10">
