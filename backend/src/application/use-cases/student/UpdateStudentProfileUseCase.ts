@@ -1,9 +1,9 @@
 import { StudentModel } from "../../../infrastructure/database/StudentModel";
 import { NotFoundError } from "../../../interfaces/http/middleware/HttpErrors";
-import { StudentProfile } from "../../../domain/Student";
+import { BaseStudentProfile } from "../../../domain/Student";
 
 export class UpdateStudentProfileUseCase {
-  async execute(userId: string, profileData: Partial<StudentProfile>) {
+  async execute(userId: string, profileData: Partial<BaseStudentProfile>) {
     const student = await StudentModel.findOne({ userId });
 
     if (!student) {
@@ -16,7 +16,7 @@ export class UpdateStudentProfileUseCase {
     // But usually the form sends the whole profile or we merge it.
 
     if (!student.profile) {
-      student.profile = profileData as StudentProfile;
+      student.profile = profileData as BaseStudentProfile;
     } else {
       // Merge
       student.profile = { ...student.profile, ...profileData };

@@ -8,12 +8,18 @@ import {
 import { UpdateStudentProfileUseCase } from "../../../application/use-cases/student/UpdateStudentProfileUseCase";
 import { BadRequestError, NotFoundError } from "../middleware/HttpErrors";
 import { HttpStatus } from "../../../domain/HttpStatus";
+import { FilterQuery } from "mongoose";
+import {
+  GetStudentScheduleFilter,
+  GetStudentScheduleUseCase,
+} from "../../../application/use-cases/student/GetStudentScheduleUseCase";
 
 const getGrades = new GetStudentGradesUseCase();
 
 const getAllStudentUseCase = new GetAllStudentUseCase();
 const getStudentUseCase = new GetStudentUseCase();
 const updateStudentProfileUseCase = new UpdateStudentProfileUseCase();
+const getStudentScheduleUseCase = new GetStudentScheduleUseCase();
 
 export const getStudents = async (req: Request, res: Response) => {
   let {
@@ -121,6 +127,34 @@ export const getMyProfile = async (
     }
 
     res.status(HttpStatus.OK).json(result.students[0]);
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getStudentSchedule = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    // TODO: Add studentId for registrar view later
+    const { studentId } = req.user!;
+    const { schoolYear, semester } = req.query;
+
+    const filter: FilterQuery<GetStudentScheduleFilter> = {};
+    filter.studentId = studentId!;
+
+    if (schoolYear && typeof schoolYear === "string") {
+      filter.schoolYear = schoolYear;
+    }
+
+    if (semester && !isNaN(Number(semester))) {
+      filter.semester = Number(semester);
+    }
+
+    const { schedules, enrolledSubjects } =
+      await getStudentScheduleUseCase.execute(filter);
+    res.status(HttpStatus.OK).json({ schedules, enrolledSubjects });
   } catch (error) {
     throw error;
   }

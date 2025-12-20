@@ -6,12 +6,16 @@ import {
   getStudents,
   updateProfile,
   getMyProfile,
+  getStudentSchedule,
 } from "../controllers/studentController";
 
 const router = Router();
 
-router.patch("/profile", authGuard, isStudent, updateProfile);
-router.get("/profile", authGuard, isStudent, getMyProfile);
+router
+  .route("/profile")
+  .get(authGuard, isStudent, getMyProfile)
+  .patch(authGuard, isStudent, updateProfile);
+router.route("/my-schedule").get(authGuard, isStudent, getStudentSchedule);
 router.route("/my-grades").get(authGuard, isStudent, getMyGrades);
 
 router.get("/", authGuard, isRegistrar, getStudents);
