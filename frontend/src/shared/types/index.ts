@@ -43,9 +43,14 @@ export enum RoomStatus {
 export interface Address {
   street: string;
   city: string;
-  province: string;
-  postalCode: string;
-  country: string;
+  state: string;
+  zipCode: number;
+}
+
+export interface Guardian {
+  name: string;
+  contact: string;
+  relation: string;
 }
 
 export interface Section {
@@ -69,12 +74,6 @@ export interface CreateSectionPayload {
 }
 
 export interface UpdateSectionPayload extends Partial<CreateSectionPayload> {}
-
-export interface Guardian {
-  name: string;
-  relationship: string;
-  contactNumber: string;
-}
 
 export interface TimeSlot {
   _id: string;
@@ -198,6 +197,16 @@ export interface StudentProfile {
   phoneNumber: string;
   address: Address;
   guardianDetails: Guardian;
+  avatarUrl?: string;
+}
+
+export interface Announcement {
+  _id: string;
+  title: string;
+  content: string;
+  date: string;
+  author: Staff | string;
+  category?: string;
 }
 
 // --- API Response Interfaces ---
@@ -206,4 +215,71 @@ export interface PaginatedResponse {
   totalDocs: number;
   totalPages: number;
   page: number; // Added page
+}
+
+export enum SubjectStatus {
+  Ongoing = "Ongoing",
+  Passed = "Passed",
+  Failed = "Failed",
+  Dropped = "Dropped",
+  Credited = "Credited",
+  Withdrawn = "Withdrawn",
+}
+
+export enum EnrollmentStatus {
+  Enrolled = "Enrolled",
+  Passed = "Passed",
+  Failed = "Failed",
+  Dropped = "Dropped",
+  Transferred = "Transferred",
+  Graduated = "Graduated",
+}
+
+export interface EnrollmentRecord {
+  _id: string;
+  studentId: string;
+  gradeLevel: GradeLevel;
+  enrollmentDate: string;
+  status: EnrollmentStatus;
+  schoolYear: string;
+  section?: Section | string;
+  semester: Semester;
+}
+
+export interface Student {
+  _id: string;
+  studentId: string;
+  course: Course | string;
+  userId: string;
+  profile?: StudentProfile;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  latestEnrollment?: EnrollmentRecord;
+}
+
+export interface SubjectTaken {
+  _id: string;
+  subject: Subject | string;
+  teacherId: string;
+  studentId: string;
+  classroomId: Room | string;
+  schoolYear: string;
+  semester: Semester;
+
+  // Grades
+  prelim?: number;
+  midterm?: number;
+  final?: number;
+  finalGrade?: number;
+  remarks?: string;
+  status: SubjectStatus;
+
+  createdAt?: string;
+  updatedAt?: string;
+
+  // Virtuals/Populated
+  teacher?: Staff;
+  student?: Student;
+  schedule?: string;
 }

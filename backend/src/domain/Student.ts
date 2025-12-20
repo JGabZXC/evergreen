@@ -21,19 +21,14 @@ export interface BaseStudentProfile {
   dateOfBirth: Date;
   phoneNumber?: string;
   address?: Address;
-
   guardianDetails?: GuardianDetails;
-}
-
-export interface StudentProfile extends BaseStudentProfile {
-  // Embedded
 }
 
 export interface BaseStudent {
   userId: Schema.Types.ObjectId;
   studentId: string;
   course: Schema.Types.ObjectId;
-  profile?: StudentProfile;
+  profile?: BaseStudentProfile;
 }
 
 export interface Student extends BaseStudent {

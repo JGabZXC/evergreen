@@ -1,5 +1,5 @@
 import { Schema } from "mongoose";
-import { TeacherDetails } from "./TeacherDetails";
+import { BaseTeacherDetails } from "./TeacherDetails";
 
 export interface Address {
   street: string;
@@ -16,7 +16,7 @@ export interface BaseStaffProfile {
   address?: Address;
   department: string;
   hireDate: Date;
-  teacherDetails?: TeacherDetails;
+  teacherDetails?: BaseTeacherDetails;
 }
 
 export interface StaffProfile extends BaseStaffProfile {

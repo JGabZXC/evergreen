@@ -1,4 +1,3 @@
-// backend/src/interfaces/http/controllers/studentController.ts
 import { Response, Request } from "express";
 import { AuthenticatedRequest } from "../middleware/authGuard";
 import { GetStudentGradesUseCase } from "../../../application/use-cases/student/GetStudentGradesUseCase";
@@ -6,13 +5,15 @@ import {
   GetAllStudentUseCase,
   GetStudentUseCase,
 } from "../../../application/use-cases/student";
-import { BadRequestError } from "../middleware/HttpErrors";
+import { UpdateStudentProfileUseCase } from "../../../application/use-cases/student/UpdateStudentProfileUseCase";
+import { BadRequestError, NotFoundError } from "../middleware/HttpErrors";
 import { HttpStatus } from "../../../domain/HttpStatus";
 
 const getGrades = new GetStudentGradesUseCase();
 
 const getAllStudentUseCase = new GetAllStudentUseCase();
 const getStudentUseCase = new GetStudentUseCase();
+const updateStudentProfileUseCase = new UpdateStudentProfileUseCase();
 
 export const getStudents = async (req: Request, res: Response) => {
   let {
@@ -78,6 +79,48 @@ export const getMyGrades = async (req: AuthenticatedRequest, res: Response) => {
     const grades = await getGrades.execute(studentId!);
 
     res.status(200).json(grades);
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const updateProfile = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    const userId = req.user!._id;
+    const profileData = req.body;
+    const result = await updateStudentProfileUseCase.execute(
+      userId,
+      profileData
+    );
+    res.status(HttpStatus.OK).json(result);
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getMyProfile = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    const { studentId } = req.user!;
+
+    // Use GetAllStudentUseCase to get the aggregate with profile and enrollment
+    const result = await getAllStudentUseCase.execute(
+      { studentId },
+      0,
+      1,
+      "all"
+    );
+
+    if (result.students.length === 0) {
+      throw new NotFoundError("Student profile not found");
+    }
+
+    res.status(HttpStatus.OK).json(result.students[0]);
   } catch (error) {
     throw error;
   }

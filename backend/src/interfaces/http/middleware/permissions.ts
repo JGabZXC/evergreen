@@ -5,6 +5,7 @@ import { ForbiddenError } from "./HttpErrors";
 export function requireRole(...roles: string[]) {
   return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     if (!req.user || !roles.includes(req.user.role)) {
+      console.log("User role:", req.user?.role);
       throw new ForbiddenError("Insufficient permissions");
     }
     next();

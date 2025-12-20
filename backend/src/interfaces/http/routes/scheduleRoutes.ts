@@ -6,7 +6,7 @@ import {
   createSchedule,
   updateSchedule,
 } from "../controllers/scheduleController";
-import { StaffRole } from "../../../domain/types/Role";
+import { StaffRole, StudentRole } from "../../../domain/types/Role";
 
 const router = Router();
 
@@ -14,7 +14,7 @@ router
   .route("/")
   .get(
     authGuard,
-    requireRole(StaffRole.Registrar, StaffRole.Teacher),
+    requireRole(StaffRole.Registrar, StaffRole.Teacher, StudentRole.Student),
     getSchedule
   )
   .post(authGuard, isRegistrar, createSchedule);

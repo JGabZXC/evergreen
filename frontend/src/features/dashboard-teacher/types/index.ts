@@ -4,56 +4,19 @@ import type {
   Semester,
   Subject,
   Teacher,
+  Student,
+  SubjectTaken,
+  SubjectStatus,
+  StudentProfile,
 } from "../../../shared/types/index.ts";
-import type { StudentProfile } from "../../dashboard-student/types/index.ts";
 
 // --- Enums ---
-export enum SubjectStatus {
-  Ongoing = "Ongoing",
-  Passed = "Passed",
-  Failed = "Failed",
-  Dropped = "Dropped",
-  Credited = "Credited",
-  Withdrawn = "Withdrawn",
-}
+// SubjectStatus moved to shared
 
 // --- Domain Interfaces ---
-export interface Student {
-  _id: string;
-  studentId: string;
-  course: Course | string;
-  userId: string;
-  profile?: StudentProfile;
-  isActive: boolean;
+// Student moved to shared
 
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface SubjectTaken {
-  _id: string;
-  subject: Subject;
-  teacherId: string; // "TBA" or ObjectId
-  studentId: string;
-  classroomId: Room; // Room
-  schoolYear: string;
-  semester: Semester;
-
-  // Grades
-  prelim?: number;
-  midterm?: number;
-  final: number;
-  finalGrade: number;
-  remarks?: string;
-  status: SubjectStatus;
-
-  createdAt: string;
-  updatedAt: string;
-
-  // VIRTUALS
-  teacher?: Teacher;
-  student?: Student;
-}
+// SubjectTaken moved to shared
 
 // --- OLD ---
 export interface TeacherProfile {
