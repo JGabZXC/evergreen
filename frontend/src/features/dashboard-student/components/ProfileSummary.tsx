@@ -1,6 +1,10 @@
-import { type Student } from "../../../shared/types";
+import type { StudentAggregate } from "../types";
 
-export default function ProfileSummary({ student }: { student: Student }) {
+export default function ProfileSummary({
+  student,
+}: {
+  student: StudentAggregate;
+}) {
   const profile = student.profile;
 
   if (!profile) {
@@ -16,7 +20,7 @@ export default function ProfileSummary({ student }: { student: Student }) {
   }
 
   const courseName =
-    typeof student.course === "string" ? student.course : student.course.name;
+    typeof student.course === "string" ? student.course : student.course?.name;
 
   return (
     <div className="card bg-base-100 shadow-md border border-base-200 dark:border-white/10">

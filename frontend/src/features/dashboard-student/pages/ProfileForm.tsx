@@ -1,10 +1,12 @@
 import { useState, useEffect, type ChangeEvent, type FormEvent } from "react";
 import { useNavigate } from "react-router";
-import { studentService } from "../services/studentService";
 import type { StudentProfile } from "../../../shared/types";
+import { useStudentProfile } from "../hooks/useStudentProfile";
+import { updateProfile } from "../services/studentService";
 
 export function ProfileForm() {
   const navigate = useNavigate();
+  const { student } = useStudentProfile();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<StudentProfile>({
     firstName: "",
@@ -25,14 +27,10 @@ export function ProfileForm() {
   });
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      const data = await studentService.getDashboardData();
-      if (data.student.profile) {
-        setFormData(data.student.profile);
-      }
-    };
-    fetchProfile();
-  }, []);
+    if (student?.profile) {
+      setFormData(student.profile);
+    }
+  }, [student]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -54,7 +52,7 @@ export function ProfileForm() {
     e.preventDefault();
     setLoading(true);
     try {
-      await studentService.updateProfile(formData);
+      await updateProfile(formData);
       navigate("/dashboard");
     } catch (error) {
       console.error("Failed to update profile", error);

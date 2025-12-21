@@ -6,6 +6,7 @@ import type {
   Room,
   RoomStatus,
   RoomType,
+  Section,
   Semester,
   Staff,
   StudentProfile,
@@ -25,7 +26,7 @@ export interface EnrollmentRecord {
   gradeLevel: GradeLevel;
   status: string; // e.g., "Enrolled", "Dropped"
   enrollmentDate: string;
-  classroomId?: string; // ID Reference
+  section?: string | Section; // ID Reference
 }
 
 // Matches the aggregation result from GetAllStudentUseCase

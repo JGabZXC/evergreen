@@ -114,7 +114,6 @@ export const getMyProfile = async (
   try {
     const { studentId } = req.user!;
 
-    // Use GetAllStudentUseCase to get the aggregate with profile and enrollment
     const result = await getAllStudentUseCase.execute(
       { studentId },
       0,

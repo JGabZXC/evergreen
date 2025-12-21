@@ -7,6 +7,7 @@ import { SubjectScheduleModel } from "../../../infrastructure/database/SubjectSc
 import { SubjectTakenDTO } from "../../../interfaces/http/types/SubjectTakenDTO";
 import { SubjectScheduleDTO } from "../../../interfaces/http/types/SubjectScheduleDTO";
 import { StaffDTO } from "../../../interfaces/http/types/StaffDTO";
+import { RoomDTO } from "../../../interfaces/http/types/RoomDTO";
 
 export interface GetStudentScheduleFilter {
   studentId: string;
@@ -22,8 +23,17 @@ type SubjectTakenScheduleDTO = Omit<
   classroomId: string;
 };
 
-type SubjectScheduleWithTeacherDTO = Omit<SubjectScheduleDTO, "subject"> & {
+type SubjectScheduleWithTeacherDTO = Omit<
+  SubjectScheduleDTO,
+  "subject" | "schedules"
+> & {
   subject: string;
+  schedules: {
+    day: string;
+    startTime: string;
+    endTime: string;
+    room: RoomDTO;
+  };
 };
 
 export class GetStudentScheduleUseCase {
@@ -45,6 +55,7 @@ export class GetStudentScheduleUseCase {
       ...(filter.semester && { semester: filter.semester }),
     })
       .populate({ path: "teacher", populate: { path: "userId" } })
+      .populate("schedules.room")
       .lean<SubjectScheduleWithTeacherDTO[]>();
 
     return { schedules, enrolledSubjects };
