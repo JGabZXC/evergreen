@@ -95,6 +95,7 @@ export interface EnrollPayload {
 export interface CreateSchedulePayload {
   subject: string;
   teacherId: string; // "TBA" or Employee ID
+  sectionId?: string; // Added sectionId
   schoolYear: string;
   semester: Semester;
   schedules: Omit<TimeSlot, "_id">[];

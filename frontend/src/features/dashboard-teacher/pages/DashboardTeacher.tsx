@@ -20,6 +20,7 @@ export function DashboardTeacher() {
   const { schedules, loading } = useTeacherSchedule();
   const [selectedClass, setSelectedClass] = useState<{
     scheduleId: string;
+    subjectId: string;
     subjectName: string;
     semester: Semester;
   } | null>(null);
@@ -91,6 +92,7 @@ export function DashboardTeacher() {
               <Gradebook
                 key="gradebook"
                 scheduleId={selectedClass.scheduleId}
+                subjectId={selectedClass.subjectId}
                 subjectName={selectedClass.subjectName}
                 semester={selectedClass.semester}
                 onBack={() => setSelectedClass(null)}
@@ -102,8 +104,18 @@ export function DashboardTeacher() {
                 loading={loading}
                 selectedSemester={currentSemester}
                 onSemesterChange={setCurrentSemester}
-                onSelectClass={(scheduleId, subjectName, semester) =>
-                  setSelectedClass({ scheduleId, subjectName, semester })
+                onSelectClass={(
+                  scheduleId,
+                  subjectId,
+                  subjectName,
+                  semester
+                ) =>
+                  setSelectedClass({
+                    scheduleId,
+                    subjectId,
+                    subjectName,
+                    semester,
+                  })
                 }
               />
             )}

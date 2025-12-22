@@ -189,8 +189,15 @@ export default function SubjectScheduling() {
                         {typeof schedule.subject === "object"
                           ? schedule.subject.subjectId
                           : "N/A"}
-                      </span>
-                      {!isAssigned && (
+                      </span>                      <span
+                        className={`badge badge-sm ${
+                          schedule.section ? "badge-secondary" : "badge-outline"
+                        }`}
+                      >
+                        {schedule.section
+                          ? schedule.section.name
+                          : "Mixed Section"}
+                      </span>                      {!isAssigned && (
                         <span className="text-[10px] font-bold text-warning uppercase tracking-wider">
                           Unassigned
                         </span>
@@ -330,6 +337,25 @@ function ScheduleDetailModal({
 
         {/* Body */}
         <div className="p-6 overflow-y-auto">
+          {/* Section Details */}
+          <div className="mb-6">
+            <h3 className="text-xs font-bold text-base-content/50 uppercase tracking-wider mb-3">
+              Section Details
+            </h3>
+            <div className="p-4 bg-base-200/50 rounded-xl">
+              <p className="font-bold text-base">
+                {schedule.section
+                  ? schedule.section.name
+                  : "Mixed / Open Section"}
+              </p>
+              {schedule.section && (
+                <p className="text-xs text-base-content/60">
+                  Grade {schedule.section.gradeLevel}
+                </p>
+              )}
+            </div>
+          </div>
+
           {/* Teacher Section */}
           <div className="mb-6">
             <h3 className="text-xs font-bold text-base-content/50 uppercase tracking-wider mb-3">

@@ -2,11 +2,10 @@ import type {
   ScheduleResponse,
   SubjectResponse,
   TeacherResponse,
-  Section,
   SectionResponse,
 } from "../types";
 import { apiPrivate } from "../../../config/axiosPrivate";
-import type { Subject, Teacher } from "../../../shared/types/index.ts";
+import type { Section, Subject, Teacher } from "../../../shared/types/index.ts";
 
 export const getSchedules = async (
   params: {
@@ -58,7 +57,7 @@ export const getSectionsOption = async (
   signal?: AbortSignal
 ): Promise<Section[]> => {
   const response = await apiPrivate.get<SectionResponse>(
-    "/api/registrar/classroom?limit=100",
+    "/api/registrar/sections?limit=100",
     { signal }
   );
   return response.data.sections;

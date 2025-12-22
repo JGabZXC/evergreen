@@ -22,7 +22,7 @@ export const getSchedule = async (req: AuthenticatedRequest, res: Response) => {
     limit = 10,
     schoolYear,
     semester,
-    classroomId,
+    sectionId,
     teacherId,
     subjectId,
     room,
@@ -53,7 +53,7 @@ export const getSchedule = async (req: AuthenticatedRequest, res: Response) => {
   }
   if (schoolYear) filter.schoolYear = schoolYear as string;
   if (semester) filter.semester = Number(semester);
-  if (classroomId) filter.classroomId = classroomId as string;
+  if (sectionId) filter.sectionId = sectionId as string;
   if (teacherId) filter.teacherId = teacherId as string;
   if (subjectId) filter.subjectId = subjectId as string;
   if (room) filter.room = room as string;

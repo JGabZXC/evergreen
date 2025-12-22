@@ -5,11 +5,18 @@ import { StaffRole, StudentRole } from "../../../domain/types/Role";
 import {
   getSubjectTaken,
   updateSubjectTaken,
+  batchGradeSubjectTaken,
 } from "../controllers/subjectTakenController";
 
 const router = Router();
 
 router.use(authGuard);
+
+router.patch(
+  "/batch-grade",
+  requireRole(StaffRole.Registrar, StaffRole.Teacher),
+  batchGradeSubjectTaken
+);
 
 router
   .route("/")

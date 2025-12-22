@@ -10,11 +10,11 @@ const TimeSlotSchema = new Schema({
 
 const SubjectScheduleSchema = new Schema<SubjectSchedule & Document>(
   {
-    // classroomId: {
-    //   type: Schema.Types.ObjectId,
-    //   ref: "Section", // Changed from Classroom to Section as per SectionModel
-    //   required: true,
-    // },
+    sectionId: {
+      type: Schema.Types.ObjectId,
+      ref: "Section",
+      required: false, // Changed to false to support mixed/open classes
+    },
     subject: { type: Schema.Types.ObjectId, ref: "Subject", required: true },
     teacherId: { type: String, default: "TBA" },
     schedules: [TimeSlotSchema],
@@ -28,6 +28,13 @@ SubjectScheduleSchema.virtual("teacher", {
   ref: "Staff",
   localField: "teacherId",
   foreignField: "employeeId",
+  justOne: true,
+});
+
+SubjectScheduleSchema.virtual("section", {
+  ref: "Section",
+  localField: "sectionId",
+  foreignField: "_id",
   justOne: true,
 });
 

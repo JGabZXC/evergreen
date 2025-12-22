@@ -16,6 +16,7 @@ import { useSubjects } from "../hooks/useSubjects";
 import { useTeachers } from "../hooks/useTeachers";
 import { useRooms } from "../hooks/useRooms";
 import { useCourses } from "../hooks/useCourses";
+import { useScheduleOptions } from "../hooks/useScheduleOptions";
 import type { CreateSchedulePayload } from "../types";
 import {
   getCurrentSchoolYear,
@@ -74,11 +75,13 @@ export default function AddScheduleModal({
 
   const { teachers, loading: loadingTeachers } = useTeachers(1, 100, true);
   const { courses, loading: loadingCourses } = useCourses(1, 100);
+  const { sections, loadingOptions } = useScheduleOptions(isOpen);
 
   const [selectedCourseId, setSelectedCourseId] = useState("");
   const [formData, setFormData] = useState({
     subject: "",
     teacherId: "",
+    sectionId: "", // Added sectionId
     schoolYear: getCurrentSchoolYear(),
     semester: 1,
   });
@@ -113,6 +116,7 @@ export default function AddScheduleModal({
           initialData?.teacherId === "TBA"
             ? "TBA"
             : initialData?.teacher?.employeeId || "TBA",
+        sectionId: initialData.sectionId || "", // Populate sectionId
         schoolYear: initialData.schoolYear,
         semester: Number(initialData.semester),
       });
@@ -132,7 +136,8 @@ export default function AddScheduleModal({
       // Reset form
       setFormData({
         subject: "",
-        teacherId: "",
+        tectionId: "", // Reset sectionId
+        seacherId: "",
         schoolYear: getCurrentSchoolYear(),
         semester: 1,
       });
@@ -360,6 +365,7 @@ export default function AddScheduleModal({
     const cleanedSchedules = schedules.map(({ localId, ...rest }) => rest);
     const payload = {
       ...formData,
+      sectionId: formData.sectionId || undefined, // Pass sectionId
       schedules: cleanedSchedules,
     };
     onSave(payload);
@@ -606,6 +612,29 @@ export default function AddScheduleModal({
                       </option>
                     ))}
                     <option value="TBA">To Be Announced</option>
+                  </select>
+                </div>
+
+                <div className="form-control">
+                  <label className="label font-medium">
+                    Section (Optional)
+                    <span className="label-text-alt text-gray-500 ml-2">
+                      Leave empty for Mixed/Open Class
+                    </span>
+                  </label>
+                  <select
+                    className="select select-bordered w-full"
+                    value={formData.sectionId}
+                    onChange={(e) =>
+                      setFormData({ ...formData, sectionId: e.target.value })
+                    }
+                  >
+                    <option value="">Mixed / Open Class</option>
+                    {sections.map((s) => (
+                      <option key={s._id} value={s._id}>
+                        {s.name} ({s.gradeLevel})
+                      </option>
+                    ))}
                   </select>
                 </div>
 

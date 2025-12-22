@@ -5,7 +5,7 @@ import { SubjectScheduleDTO } from "../../../interfaces/http/types/SubjectSchedu
 interface FilterSchedule {
   schoolYear?: string;
   semester?: number;
-  classroomId?: string; // Filter by Section
+  sectionId?: string; // Filter by Section
   teacherId?: string; // Filter by Teacher
   subjectId?: string; // Filter by Subject
   room?: string; // Filter by Physical Room (New)
@@ -24,7 +24,7 @@ export class GetAllScheduleUseCase {
     const query: Record<string, string | number> = {};
     if (filters.schoolYear) query.schoolYear = filters.schoolYear;
     if (filters.semester) query.semester = filters.semester;
-    if (filters.classroomId) query.classroomId = filters.classroomId;
+    if (filters.sectionId) query.sectionId = filters.sectionId;
     if (filters.teacherId) query.teacherId = filters.teacherId;
     if (filters.subjectId) query.subject = filters.subjectId;
 
@@ -37,6 +37,7 @@ export class GetAllScheduleUseCase {
         .skip(skip)
         .limit(limit)
         .populate("subject")
+        .populate("section")
         .populate({
           path: "teacher",
           populate: "userId",

@@ -8,6 +8,7 @@ import { Semester } from "../../../shared/types/index.ts";
 
 interface GradebookProps {
   scheduleId: string;
+  subjectId: string;
   subjectName: string;
   semester: Semester;
   onBack: () => void;
@@ -15,15 +16,17 @@ interface GradebookProps {
 
 const Gradebook = ({
   scheduleId,
+  subjectId,
   subjectName,
   semester,
   onBack,
 }: GradebookProps) => {
-  const { students, loading, updateGrade } = useGradebook(
+  const { students, loading, updateGrade } = useGradebook({
+    subjectId,
     scheduleId,
-    getCurrentSchoolYear(),
-    semester
-  );
+    schoolYear: getCurrentSchoolYear(),
+    semester,
+  });
   console.log(students);
   const [editingId, setEditingId] = useState<string | null>(null);
 

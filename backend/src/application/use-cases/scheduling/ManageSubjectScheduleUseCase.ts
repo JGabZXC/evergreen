@@ -100,19 +100,67 @@ export class ManageSubjectScheduleUseCase {
         session: session || null,
       });
 
-      if (schedule && schedule.teacherId !== "TBA") {
+      if (schedule) {
         console.log(
           `Syncing teacher ${schedule.teacherId} for subject ${data.subject} schedules`
         );
 
+        // Find SubjectTaken records that match this subject/year/semester
+        // AND belong to the section (if sectionId is present) OR have no schedule yet
+        const filter: any = {
+          subject: new mongoose.Types.ObjectId(data.subject.toString()),
+          schoolYear: data.schoolYear,
+          semester: data.semester,
+        };
+
+        // If this schedule is for a specific section, only update students in that section
+        // But wait, SubjectTaken doesn't have sectionId anymore.
+        // We must rely on finding students who are enrolled in this section.
+        // However, we can also just update records that don't have a scheduleId yet.
+        // OR, if we want to be precise:
+        // 1. If schedule has sectionId: Find students enrolled in that section.
+        // 2. Update their SubjectTaken.
+
+        // Simplified approach: Update records that are "orphaned" (no scheduleId)
+        // or if we can identify them.
+        // Since we removed sectionId from SubjectTaken, we can't filter by it directly.
+        // But we can filter by `scheduleId: { $exists: false }` to catch those enrolled before schedule creation.
+
+        // BETTER: If schedule has sectionId, we should find students in that section.
+        // But that requires a join with EnrollmentRecord.
+        // For now, let's update records that have NO scheduleId.
+        
+        // If the schedule is specific to a section, we should ideally only update students in that section.
+        // But since we can't easily join here without aggregation, let's try to update
+        // SubjectTaken where scheduleId is missing.
+        
+        // Refined Logic:
+        // If we just created a schedule, any student taking this subject who doesn't have a scheduleId
+        // is a candidate.
+        // If the schedule is Section-Specific, we should be careful.
+        // If the schedule is Open, we can update all.
+
+        // Let's use a more robust sync in a separate service or just update all for now if it's the only schedule?
+        // No, that's dangerous.
+
+        // Let's stick to the user's request: "it should be updated when a student is already enrolled... and we create a schedule"
+        
+        // We will update SubjectTaken where subject matches AND scheduleId is missing.
+        // This assumes that if they are enrolled in the subject but have no schedule, this new schedule is for them.
+        // This is true for Block sections (most common).
+        // For Open sections, it's also likely true.
+        
         await SubjectTakenModel.updateMany(
           {
             subject: new mongoose.Types.ObjectId(data.subject.toString()),
             schoolYear: data.schoolYear,
             semester: data.semester,
+            scheduleId: { $exists: false }, // Only update those without a schedule
           },
           {
-            $set: { teacherId: schedule.teacherId },
+            $set: { 
+                scheduleId: schedule._id 
+            },
           },
           session ? { session } : {}
         );

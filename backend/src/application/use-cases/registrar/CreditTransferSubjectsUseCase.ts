@@ -15,7 +15,7 @@ export class CreditTransferSubjectsUseCase {
       studentId: input.studentId,
       subject: input.subject,
       teacherId: "CREDITED",
-      classroomId: null, // No physical class attended
+      roomId: null, // No physical class attended
       schoolYear: "TRANSFERRED",
       semester: Semester.Zero, // Indicate transfer credit
       finalGrade: input.finalGrade,

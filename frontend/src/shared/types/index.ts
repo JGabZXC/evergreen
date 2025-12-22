@@ -180,6 +180,8 @@ export interface SubjectSchedule {
   _id: string;
   subject: string | Subject; // ID or Populated
   teacherId: string; // ID or Populated
+  sectionId?: string; // Optional
+  section?: Section; // Populated
   schoolYear: string;
   semester: Semester;
   schedules: TimeSlot[];
@@ -261,9 +263,8 @@ export interface Student {
 export interface SubjectTaken {
   _id: string;
   subject: Subject | string;
-  teacherId: string;
   studentId: string;
-  classroomId: Room | string;
+  scheduleId?: SubjectSchedule | string; // Populated Schedule
   schoolYear: string;
   semester: Semester;
 
@@ -279,7 +280,5 @@ export interface SubjectTaken {
   updatedAt?: string;
 
   // Virtuals/Populated
-  teacher?: Staff;
   student?: Student;
-  schedule?: string;
 }

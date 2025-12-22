@@ -6,7 +6,7 @@ export interface FilterSubjectTaken {
   subject?: string;
   studentId?: string;
   teacherId?: string;
-  classroomId?: string; // Room
+  scheduleId?: string;
   schoolYear?: string;
   semester?: string;
   status?: string;
@@ -14,13 +14,17 @@ export interface FilterSubjectTaken {
 
 export class GetAllSubjectTakenUseCase {
   async execute(filter: FilterSubjectTaken, skip = 0, limit = 10) {
+    console.log(filter);
     const [subjectTakens, totalDocs] = await Promise.all([
       SubjectTakenModel.find(filter)
         .skip(skip)
         .limit(limit)
         .populate("subject")
         .populate("student")
-        .populate("teacher")
+        .populate({
+          path: "scheduleId",
+          populate: { path: "teacher" }, // Populate teacher inside schedule
+        })
         .lean<SubjectTakenDTO[]>(),
       SubjectTakenModel.countDocuments(filter),
     ]);

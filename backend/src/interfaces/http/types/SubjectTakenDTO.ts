@@ -11,11 +11,12 @@ export type SubjectStatusDTO =
 
 export type SubjectTakenDTO = Omit<
   SubjectTaken,
-  "_id" | "createdAt" | "updatedAt" | "status" | "subject"
+  "_id" | "createdAt" | "updatedAt" | "status" | "subject" | "scheduleId"
 > & {
   _id: string;
   subject: SubjectDTO;
   status: SubjectStatusDTO;
+  scheduleId?: any; // Populated Schedule
   createdAt: Date;
   updatedAt: Date;
 };

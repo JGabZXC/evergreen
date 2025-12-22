@@ -1,12 +1,14 @@
 import { Response } from "express";
 import { AuthenticatedRequest } from "../middleware/authGuard";
-import { BadRequestError, UnauthorizedError } from "../middleware/HttpErrors";
+import { BadRequestError } from "../middleware/HttpErrors";
 import {
   GetSubjectTakenUseCase,
   UpdateSubjectTakenUseCase,
   GetAllSubjectTakenUseCase,
+  BatchGradeSubjectTakenUseCase,
 } from "../../../application/use-cases/subject_taken/index";
 import { FilterQuery } from "mongoose";
+import { SubjectScheduleModel } from "../../../infrastructure/database/SubjectScheduleModel";
 import { FilterSubjectTaken } from "../../../application/use-cases/subject_taken/GetAllSubjectTakenUseCase";
 import { StaffRole, StudentRole } from "../../../domain/types/Role";
 import { SubjectTakenDTO } from "../types/SubjectTakenDTO";
@@ -14,6 +16,7 @@ import { SubjectTakenDTO } from "../types/SubjectTakenDTO";
 const getSubjectTakenUseCase = new GetSubjectTakenUseCase();
 const getAllSubjectTakenUseCase = new GetAllSubjectTakenUseCase();
 const updateSubjectTakenUseCase = new UpdateSubjectTakenUseCase();
+const batchGradeSubjectTakenUseCase = new BatchGradeSubjectTakenUseCase();
 
 export const getSubjectTaken = async (
   req: AuthenticatedRequest,
@@ -25,7 +28,7 @@ export const getSubjectTaken = async (
     subject,
     studentId,
     teacherId,
-    classroomId,
+    scheduleId,
     schoolYear,
     semester,
     status,
@@ -74,8 +77,17 @@ export const getSubjectTaken = async (
 
       if (subject) filter.subject = subject;
       if (studentId) filter.studentId = studentId;
-      if (teacherId) filter.teacherId = teacherId;
-      if (classroomId) filter.classroomId = classroomId;
+
+      // If filtering by teacher, we must find the schedules first
+      if (teacherId) {
+        const schedules = await SubjectScheduleModel.find({ teacherId }).select(
+          "_id"
+        );
+        const scheduleIds = schedules.map((s) => s._id);
+        filter.scheduleId = { $in: scheduleIds } as any;
+      }
+
+      if (scheduleId) filter.scheduleId = scheduleId;
       if (schoolYear) filter.schoolYear = schoolYear;
       if (semester) filter.semester = semester;
       if (status) filter.status = status;
@@ -105,15 +117,8 @@ export const updateSubjectTaken = async (
   res: Response
 ) => {
   const { id } = req.params;
-  let {
-    subject,
-    teacherId,
-    studentId,
-    classroomId,
-    schoolYear,
-    semester,
-    status,
-  } = req.body;
+  let { subject, studentId, scheduleId, schoolYear, semester, status } =
+    req.body;
 
   if (!id || typeof id !== "string") {
     throw new BadRequestError(
@@ -121,16 +126,11 @@ export const updateSubjectTaken = async (
     );
   }
 
-  if (req.user!.role === StaffRole.Teacher) {
-    teacherId = ""; // Ensure teacherId is not changed by a teacher
-  }
-
   try {
     const updateData: Partial<SubjectTakenDTO> = {};
     if (subject) updateData.subject = subject;
-    if (teacherId) updateData.teacherId = teacherId;
     if (studentId) updateData.studentId = studentId;
-    if (classroomId) updateData.classroomId = classroomId;
+    if (scheduleId) updateData.scheduleId = scheduleId;
     if (schoolYear) updateData.schoolYear = schoolYear;
     if (semester) updateData.semester = semester;
     if (status) updateData.status = status;
@@ -141,6 +141,25 @@ export const updateSubjectTaken = async (
     );
 
     return res.status(200).json(updatedSubjectTaken);
+  } catch (err) {
+    throw err;
+  }
+};
+
+export const batchGradeSubjectTaken = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    const { grades } = req.body;
+
+    if (!Array.isArray(grades)) {
+      throw new BadRequestError("Grades must be an array");
+    }
+
+    await batchGradeSubjectTakenUseCase.execute(grades);
+
+    return res.status(200).json({ message: "Grades updated successfully" });
   } catch (err) {
     throw err;
   }

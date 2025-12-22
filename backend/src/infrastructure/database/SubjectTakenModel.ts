@@ -5,11 +5,11 @@ import { Semester } from "../../domain/types/Semester";
 export const SubjectTakenSchema = new Schema<BaseSubjectTaken & Document>(
   {
     subject: { type: Schema.Types.ObjectId, ref: "Subject", required: true },
-    teacherId: { type: String, required: true },
     studentId: { type: String, required: true },
-    classroomId: {
+    scheduleId: {
       type: Schema.Types.ObjectId,
-      ref: "Room",
+      ref: "SubjectSchedule",
+      required: false, // Optional for credited subjects
     },
     schoolYear: { type: String, required: true },
     semester: {
@@ -34,16 +34,9 @@ export const SubjectTakenSchema = new Schema<BaseSubjectTaken & Document>(
   }
 );
 
-SubjectTakenSchema.index({ teacherId: 1 });
 SubjectTakenSchema.index({ studentId: 1 });
 SubjectTakenSchema.index({ subject: 1 });
-
-SubjectTakenSchema.virtual("teacher", {
-  ref: "Staff",
-  localField: "teacherId",
-  foreignField: "employeeId",
-  justOne: true,
-});
+SubjectTakenSchema.index({ scheduleId: 1 });
 
 SubjectTakenSchema.virtual("student", {
   ref: "Student",
@@ -52,12 +45,12 @@ SubjectTakenSchema.virtual("student", {
   justOne: true,
 });
 
-// SubjectTakenSchema.virtual("classroom", {
-//   ref: "Classroom",
-//   localField: "classroomId",
-//   foreignField: "_id",
-//   justOne: true,
-// });
+SubjectTakenSchema.virtual("schedule", {
+  ref: "SubjectSchedule",
+  localField: "scheduleId",
+  foreignField: "_id",
+  justOne: true,
+});
 
 export const SubjectTakenModel = mongoose.model(
   "SubjectTaken",

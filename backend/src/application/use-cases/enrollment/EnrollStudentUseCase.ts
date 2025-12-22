@@ -107,12 +107,26 @@ export class EnrollStudentUseCase {
       const classSchedules = await SubjectScheduleModel.find({
         semester: input.semester,
         schoolYear: input.schoolYear,
+        $or: [
+          { sectionId: section._id },
+          { sectionId: null },
+          { sectionId: { $exists: false } },
+        ],
       });
 
-      // Map SubjectID -> TeacherID
-      const scheduleMap = new Map<string, string>();
+      // Map SubjectID -> Schedule
+      // Priority: Section-Specific Schedule > Open Schedule
+      const scheduleMap = new Map<string, any>();
+      
+      // Sort so that specific sections come last (overwriting open ones)
+      classSchedules.sort((a, b) => {
+        const aHasSection = a.sectionId ? 1 : 0;
+        const bHasSection = b.sectionId ? 1 : 0;
+        return aHasSection - bHasSection;
+      });
+
       classSchedules.forEach((sched) => {
-        scheduleMap.set(sched.subject.toString(), sched.teacherId);
+        scheduleMap.set(sched.subject.toString(), sched);
       });
 
       // 7. Persistence: Create Enrollment Record
@@ -133,13 +147,13 @@ export class EnrollStudentUseCase {
 
       // 8. Persistence: Bulk Create SubjectTaken Records
       const subjectTakenDocs = subjectsToEnroll.map((subject: Subject) => {
-        const assignedTeacher =
-          scheduleMap.get(subject._id.toString()) || "TBA"; // Handle missing schedule safely
+        const schedule = scheduleMap.get(subject._id.toString());
+        const scheduleId = schedule ? schedule._id : undefined;
 
         return {
           studentId: input.studentId,
           subject: subject._id,
-          teacherId: assignedTeacher,
+          scheduleId: scheduleId,
           schoolYear: input.schoolYear,
           semester: input.semester,
           status: SubjectStatus.Ongoing,

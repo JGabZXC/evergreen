@@ -96,27 +96,8 @@ export class UpdateSubjectScheduleUseCase {
     );
 
     // 7. Sync Teacher with SubjectTaken (if teacher changed)
-    if (
-      updates.teacherId &&
-      updates.teacherId !== existingSchedule.teacherId &&
-      updates.teacherId !== "TBA"
-    ) {
-      console.log(
-        `Syncing teacher ${updates.teacherId} for subject ${existingSchedule.subject} schedules`
-      );
-
-      await SubjectTakenModel.updateMany(
-        {
-          subject: existingSchedule.subject,
-          schoolYear: existingSchedule.schoolYear,
-          semester: existingSchedule.semester,
-        },
-        {
-          $set: { teacherId: updates.teacherId },
-        },
-        session ? { session } : {}
-      );
-    }
+    // REMOVED: We no longer store teacherId in SubjectTaken.
+    // The link is dynamic via scheduleId.
 
     return updatedSchedule;
   }

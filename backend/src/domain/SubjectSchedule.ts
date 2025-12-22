@@ -10,7 +10,7 @@ export interface TimeSlot {
 }
 
 export interface BaseSubjectSchedule {
-  // classroomId: Schema.Types.ObjectId;
+  sectionId?: Schema.Types.ObjectId; // Optional: For block sections. If null, it's a mixed/open class.
   subject: Schema.Types.ObjectId;
   teacherId: string; // Employee ID
   schedules: TimeSlot[];

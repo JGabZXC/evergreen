@@ -1,6 +1,9 @@
 import { apiPrivate } from "../../config/axiosPrivate";
-import type { Student } from "../../features/dashboard-teacher/types";
-import type { CreateSectionPayload, UpdateSectionPayload } from "../types";
+import type {
+  CreateSectionPayload,
+  Student,
+  UpdateSectionPayload,
+} from "../types";
 
 export const getAllSections = async (
   page = 1,

@@ -10,6 +10,8 @@ import type {
   StudentProfile,
 } from "../../../shared/types/index.ts";
 
+export type { SubjectTaken }; // Re-export for local usage if needed
+
 // --- Enums ---
 // SubjectStatus moved to shared
 

@@ -4,15 +4,20 @@ import {
   getGrades,
   updateGrade as updateGradeService,
 } from "../services/gradeService";
-import type { SubjectTaken } from "../types";
 import { getCurrentSchoolYear } from "../../../utils/schoolYear";
-import { Semester } from "../../../shared/types/index.ts";
+import { Semester, type SubjectTaken } from "../../../shared/types/index.ts";
 
-export const useGradebook = (
-  subjectId: string,
-  schoolYear: string = getCurrentSchoolYear(),
-  semester: Semester
-) => {
+export const useGradebook = ({
+  subjectId,
+  scheduleId,
+  schoolYear = getCurrentSchoolYear(),
+  semester,
+}: {
+  subjectId: string;
+  scheduleId?: string;
+  schoolYear?: string;
+  semester: Semester;
+}) => {
   const [students, setStudents] = useState<SubjectTaken[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -20,7 +25,7 @@ export const useGradebook = (
   const fetchGrades = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await getGrades(subjectId, schoolYear, semester);
+      const data = await getGrades(subjectId, scheduleId, schoolYear, semester);
       setStudents(data);
       setError(null);
     } catch (err) {
@@ -30,7 +35,7 @@ export const useGradebook = (
     } finally {
       setLoading(false);
     }
-  }, [subjectId, schoolYear, semester]);
+  }, [subjectId, scheduleId, schoolYear, semester]);
 
   useEffect(() => {
     if (subjectId) {
