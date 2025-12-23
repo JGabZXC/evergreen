@@ -81,6 +81,8 @@ export interface TimeSlot {
   startTime: string;
   endTime: string;
   room: string | Room;
+  teacherId?: string; // Added teacherId
+  teacher?: Teacher; // Populated teacher
 }
 
 export interface Degree {
@@ -179,9 +181,9 @@ export interface Course {
 export interface SubjectSchedule {
   _id: string;
   subject: string | Subject; // ID or Populated
-  teacherId: string; // ID or Populated
-  sectionId?: string; // Optional
-  section?: Section; // Populated
+  // teacherId: string; // REMOVED
+  // sectionId?: string; // REMOVED
+  // section?: Section; // REMOVED
   schoolYear: string;
   semester: Semester;
   schedules: TimeSlot[];
@@ -189,7 +191,7 @@ export interface SubjectSchedule {
   updatedAt: string;
 
   // Virtuals populated by backend
-  teacher?: Teacher;
+  // teacher?: Teacher; // REMOVED (now in TimeSlot)
 }
 
 export interface StudentProfile {

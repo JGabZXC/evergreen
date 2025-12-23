@@ -104,30 +104,43 @@ export class EnrollStudentUseCase {
       }
 
       // 6. Fetch Schedule for Teacher Mapping
-      const classSchedules = await SubjectScheduleModel.find({
+      // Strategy:
+      // - JHS/SHS (Block): Prefer schedules in the Section's designated room.
+      // - College (Flexible): Prefer schedules with capacity (Load Balancing).
+      const isCollege = input.gradeLevel.startsWith("COL");
+
+      // Fetch all potential schedules for the subjects to enroll
+      const subjectIds = subjectsToEnroll.map((s) => s._id);
+      const allSchedules = await SubjectScheduleModel.find({
+        subject: { $in: subjectIds },
         semester: input.semester,
         schoolYear: input.schoolYear,
-        $or: [
-          { sectionId: section._id },
-          { sectionId: null },
-          { sectionId: { $exists: false } },
-        ],
-      });
+      }).lean();
 
-      // Map SubjectID -> Schedule
-      // Priority: Section-Specific Schedule > Open Schedule
-      const scheduleMap = new Map<string, any>();
-      
-      // Sort so that specific sections come last (overwriting open ones)
-      classSchedules.sort((a, b) => {
-        const aHasSection = a.sectionId ? 1 : 0;
-        const bHasSection = b.sectionId ? 1 : 0;
-        return aHasSection - bHasSection;
-      });
+      // Helper to find the best schedule for a subject
+      const findBestSchedule = (subjectId: string) => {
+        const candidates = allSchedules.filter(
+          (s) => s.subject.toString() === subjectId.toString()
+        );
 
-      classSchedules.forEach((sched) => {
-        scheduleMap.set(sched.subject.toString(), sched);
-      });
+        if (candidates.length === 0) return undefined;
+        if (candidates.length === 1) return candidates[0];
+
+        if (!isCollege && section.designatedRoom) {
+          // JHS/SHS: Try to find a schedule in the designated room
+          const roomMatch = candidates.find((s) =>
+            s.schedules.some(
+              (slot: any) =>
+                slot.room.toString() === section.designatedRoom?.toString()
+            )
+          );
+          if (roomMatch) return roomMatch;
+        }
+
+        // Fallback / College: Pick the first one (or implement load balancing here)
+        // Ideally, we would check current enrollment counts for each schedule.
+        return candidates[0];
+      };
 
       // 7. Persistence: Create Enrollment Record
       const [enrollment] = await EnrollmentRecordModel.create(
@@ -147,7 +160,7 @@ export class EnrollStudentUseCase {
 
       // 8. Persistence: Bulk Create SubjectTaken Records
       const subjectTakenDocs = subjectsToEnroll.map((subject: Subject) => {
-        const schedule = scheduleMap.get(subject._id.toString());
+        const schedule = findBestSchedule(subject._id.toString());
         const scheduleId = schedule ? schedule._id : undefined;
 
         return {

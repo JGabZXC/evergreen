@@ -80,9 +80,9 @@ export const getSubjectTaken = async (
 
       // If filtering by teacher, we must find the schedules first
       if (teacherId) {
-        const schedules = await SubjectScheduleModel.find({ teacherId }).select(
-          "_id"
-        );
+        const schedules = await SubjectScheduleModel.find({
+          "schedules.teacherId": teacherId,
+        }).select("_id");
         const scheduleIds = schedules.map((s) => s._id);
         filter.scheduleId = { $in: scheduleIds } as any;
       }

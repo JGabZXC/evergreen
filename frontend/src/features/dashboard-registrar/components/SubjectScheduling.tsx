@@ -7,6 +7,7 @@ import {
   RefreshCw,
   LayoutDashboard,
   Users,
+  User,
   X,
   ChevronRight,
   MapPin,
@@ -148,11 +149,23 @@ export default function SubjectScheduling() {
             className="grid gap-3"
           >
             {schedules.map((schedule) => {
-              const isAssigned = schedule.teacherId !== "TBA";
-              const teacherEmail = schedule.teacher?.userId?.email || "";
-              const initial = teacherEmail
-                ? teacherEmail.charAt(0).toUpperCase()
-                : "?";
+              // Extract unique teachers from slots
+              const uniqueTeachers = Array.from(
+                new Set(
+                  schedule.schedules.map((s) =>
+                    s.teacherId && s.teacherId !== "TBA"
+                      ? s.teacher?.userId?.email
+                      : "TBA"
+                  )
+                )
+              );
+              const isAssigned = uniqueTeachers.some((t) => t !== "TBA");
+              const displayTeacher =
+                uniqueTeachers.length === 1
+                  ? uniqueTeachers[0]
+                  : uniqueTeachers.length > 1
+                  ? `${uniqueTeachers.length} Instructors`
+                  : "TBA";
 
               return (
                 <motion.div
@@ -178,7 +191,11 @@ export default function SubjectScheduling() {
                           : "bg-warning/10 text-warning"
                       }`}
                     >
-                      {isAssigned ? initial : <Users size={18} />}
+                      {uniqueTeachers.filter((t) => t !== "TBA").length > 1 ? (
+                        <Users size={20} />
+                      ) : (
+                        <User size={20} />
+                      )}
                     </div>
                   </div>
 
@@ -189,15 +206,8 @@ export default function SubjectScheduling() {
                         {typeof schedule.subject === "object"
                           ? schedule.subject.subjectId
                           : "N/A"}
-                      </span>                      <span
-                        className={`badge badge-sm ${
-                          schedule.section ? "badge-secondary" : "badge-outline"
-                        }`}
-                      >
-                        {schedule.section
-                          ? schedule.section.name
-                          : "Mixed Section"}
-                      </span>                      {!isAssigned && (
+                      </span>{" "}
+                      {!isAssigned && (
                         <span className="text-[10px] font-bold text-warning uppercase tracking-wider">
                           Unassigned
                         </span>
@@ -213,10 +223,10 @@ export default function SubjectScheduling() {
                   {/* Teacher Info (Hidden on small screens) */}
                   <div className="hidden md:flex flex-col items-end text-right min-w-[150px]">
                     <span className="text-[10px] uppercase text-base-content/50 font-bold tracking-wider">
-                      Instructor
+                      Instructor(s)
                     </span>
                     <span className="text-sm font-medium truncate max-w-[200px]">
-                      {isAssigned ? teacherEmail : "To Be Announced"}
+                      {displayTeacher}
                     </span>
                   </div>
 
@@ -291,9 +301,6 @@ function ScheduleDetailModal({
   onClose: () => void;
   onEdit: () => void;
 }) {
-  const isAssigned = schedule.teacherId !== "TBA";
-  const teacherEmail = schedule.teacher?.userId?.email || "To Be Announced";
-  const teacherId = schedule.teacherId;
   return createPortal(
     <div className="fixed inset-0 z-999 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
       <motion.div
@@ -337,59 +344,10 @@ function ScheduleDetailModal({
 
         {/* Body */}
         <div className="p-6 overflow-y-auto">
-          {/* Section Details */}
-          <div className="mb-6">
-            <h3 className="text-xs font-bold text-base-content/50 uppercase tracking-wider mb-3">
-              Section Details
-            </h3>
-            <div className="p-4 bg-base-200/50 rounded-xl">
-              <p className="font-bold text-base">
-                {schedule.section
-                  ? schedule.section.name
-                  : "Mixed / Open Section"}
-              </p>
-              {schedule.section && (
-                <p className="text-xs text-base-content/60">
-                  Grade {schedule.section.gradeLevel}
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Teacher Section */}
-          <div className="mb-6">
-            <h3 className="text-xs font-bold text-base-content/50 uppercase tracking-wider mb-3">
-              Instructor Details
-            </h3>
-            <div className="flex items-center gap-4 p-4 bg-base-200/50 rounded-xl">
-              <div
-                className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold ${
-                  isAssigned
-                    ? "bg-secondary text-secondary-content"
-                    : "bg-base-300 text-base-content/50"
-                }`}
-              >
-                {isAssigned ? (
-                  teacherEmail.charAt(0).toUpperCase()
-                ) : (
-                  <Users size={20} />
-                )}
-              </div>
-              <div>
-                <p className="font-bold text-base">
-                  {isAssigned ? teacherEmail : "Unassigned"}
-                </p>
-                <p className="text-xs text-base-content/60">
-                  {teacherId !== "TBA" ? teacherId : "TBA"}
-                </p>
-              </div>
-            </div>
-          </div>
-
           {/* Schedule List */}
           <div>
             <h3 className="text-xs font-bold text-base-content/50 uppercase tracking-wider mb-3">
-              Class Schedule
+              Class Schedule & Instructors
             </h3>
             <div className="space-y-2">
               {schedule.schedules.map((slot, idx) => (
@@ -413,6 +371,14 @@ function ScheduleDetailModal({
                         {typeof slot.room === "object"
                           ? slot.room.name
                           : slot.room}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-base-content/60 mt-1">
+                      <Users size={12} />
+                      <span className="font-medium">
+                        {slot.teacherId && slot.teacherId !== "TBA"
+                          ? slot.teacher?.userId?.email || slot.teacherId
+                          : "TBA"}
                       </span>
                     </div>
                   </div>

@@ -7,16 +7,16 @@ import {
   Save,
   Clock,
   Loader2,
-  Filter,
   Search,
   AlertTriangle,
+  ChevronDown,
+  Check,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSubjects } from "../hooks/useSubjects";
 import { useTeachers } from "../hooks/useTeachers";
 import { useRooms } from "../hooks/useRooms";
 import { useCourses } from "../hooks/useCourses";
-import { useScheduleOptions } from "../hooks/useScheduleOptions";
 import type { CreateSchedulePayload } from "../types";
 import {
   getCurrentSchoolYear,
@@ -27,6 +27,7 @@ import type {
   Subject,
   SubjectSchedule,
   TimeSlot,
+  Teacher,
 } from "../../../shared/types/index.ts";
 
 const generateId = () => {
@@ -35,7 +36,8 @@ const generateId = () => {
 
 interface LocalTimeSlot extends Omit<TimeSlot, "_id"> {
   localId: string;
-  room: string; // Backend expects string
+  room: string;
+  teacherId: string;
 }
 
 interface AddScheduleModalProps {
@@ -45,22 +47,142 @@ interface AddScheduleModalProps {
   initialData?: SubjectSchedule | null;
 }
 
+// --- Generic Selection Modal Component ---
+interface SelectionModalProps<T> {
+  isOpen: boolean;
+  onClose: () => void;
+  title: string;
+  searchPlaceholder: string;
+  searchValue: string;
+  onSearchChange: (val: string) => void;
+  items: T[];
+  onSelect: (item: T) => void;
+  renderItem: (item: T) => React.ReactNode;
+  loading: boolean;
+  hasMore: boolean;
+  onLoadMore: () => void;
+  emptyMessage?: string;
+}
+
+function SelectionModal<T extends { _id: string }>({
+  isOpen,
+  onClose,
+  title,
+  searchPlaceholder,
+  searchValue,
+  onSearchChange,
+  items,
+  onSelect,
+  renderItem,
+  loading,
+  hasMore,
+  onLoadMore,
+  emptyMessage = "No items found",
+}: SelectionModalProps<T>) {
+  if (!isOpen) return null;
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+    if (scrollHeight - scrollTop <= clientHeight + 50 && hasMore && !loading) {
+      onLoadMore();
+    }
+  };
+
+  return createPortal(
+    <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        className="bg-base-100 w-full max-w-lg rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]"
+      >
+        <div className="p-4 border-b border-base-200 flex justify-between items-center bg-base-200/50">
+          <h3 className="font-bold text-lg">{title}</h3>
+          <button onClick={onClose} className="btn btn-sm btn-circle btn-ghost">
+            <X size={20} />
+          </button>
+        </div>
+        <div className="p-4 border-b border-base-200 bg-base-100">
+          <div className="relative">
+            <Search
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"
+              size={18}
+            />
+            <input
+              type="text"
+              className="input input-bordered w-full pl-10"
+              placeholder={searchPlaceholder}
+              value={searchValue}
+              onChange={(e) => onSearchChange(e.target.value)}
+              autoFocus
+            />
+          </div>
+        </div>
+        <div className="overflow-y-auto flex-1 p-2" onScroll={handleScroll}>
+          {items.length === 0 && !loading ? (
+            <div className="text-center py-10 opacity-50">{emptyMessage}</div>
+          ) : (
+            <ul className="menu w-full p-0">
+              {items.map((item) => (
+                <li key={item._id} className="mb-1">
+                  <a
+                    onClick={() => onSelect(item)}
+                    className="flex flex-col items-start gap-1 py-3"
+                  >
+                    {renderItem(item)}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+          {loading && (
+            <div className="flex justify-center py-4">
+              <Loader2 className="animate-spin text-primary" />
+            </div>
+          )}
+        </div>
+      </motion.div>
+    </div>,
+    document.body
+  );
+}
+
 export default function AddScheduleModal({
   isOpen,
   onClose,
   onSave,
   initialData,
 }: AddScheduleModalProps) {
+  // --- State for Modals ---
+  const [activeModal, setActiveModal] = useState<
+    "subject" | "teacher" | "room" | null
+  >(null);
+  const [activeSlotId, setActiveSlotId] = useState<string | null>(null);
+
+  // --- Subject State ---
   const [subjectSearch, setSubjectSearch] = useState("");
   const [subjectPage, setSubjectPage] = useState(1);
   const [subjectList, setSubjectList] = useState<Subject[]>([]);
   const [hasMoreSubjects, setHasMoreSubjects] = useState(true);
 
+  // --- Room State ---
   const [roomSearch, setRoomSearch] = useState("");
   const [roomPage, setRoomPage] = useState(1);
   const [roomList, setRoomList] = useState<Room[]>([]);
   const [hasMoreRooms, setHasMoreRooms] = useState(true);
 
+  // --- Teacher State ---
+  const [teacherSearch, setTeacherSearch] = useState("");
+  // Note: useTeachers fetches all (limit 100), so we filter locally for now
+  // unless we update the hook/service to support search.
+  const [filteredTeachers, setFilteredTeachers] = useState<Teacher[]>([]);
+
+  // --- Course State ---
+  const [courseSearch, setCourseSearch] = useState("");
+  const [isCourseDropdownOpen, setIsCourseDropdownOpen] = useState(false);
+  const courseDropdownRef = useRef<HTMLDivElement>(null);
+
+  // --- Hooks ---
   const { subjects, loading: loadingSubjects } = useSubjects(
     subjectPage,
     20,
@@ -74,14 +196,13 @@ export default function AddScheduleModal({
   );
 
   const { teachers, loading: loadingTeachers } = useTeachers(1, 100, true);
-  const { courses, loading: loadingCourses } = useCourses(1, 100);
-  const { sections, loadingOptions } = useScheduleOptions(isOpen);
+
+  // Fetch courses with search
+  const { courses, loading: loadingCourses } = useCourses(1, 50, courseSearch);
 
   const [selectedCourseId, setSelectedCourseId] = useState("");
   const [formData, setFormData] = useState({
     subject: "",
-    teacherId: "",
-    sectionId: "", // Added sectionId
     schoolYear: getCurrentSchoolYear(),
     semester: 1,
   });
@@ -93,16 +214,11 @@ export default function AddScheduleModal({
       startTime: "",
       endTime: "",
       room: "",
+      teacherId: "TBA",
     },
   ]);
 
-  const [semesterFilters, setSemesterFilters] = useState<number[]>([]);
-
-  const toggleSemesterFilter = (sem: number) => {
-    setSemesterFilters((prev) =>
-      prev.includes(sem) ? prev.filter((s) => s !== sem) : [...prev, sem]
-    );
-  };
+  // --- Effects ---
 
   // Populate form when initialData changes
   useEffect(() => {
@@ -112,11 +228,6 @@ export default function AddScheduleModal({
           typeof initialData.subject === "object"
             ? initialData.subject._id
             : initialData.subject,
-        teacherId:
-          initialData?.teacherId === "TBA"
-            ? "TBA"
-            : initialData?.teacher?.employeeId || "TBA",
-        sectionId: initialData.sectionId || "", // Populate sectionId
         schoolYear: initialData.schoolYear,
         semester: Number(initialData.semester),
       });
@@ -129,6 +240,7 @@ export default function AddScheduleModal({
             startTime: s.startTime,
             endTime: s.endTime,
             room: typeof s.room === "object" ? s.room._id : s.room,
+            teacherId: s.teacherId || "TBA",
           }))
         );
       }
@@ -136,8 +248,6 @@ export default function AddScheduleModal({
       // Reset form
       setFormData({
         subject: "",
-        tectionId: "", // Reset sectionId
-        seacherId: "",
         schoolYear: getCurrentSchoolYear(),
         semester: 1,
       });
@@ -148,20 +258,15 @@ export default function AddScheduleModal({
           startTime: "",
           endTime: "",
           room: "",
+          teacherId: "TBA",
         },
       ]);
+      setSelectedCourseId("");
+      setSubjectList([]);
     }
   }, [isOpen, initialData]);
 
-  const [isSubjectDropdownOpen, setIsSubjectDropdownOpen] = useState(false);
-  const [dropdownPosition, setDropdownPosition] = useState({
-    top: 0,
-    left: 0,
-    width: 0,
-  });
-  const subjectTriggerRef = useRef<HTMLDivElement>(null);
-  const subjectDropdownRef = useRef<HTMLDivElement>(null);
-
+  // Subject List Management
   useEffect(() => {
     if (subjects && !selectedCourseId) {
       if (subjectPage === 1) {
@@ -185,6 +290,7 @@ export default function AddScheduleModal({
     }
   }, [subjectSearch, selectedCourseId]);
 
+  // Room List Management
   useEffect(() => {
     if (roomData) {
       if (roomPage === 1) {
@@ -206,6 +312,21 @@ export default function AddScheduleModal({
     setRoomList([]);
   }, [roomSearch]);
 
+  // Teacher List Management (Local Filtering)
+  useEffect(() => {
+    if (teachers) {
+      const filtered = teachers.filter((t) => {
+        const searchLower = teacherSearch.toLowerCase();
+        const name =
+          `${t.profile?.firstName} ${t.profile?.lastName}`.toLowerCase();
+        const email = t.userId?.email?.toLowerCase() || "";
+        return name.includes(searchLower) || email.includes(searchLower);
+      });
+      setFilteredTeachers(filtered);
+    }
+  }, [teachers, teacherSearch]);
+
+  // Course Selection Logic (Populate Subjects)
   useEffect(() => {
     if (selectedCourseId) {
       const course = courses.find((c) => c._id === selectedCourseId);
@@ -226,108 +347,21 @@ export default function AddScheduleModal({
     }
   }, [selectedCourseId, courses]);
 
-  const getSemesterWarning = () => {
-    if (!formData.subject || !formData.semester) return null;
-
-    // 1. Find the subject
-    const selectedSub = subjectList.find(
-      (s) => s._id === formData.subject || s.subjectId === formData.subject
-    );
-
-    // 2. Check availability
-    if (
-      selectedSub &&
-      selectedSub.semesterAvailable &&
-      selectedSub.semesterAvailable.length > 0
-    ) {
-      // 3. Compare
-      if (!selectedSub.semesterAvailable.includes(formData.semester)) {
-        return (
-          <div className="mt-2 p-3 bg-warning/10 border border-warning/20 text-warning rounded-lg flex gap-3 text-sm animate-in fade-in slide-in-from-top-1">
-            <AlertTriangle size={18} className="shrink-0 mt-0.5" />
-            <div>
-              <p className="font-bold">Off-Semester Schedule</p>
-              <p className="opacity-90">
-                This subject is usually offered in{" "}
-                <strong>
-                  {selectedSub.semesterAvailable
-                    .map((s) =>
-                      s === 3 ? "Summer" : `${s}${s === 1 ? "st" : "nd"} Sem`
-                    )
-                    .join(" or ")}
-                </strong>
-                . You are scheduling it for the{" "}
-                <strong>
-                  {formData.semester === 3
-                    ? "Summer"
-                    : `${formData.semester}${
-                        formData.semester === 1 ? "st" : "nd"
-                      } Semester`}
-                </strong>
-                .
-              </p>
-            </div>
-          </div>
-        );
-      }
-    }
-    return null;
-  };
-
-  const semesterWarning = getSemesterWarning();
-
-  const handleSubjectScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
-    if (
-      scrollHeight - scrollTop <= clientHeight + 50 &&
-      hasMoreSubjects &&
-      !loadingSubjects &&
-      !selectedCourseId
-    ) {
-      setSubjectPage((prev) => prev + 1);
-    }
-  };
-
-  const handleRoomScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
-    if (
-      scrollHeight - scrollTop <= clientHeight + 50 &&
-      hasMoreRooms &&
-      !loadingRooms
-    ) {
-      setRoomPage((prev) => prev + 1);
-    }
-  };
-
+  // Click Outside for Course Dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Node;
-      const isOutsideTrigger =
-        subjectTriggerRef.current &&
-        !subjectTriggerRef.current.contains(target);
-      const isOutsideContent =
-        subjectDropdownRef.current &&
-        !subjectDropdownRef.current.contains(target);
-
-      if (isOutsideTrigger && isOutsideContent) {
-        setIsSubjectDropdownOpen(false);
+      if (
+        courseDropdownRef.current &&
+        !courseDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsCourseDropdownOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const toggleSubjectDropdown = () => {
-    if (!isSubjectDropdownOpen && subjectTriggerRef.current) {
-      const rect = subjectTriggerRef.current.getBoundingClientRect();
-      setDropdownPosition({
-        top: rect.bottom + 5,
-        left: rect.left,
-        width: rect.width,
-      });
-    }
-    setIsSubjectDropdownOpen(!isSubjectDropdownOpen);
-  };
+  // --- Handlers ---
 
   const handleSlotChange = (
     id: string,
@@ -350,6 +384,7 @@ export default function AddScheduleModal({
         startTime: "",
         endTime: "",
         room: "",
+        teacherId: "TBA",
       },
     ]);
   };
@@ -365,10 +400,44 @@ export default function AddScheduleModal({
     const cleanedSchedules = schedules.map(({ localId, ...rest }) => rest);
     const payload = {
       ...formData,
-      sectionId: formData.sectionId || undefined, // Pass sectionId
       schedules: cleanedSchedules,
     };
     onSave(payload);
+  };
+
+  const getSemesterWarning = () => {
+    if (!formData.subject || !formData.semester) return null;
+    const selectedSub = subjectList.find(
+      (s) => s._id === formData.subject || s.subjectId === formData.subject
+    );
+    if (
+      selectedSub &&
+      selectedSub.semesterAvailable &&
+      selectedSub.semesterAvailable.length > 0
+    ) {
+      if (!selectedSub.semesterAvailable.includes(formData.semester)) {
+        return (
+          <div className="mt-2 p-3 bg-warning/10 border border-warning/20 text-warning rounded-lg flex gap-3 text-sm animate-in fade-in slide-in-from-top-1">
+            <AlertTriangle size={18} className="shrink-0 mt-0.5" />
+            <div>
+              <p className="font-bold">Off-Semester Schedule</p>
+              <p className="opacity-90">
+                This subject is usually offered in{" "}
+                <strong>
+                  {selectedSub.semesterAvailable
+                    .map((s) =>
+                      s === 3 ? "Summer" : `${s}${s === 1 ? "st" : "nd"} Sem`
+                    )
+                    .join(" or ")}
+                </strong>
+                .
+              </p>
+            </div>
+          </div>
+        );
+      }
+    }
+    return null;
   };
 
   if (!isOpen) return null;
@@ -379,7 +448,7 @@ export default function AddScheduleModal({
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="bg-base-100 w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+        className="bg-base-100 w-full max-w-4xl rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
       >
         <div className="flex justify-between items-center p-5 border-b border-base-200 bg-base-200/50">
           <div>
@@ -398,307 +467,204 @@ export default function AddScheduleModal({
         </div>
 
         <div className="p-6 overflow-y-auto flex-1">
-          {loadingCourses ||
-          loadingRooms ||
-          loadingSubjects ||
-          loadingTeachers ? (
-            <div className="flex flex-col items-center justify-center h-40 gap-2">
-              <Loader2 className="animate-spin text-primary" size={32} />
-              <span className="text-sm opacity-50">Loading options...</span>
-            </div>
-          ) : (
-            <form
-              id="schedule-form"
-              onSubmit={handleSubmit}
-              className="space-y-6"
-            >
-              {/* 1. Core Assignment Details */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Course Filter (Optional) */}
-                <div className="form-control md:col-span-2">
-                  <label className="label font-medium flex justify-between">
-                    <span>Filter Subjects by Course (Optional)</span>
-                    {selectedCourseId && (
-                      <span
-                        className="text-xs text-primary cursor-pointer hover:underline"
-                        onClick={() => setSelectedCourseId("")}
-                      >
-                        Clear Filter
-                      </span>
-                    )}
-                  </label>
-                  <div className="relative">
-                    <Filter
-                      className="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"
-                      size={16}
-                    />
-                    <select
-                      className="select select-bordered w-full pl-10"
-                      value={selectedCourseId}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setSelectedCourseId(val);
-                        if (!val) {
-                          setSubjectList([]);
-                          setSubjectPage(1);
-                          setHasMoreSubjects(true);
-                          setSubjectSearch("");
-                        }
+          <form
+            id="schedule-form"
+            onSubmit={handleSubmit}
+            className="space-y-6"
+          >
+            {/* 1. Core Assignment Details */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Course Filter with Search */}
+              <div
+                className="form-control md:col-span-2"
+                ref={courseDropdownRef}
+              >
+                <label className="label font-medium flex justify-between">
+                  <span>Filter Subjects by Course (Optional)</span>
+                  {selectedCourseId && (
+                    <span
+                      className="text-xs text-primary cursor-pointer hover:underline"
+                      onClick={() => {
+                        setSelectedCourseId("");
+                        setCourseSearch("");
                       }}
                     >
-                      <option value="">All Courses (Show All Subjects)</option>
-                      {courses.map((c) => (
-                        <option key={c._id} value={c._id}>
-                          {c.code} - {c.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                <div className="form-control">
-                  <label className="label font-medium">
-                    Subject
-                    <span className="badge badge-xs badge-ghost ml-2">
-                      {subjectList.length} available
+                      Clear Filter
                     </span>
-                  </label>
-                  <div className="w-full">
-                    <div
-                      ref={subjectTriggerRef}
-                      tabIndex={0}
-                      role="button"
-                      className={`input input-bordered w-full flex items-center justify-between cursor-pointer ${
-                        !formData.subject ? "text-base-content/60" : ""
-                      }`}
-                      onClick={toggleSubjectDropdown}
-                    >
-                      <span className="truncate">
-                        {formData.subject
-                          ? subjectList.find((s) => s._id === formData.subject)
-                              ?.name ||
-                            subjectList.find(
-                              (s) => s.subjectId === formData.subject
-                            )?.name ||
-                            "Selected Subject"
-                          : "Select Subject..."}
-                      </span>
-                      <Search size={16} className="opacity-50" />
-                    </div>
-                    {isSubjectDropdownOpen &&
-                      createPortal(
+                  )}
+                </label>
+                <div className="relative">
+                  <div
+                    className="input input-bordered w-full flex items-center justify-between cursor-pointer"
+                    onClick={() =>
+                      setIsCourseDropdownOpen(!isCourseDropdownOpen)
+                    }
+                  >
+                    <span className={!selectedCourseId ? "opacity-50" : ""}>
+                      {selectedCourseId
+                        ? courses.find((c) => c._id === selectedCourseId)
+                            ?.code || "Unknown Course"
+                        : "Select Course to Filter..."}
+                    </span>
+                    <ChevronDown size={16} className="opacity-50" />
+                  </div>
+
+                  {isCourseDropdownOpen && (
+                    <div className="absolute top-full left-0 w-full mt-1 bg-base-100 border border-base-200 rounded-lg shadow-xl z-20 max-h-60 flex flex-col">
+                      <div className="p-2 border-b border-base-200 sticky top-0 bg-base-100 rounded-t-lg">
+                        <input
+                          type="text"
+                          className="input input-sm input-bordered w-full"
+                          placeholder="Search course..."
+                          value={courseSearch}
+                          onChange={(e) => setCourseSearch(e.target.value)}
+                          autoFocus
+                        />
+                      </div>
+                      <div className="overflow-y-auto flex-1 p-1">
                         <div
-                          ref={subjectDropdownRef}
-                          className="menu p-2 shadow bg-base-100 rounded-box fixed z-9999 max-h-60 overflow-y-auto flex-nowrap border border-base-200"
-                          style={{
-                            top: dropdownPosition.top,
-                            left: dropdownPosition.left,
-                            width: dropdownPosition.width,
+                          className="p-2 hover:bg-base-200 rounded cursor-pointer text-sm"
+                          onClick={() => {
+                            setSelectedCourseId("");
+                            setIsCourseDropdownOpen(false);
                           }}
-                          onScroll={handleSubjectScroll}
                         >
-                          {!selectedCourseId && (
-                            <div className="p-2 sticky top-0 bg-base-100 z-10">
-                              <input
-                                type="text"
-                                className="input input-sm input-bordered w-full"
-                                placeholder="Search subject..."
-                                value={subjectSearch}
-                                onChange={(e) =>
-                                  setSubjectSearch(e.target.value)
-                                }
-                                autoFocus
-                              />
-                              <div className="flex gap-3 mt-2 px-1">
-                                <span className="text-xs opacity-50 self-center">
-                                  Filter:
-                                </span>
-                                {[1, 2, 3].map((sem) => (
-                                  <label
-                                    key={sem}
-                                    className="label cursor-pointer justify-start gap-1.5 p-0"
-                                  >
-                                    <input
-                                      type="checkbox"
-                                      className="checkbox checkbox-xs"
-                                      checked={semesterFilters.includes(sem)}
-                                      onChange={() => toggleSemesterFilter(sem)}
-                                    />
-                                    <span className="label-text text-xs">
-                                      {sem === 3
-                                        ? "Summer"
-                                        : sem === 1
-                                        ? "1st"
-                                        : "2nd"}
-                                    </span>
-                                  </label>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                          {subjectList
-                            .filter((s) => {
-                              if (semesterFilters.length === 0) return true;
-                              return s.semesterAvailable?.some((sem) =>
-                                semesterFilters.includes(sem)
-                              );
-                            })
-                            .map((s) => (
-                              <li
-                                key={s._id}
-                                onClick={() => {
-                                  // Auto-switch semester if needed
-                                  let newSemester = formData.semester;
-                                  if (
-                                    s.semesterAvailable &&
-                                    s.semesterAvailable.length > 0
-                                  ) {
-                                    if (
-                                      !s.semesterAvailable.includes(
-                                        formData.semester
-                                      )
-                                    ) {
-                                      newSemester = s.semesterAvailable[0];
-                                    }
-                                  }
-
-                                  setFormData({
-                                    ...formData,
-                                    subject: s._id,
-                                    semester: newSemester,
-                                  });
-                                  setIsSubjectDropdownOpen(false);
-                                }}
-                              >
-                                <a>
-                                  <span className="font-bold">
-                                    {s.subjectId}
-                                  </span>{" "}
-                                  - {s.name}
-                                </a>
-                              </li>
-                            ))}
-                          {loadingSubjects && (
-                            <li className="disabled">
-                              <a>Loading...</a>
-                            </li>
-                          )}
-                          {!loadingSubjects && subjectList.length === 0 && (
-                            <li className="disabled">
-                              <a>No subjects found</a>
-                            </li>
-                          )}
-                        </div>,
-                        document.body
-                      )}
-                  </div>
+                          All Courses (Show All Subjects)
+                        </div>
+                        {courses.map((c) => (
+                          <div
+                            key={c._id}
+                            className={`p-2 hover:bg-base-200 rounded cursor-pointer text-sm flex justify-between items-center ${
+                              selectedCourseId === c._id
+                                ? "bg-primary/10 text-primary"
+                                : ""
+                            }`}
+                            onClick={() => {
+                              setSelectedCourseId(c._id);
+                              setIsCourseDropdownOpen(false);
+                            }}
+                          >
+                            <span>
+                              <strong>{c.code}</strong> - {c.name}
+                            </span>
+                            {selectedCourseId === c._id && <Check size={14} />}
+                          </div>
+                        ))}
+                        {loadingCourses && (
+                          <div className="p-2 text-center text-xs opacity-50">
+                            Loading...
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
-
-                <div className="form-control">
-                  <label className="label font-medium">Assigned Teacher</label>
-                  <select
-                    className="select select-bordered w-full"
-                    value={formData.teacherId}
-                    onChange={(e) =>
-                      setFormData({ ...formData, teacherId: e.target.value })
-                    }
-                  >
-                    <option value="" disabled>
-                      Select Teacher...
-                    </option>
-                    {teachers.map((t) => (
-                      <option key={t._id} value={t.employeeId}>
-                        {t.userId?.email}
-                      </option>
-                    ))}
-                    <option value="TBA">To Be Announced</option>
-                  </select>
-                </div>
-
-                <div className="form-control">
-                  <label className="label font-medium">
-                    Section (Optional)
-                    <span className="label-text-alt text-gray-500 ml-2">
-                      Leave empty for Mixed/Open Class
-                    </span>
-                  </label>
-                  <select
-                    className="select select-bordered w-full"
-                    value={formData.sectionId}
-                    onChange={(e) =>
-                      setFormData({ ...formData, sectionId: e.target.value })
-                    }
-                  >
-                    <option value="">Mixed / Open Class</option>
-                    {sections.map((s) => (
-                      <option key={s._id} value={s._id}>
-                        {s.name} ({s.gradeLevel})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="form-control">
-                    <label className="label font-medium">School Year</label>
-                    <select
-                      className="select select-bordered w-full"
-                      value={formData.schoolYear}
-                      onChange={(e) =>
-                        setFormData({ ...formData, schoolYear: e.target.value })
-                      }
-                    >
-                      {getSchoolYearOptions().map((year) => (
-                        <option key={year} value={year}>
-                          SY {year}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="form-control">
-                    <label className="label font-medium">Semester</label>
-                    <select
-                      required
-                      className="select select-bordered w-full"
-                      value={formData.semester}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          semester: Number(e.target.value),
-                        })
-                      }
-                    >
-                      <option value={1}>1st</option>
-                      <option value={2}>2nd</option>
-                      <option value={3}>Summer</option>
-                    </select>
-                  </div>
-                </div>
-                {semesterWarning && (
-                  <div className="md:col-span-2">{semesterWarning}</div>
-                )}
               </div>
 
-              <div className="divider">Time Slots</div>
+              {/* Subject Selection */}
+              <div className="form-control">
+                <label className="label font-medium">
+                  Subject
+                  <span className="badge badge-xs badge-ghost ml-2">
+                    {subjectList.length} available
+                  </span>
+                </label>
+                <div
+                  className={`input input-bordered w-full flex items-center justify-between cursor-pointer ${
+                    !formData.subject ? "text-base-content/60" : ""
+                  }`}
+                  onClick={() => setActiveModal("subject")}
+                >
+                  <span className="truncate">
+                    {formData.subject
+                      ? subjectList.find((s) => s._id === formData.subject)
+                          ?.name ||
+                        subjectList.find(
+                          (s) => s.subjectId === formData.subject
+                        )?.name ||
+                        "Selected Subject"
+                      : "Select Subject..."}
+                  </span>
+                  <Search size={16} className="opacity-50" />
+                </div>
+              </div>
 
-              <div className="space-y-3">
-                <AnimatePresence initial={false}>
-                  {schedules.map((slot) => (
-                    <motion.div
-                      key={slot.localId}
-                      initial={{ opacity: 0, height: 0, overflow: "hidden" }}
-                      animate={{
-                        opacity: 1,
-                        height: "auto",
-                        overflow: "visible",
-                      }}
-                      exit={{ opacity: 0, height: 0, overflow: "hidden" }}
-                      transition={{ duration: 0.3, ease: "easeInOut" }}
-                    >
-                      <div className="flex flex-col md:flex-row gap-3 p-3 bg-base-100 border border-base-300 rounded-lg shadow-sm mb-3">
-                        <div className="w-full md:w-24">
+              <div className="grid grid-cols-2 gap-2">
+                <div className="form-control">
+                  <label className="label font-medium">School Year</label>
+                  <select
+                    className="select select-bordered w-full"
+                    value={formData.schoolYear}
+                    onChange={(e) =>
+                      setFormData({ ...formData, schoolYear: e.target.value })
+                    }
+                  >
+                    {getSchoolYearOptions().map((year) => (
+                      <option key={year} value={year}>
+                        SY {year}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-control">
+                  <label className="label font-medium">Semester</label>
+                  <select
+                    required
+                    className="select select-bordered w-full"
+                    value={formData.semester}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        semester: Number(e.target.value),
+                      })
+                    }
+                  >
+                    <option value={1}>1st</option>
+                    <option value={2}>2nd</option>
+                    <option value={3}>Summer</option>
+                  </select>
+                </div>
+              </div>
+              {getSemesterWarning() && (
+                <div className="md:col-span-2">{getSemesterWarning()}</div>
+              )}
+            </div>
+
+            <div className="divider">Time Slots</div>
+
+            <div className="space-y-3">
+              <AnimatePresence initial={false}>
+                {schedules.map((slot) => (
+                  <motion.div
+                    key={slot.localId}
+                    initial={{ opacity: 0, height: 0, overflow: "hidden" }}
+                    animate={{
+                      opacity: 1,
+                      height: "auto",
+                      overflow: "visible",
+                    }}
+                    exit={{ opacity: 0, height: 0, overflow: "hidden" }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                  >
+                    <div className="relative justify-between p-4 bg-base-100 border border-base-300 rounded-xl shadow-sm hover:shadow-md transition-all mb-3 group">
+                      <button
+                        type="button"
+                        className="absolute top-2 right-2 btn btn-xs btn-circle btn-ghost text-error opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                        onClick={() => removeSlot(slot.localId)}
+                        disabled={schedules.length === 1}
+                        title="Remove Slot"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+
+                      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+                        {/* Day Group */}
+                        <div className="md:col-span-2 space-y-1.5">
+                          <label className="text-[10px] font-bold text-base-content/50 uppercase tracking-wider">
+                            Day
+                          </label>
                           <select
-                            className="select select-bordered select-sm w-full"
+                            className="select select-bordered select-sm w-full font-medium"
                             value={slot.day}
                             onChange={(e) =>
                               handleSlotChange(
@@ -724,12 +690,15 @@ export default function AddScheduleModal({
                           </select>
                         </div>
 
-                        <div className="flex items-center gap-2 flex-1">
-                          <Clock size={16} className="text-base-content/50" />
+                        {/* Start Time */}
+                        <div className="md:col-span-2 space-y-1.5">
+                          <label className="text-[10px] font-bold text-base-content/50 uppercase tracking-wider flex items-center gap-1">
+                            <Clock size={10} /> Start
+                          </label>
                           <input
                             type="time"
                             required
-                            className="input input-bordered input-sm w-full"
+                            className="input input-bordered input-sm w-full font-medium"
                             value={slot.startTime}
                             onChange={(e) =>
                               handleSlotChange(
@@ -739,11 +708,17 @@ export default function AddScheduleModal({
                               )
                             }
                           />
-                          <span className="text-xs font-bold">-</span>
+                        </div>
+
+                        {/* End Time */}
+                        <div className="md:col-span-2 space-y-1.5">
+                          <label className="text-[10px] font-bold text-base-content/50 uppercase tracking-wider flex items-center gap-1">
+                            <Clock size={10} /> End
+                          </label>
                           <input
                             type="time"
                             required
-                            className="input input-bordered input-sm w-full"
+                            className="input input-bordered input-sm w-full font-medium"
                             value={slot.endTime}
                             onChange={(e) =>
                               handleSlotChange(
@@ -755,93 +730,65 @@ export default function AddScheduleModal({
                           />
                         </div>
 
-                        {/* Room Dropdown in Slot */}
-                        <div className="w-full md:w-48 relative group">
-                          <div className="dropdown w-full">
-                            <div
-                              tabIndex={0}
-                              role="button"
-                              className="input input-bordered input-sm w-full flex items-center justify-between"
-                            >
-                              <span className="truncate">
-                                {slot.room
-                                  ? roomList.find((r) => r._id === slot.room)
-                                      ?.name || "Selected Room"
-                                  : "Select Room"}
-                              </span>
-                              <Search size={14} className="opacity-50" />
-                            </div>
-                            <div
-                              tabIndex={0}
-                              className="dropdown-content z-50 menu p-2 shadow bg-base-100 rounded-box w-full max-h-40 overflow-y-auto flex-nowrap"
-                              onScroll={handleRoomScroll}
-                            >
-                              <div className="p-2 sticky top-0 bg-base-100 z-10">
-                                <input
-                                  type="text"
-                                  className="input input-xs input-bordered w-full"
-                                  placeholder="Search room..."
-                                  value={roomSearch}
-                                  onChange={(e) =>
-                                    setRoomSearch(e.target.value)
-                                  }
-                                />
-                              </div>
-                              {roomList.map((r) => (
-                                <li
-                                  key={r._id}
-                                  onClick={() => {
-                                    handleSlotChange(
-                                      slot.localId,
-                                      "room",
-                                      r._id
-                                    );
-                                    // Close dropdown hack (blur)
-                                    if (
-                                      document.activeElement instanceof
-                                      HTMLElement
-                                    ) {
-                                      document.activeElement.blur();
-                                    }
-                                  }}
-                                >
-                                  <a>
-                                    {r.name} ({r.type})
-                                  </a>
-                                </li>
-                              ))}
-                              {loadingRooms && (
-                                <li className="disabled">
-                                  <a>Loading...</a>
-                                </li>
-                              )}
-                            </div>
+                        {/* Teacher Group */}
+                        <div className="md:col-span-3 space-y-1.5">
+                          <label className="text-[10px] font-bold text-base-content/50 uppercase tracking-wider">
+                            Instructor
+                          </label>
+                          <div
+                            className="input input-bordered input-sm flex items-center justify-between cursor-pointer px-3"
+                            onClick={() => {
+                              setActiveSlotId(slot.localId);
+                              setActiveModal("teacher");
+                            }}
+                          >
+                            <span className="truncate text-sm">
+                              {slot.teacherId && slot.teacherId !== "TBA"
+                                ? teachers.find(
+                                    (t) => t.employeeId === slot.teacherId
+                                  )?.userId?.email || slot.teacherId
+                                : "To Be Announced"}
+                            </span>
+                            <Search size={12} className="opacity-50" />
                           </div>
                         </div>
 
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-ghost text-error"
-                          onClick={() => removeSlot(slot.localId)}
-                          disabled={schedules.length === 1}
-                        >
-                          <Trash2 size={16} />
-                        </button>
+                        {/* Room Group */}
+                        <div className="md:col-span-3 space-y-1.5">
+                          <label className="text-[10px] font-bold text-base-content/50 uppercase tracking-wider">
+                            Room
+                          </label>
+                          <div
+                            className="input input-bordered input-sm w-full flex items-center justify-between cursor-pointer px-3"
+                            onClick={() => {
+                              setActiveSlotId(slot.localId);
+                              setActiveModal("room");
+                            }}
+                          >
+                            <span className="truncate text-sm">
+                              {slot.room
+                                ? roomList.find((r) => r._id === slot.room)
+                                    ?.name || "Selected"
+                                : "Select Room"}
+                            </span>
+                            <Search size={12} className="opacity-50" />
+                          </div>
+                        </div>
                       </div>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
 
-                <button
-                  type="button"
-                  onClick={addSlot}
-                  className="btn btn-sm btn-outline btn-block border-dashed border-base-content/30 text-base-content/60 hover:border-primary hover:text-primary mt-2"
-                >
-                  <Plus size={16} /> Add Another Time/Room
-                </button>
-              </div>
-            </form>
-          )}
+              <button
+                type="button"
+                onClick={addSlot}
+                className="btn btn-sm btn-outline btn-block border-dashed border-base-content/30 text-base-content/60 hover:border-primary hover:text-primary mt-2"
+              >
+                <Plus size={16} /> Add Another Time/Room
+              </button>
+            </div>
+          </form>
         </div>
 
         <div className="p-5 border-t border-base-200 bg-base-100 flex justify-end gap-2">
@@ -864,6 +811,90 @@ export default function AddScheduleModal({
           </button>
         </div>
       </motion.div>
+
+      {/* --- Modals --- */}
+
+      {/* Subject Modal */}
+      <SelectionModal
+        isOpen={activeModal === "subject"}
+        onClose={() => setActiveModal(null)}
+        title="Select Subject"
+        searchPlaceholder="Search subject code or name..."
+        searchValue={subjectSearch}
+        onSearchChange={setSubjectSearch}
+        items={subjectList}
+        loading={loadingSubjects}
+        hasMore={hasMoreSubjects}
+        onLoadMore={() => setSubjectPage((p) => p + 1)}
+        onSelect={(subject) => {
+          setFormData({ ...formData, subject: subject._id });
+          setActiveModal(null);
+        }}
+        renderItem={(subject) => (
+          <>
+            <span className="font-bold text-sm">{subject.subjectId}</span>
+            <span className="text-xs opacity-70">{subject.name}</span>
+          </>
+        )}
+      />
+
+      {/* Teacher Modal */}
+      <SelectionModal
+        isOpen={activeModal === "teacher"}
+        onClose={() => setActiveModal(null)}
+        title="Select Instructor"
+        searchPlaceholder="Search instructor name or email..."
+        searchValue={teacherSearch}
+        onSearchChange={setTeacherSearch}
+        items={filteredTeachers}
+        loading={loadingTeachers}
+        hasMore={false} // Local filtering for now
+        onLoadMore={() => {}}
+        onSelect={(teacher) => {
+          if (activeSlotId) {
+            handleSlotChange(activeSlotId, "teacherId", teacher.employeeId);
+          }
+          setActiveModal(null);
+        }}
+        renderItem={(teacher) => (
+          <>
+            <span className="font-bold text-sm">
+              {teacher.profile?.firstName && teacher.profile?.lastName
+                ? `${teacher.profile.firstName} ${teacher.profile.lastName}`
+                : "No Profile Name"}
+            </span>
+            <span className="text-xs opacity-70">
+              {teacher.userId?.email} - {teacher.employeeId}
+            </span>
+          </>
+        )}
+      />
+
+      {/* Room Modal */}
+      <SelectionModal
+        isOpen={activeModal === "room"}
+        onClose={() => setActiveModal(null)}
+        title="Select Room"
+        searchPlaceholder="Search room name..."
+        searchValue={roomSearch}
+        onSearchChange={setRoomSearch}
+        items={roomList}
+        loading={loadingRooms}
+        hasMore={hasMoreRooms}
+        onLoadMore={() => setRoomPage((p) => p + 1)}
+        onSelect={(room) => {
+          if (activeSlotId) {
+            handleSlotChange(activeSlotId, "room", room._id);
+          }
+          setActiveModal(null);
+        }}
+        renderItem={(room) => (
+          <>
+            <span className="font-bold text-sm">{room.name}</span>
+            <span className="text-xs opacity-70">{room.type}</span>
+          </>
+        )}
+      />
     </div>
   );
 }

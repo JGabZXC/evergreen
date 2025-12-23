@@ -5,9 +5,10 @@ export class GetScheduleUseCase {
   async execute(id: string) {
     return await SubjectScheduleModel.findById(id)
       .populate("subject")
+      .populate("schedules.room")
       .populate({
-        path: "teacher",
-        populate: "userId",
+        path: "schedules.teacher",
+        populate: { path: "userId" },
       })
       .lean<SubjectScheduleDTO>();
   }

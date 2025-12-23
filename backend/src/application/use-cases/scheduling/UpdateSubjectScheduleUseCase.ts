@@ -68,24 +68,33 @@ export class UpdateSubjectScheduleUseCase {
       }
     }
 
-    // 5. Check Teacher Conflicts (if teacher or schedules updated)
-    if (
-      (updates.teacherId || updates.schedules) &&
-      mergedData.teacherId &&
-      mergedData.teacherId !== "TBA"
-    ) {
-      const teacherConflicts = await SubjectScheduleModel.find({
-        _id: { $ne: scheduleId }, // Exclude self
-        teacherId: mergedData.teacherId,
-        schoolYear: mergedData.schoolYear,
-        semester: mergedData.semester,
-      }).session(session || null);
+    // 5. Check Teacher Conflicts (if schedules updated)
+    if (updates.schedules) {
+      for (const newSlot of mergedData.schedules) {
+        if (newSlot.teacherId && newSlot.teacherId !== "TBA") {
+          // Find schedules where this teacher is teaching on the same day (excluding self)
+          const teacherConflicts = await SubjectScheduleModel.find({
+            _id: { $ne: scheduleId }, // Exclude self
+            "schedules.teacherId": newSlot.teacherId,
+            "schedules.day": newSlot.day,
+            schoolYear: mergedData.schoolYear,
+            semester: mergedData.semester,
+          }).session(session || null);
 
-      ScheduleValidationService.checkConflicts(
-        mergedData.schedules,
-        teacherConflicts,
-        `Teacher (${mergedData.teacherId}) is already booked`
-      );
+          // Flatten and filter for the specific teacher
+          const flatConflicts = teacherConflicts
+            .flatMap((c) => c.schedules)
+            .filter((s) => s.teacherId === newSlot.teacherId);
+
+          for (const existingSlot of flatConflicts) {
+            if (ScheduleValidationService.isOverlap(newSlot, existingSlot)) {
+              throw new ConflictError(
+                `Teacher (${newSlot.teacherId}) is already booked on ${newSlot.day} ${existingSlot.startTime}-${existingSlot.endTime}`
+              );
+            }
+          }
+        }
+      }
     }
 
     // 6. Perform Update

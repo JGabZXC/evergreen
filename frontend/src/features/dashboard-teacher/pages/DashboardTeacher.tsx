@@ -104,12 +104,7 @@ export function DashboardTeacher() {
                 loading={loading}
                 selectedSemester={currentSemester}
                 onSemesterChange={setCurrentSemester}
-                onSelectClass={(
-                  scheduleId,
-                  subjectId,
-                  subjectName,
-                  semester
-                ) =>
+                onSelectClass={(scheduleId, subjectId, subjectName, semester) =>
                   setSelectedClass({
                     scheduleId,
                     subjectId,

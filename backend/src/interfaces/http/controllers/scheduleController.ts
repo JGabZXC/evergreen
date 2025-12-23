@@ -22,7 +22,7 @@ export const getSchedule = async (req: AuthenticatedRequest, res: Response) => {
     limit = 10,
     schoolYear,
     semester,
-    sectionId,
+    // sectionId, // Removed
     teacherId,
     subjectId,
     room,
@@ -53,7 +53,7 @@ export const getSchedule = async (req: AuthenticatedRequest, res: Response) => {
   }
   if (schoolYear) filter.schoolYear = schoolYear as string;
   if (semester) filter.semester = Number(semester);
-  if (sectionId) filter.sectionId = sectionId as string;
+  // if (sectionId) filter.sectionId = sectionId as string; // Removed
   if (teacherId) filter.teacherId = teacherId as string;
   if (subjectId) filter.subjectId = subjectId as string;
   if (room) filter.room = room as string;
@@ -83,7 +83,7 @@ export const createSchedule = async (
   res: Response
 ) => {
   try {
-    const { subject, teacherId, schedules, schoolYear, semester } = req.body;
+    const { subject, schedules, schoolYear, semester } = req.body;
     const errors: { [key: string]: string } = {};
 
     if (!subject || !schoolYear || !semester || !schedules) {
@@ -112,7 +112,6 @@ export const createSchedule = async (
 
     const scheduleData: BaseSubjectSchedule = {
       subject,
-      teacherId: teacherId || "TBA", // Default to TBA if not provided
       schedules,
       schoolYear,
       semester,

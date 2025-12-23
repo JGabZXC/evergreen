@@ -1,13 +1,12 @@
 import { SubjectSchedule, TimeSlot } from "../../../domain/SubjectSchedule";
 import { RoomDTO } from "./RoomDTO";
 import { SubjectDTO } from "./SubjectDTO";
-import { UserDTO } from "./UserDTO";
-
-import { SectionDTO } from "./SectionDTO";
+import { StaffDTO } from "./StaffDTO";
 
 export type TimeSlotDTO = Omit<TimeSlot, "_id" | "room"> & {
   _id: string;
   room: RoomDTO;
+  teacher?: StaffDTO;
 };
 
 export type SubjectScheduleDTO = Omit<
@@ -16,18 +15,14 @@ export type SubjectScheduleDTO = Omit<
   | "createdAt"
   | "updatedAt"
   | "subject"
-  | "teacher"
   | "schedules"
-  | "sectionId"
 > & {
   id: string;
   subject: SubjectDTO;
-  section?: SectionDTO;
   schedules: TimeSlotDTO[];
   createdAt: string;
   updatedAt: string;
-
-  // VIRTUALS
+};
   teacher: {
     userId: UserDTO;
     staffId: string;

@@ -94,11 +94,11 @@ export interface EnrollPayload {
 
 export interface CreateSchedulePayload {
   subject: string;
-  teacherId: string; // "TBA" or Employee ID
-  sectionId?: string; // Added sectionId
+  // teacherId: string; // REMOVED
+  // sectionId?: string; // REMOVED
   schoolYear: string;
   semester: Semester;
-  schedules: Omit<TimeSlot, "_id">[];
+  schedules: (Omit<TimeSlot, "_id"> & { teacherId?: string })[];
 }
 
 export interface CreateCoursePayload {

@@ -24,8 +24,8 @@ export class GetAllScheduleUseCase {
     const query: Record<string, string | number> = {};
     if (filters.schoolYear) query.schoolYear = filters.schoolYear;
     if (filters.semester) query.semester = filters.semester;
-    if (filters.sectionId) query.sectionId = filters.sectionId;
-    if (filters.teacherId) query.teacherId = filters.teacherId;
+    // if (filters.sectionId) query.sectionId = filters.sectionId; // Removed sectionId
+    if (filters.teacherId) query["schedules.teacherId"] = filters.teacherId; // Updated to search inside schedules
     if (filters.subjectId) query.subject = filters.subjectId;
 
     if (filters.room) {
@@ -37,12 +37,16 @@ export class GetAllScheduleUseCase {
         .skip(skip)
         .limit(limit)
         .populate("subject")
-        .populate("section")
-        .populate({
-          path: "teacher",
-          populate: "userId",
-        })
+        // .populate("section") // Removed
+        // .populate({ // Removed top-level teacher
+        //   path: "teacher",
+        //   populate: "userId",
+        // })
         .populate("schedules.room")
+        .populate({
+          path: "schedules.teacher",
+          populate: { path: "userId" }, // Assuming Staff has userId ref
+        })
         .lean<SubjectScheduleDTO[]>(),
       SubjectScheduleModel.countDocuments(query),
     ]);
