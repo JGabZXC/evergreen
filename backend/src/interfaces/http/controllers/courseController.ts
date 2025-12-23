@@ -47,8 +47,6 @@ export const getCourse = async (req: Request, res: Response) => {
 
       courses = await getAllCoursesUseCase.execute(filter, skip, Number(limit));
 
-      console.log(courses);
-
       if (Number(page) > courses.totalPages && courses.totalDocs > 0) {
         throw new BadRequestError("Page number exceeds total pages");
       }

@@ -8,6 +8,7 @@ export interface TimeSlot {
   endTime: string;
   room: Schema.Types.ObjectId;
   teacherId: string; // Employee ID
+
   teacher?: Staff; // Virtual
 }
 

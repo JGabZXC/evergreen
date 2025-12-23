@@ -1,14 +1,15 @@
-import { SubjectSchedule } from "../../../domain/SubjectSchedule";
+import { FilterQuery } from "mongoose";
 import { SubjectScheduleModel } from "../../../infrastructure/database/SubjectScheduleModel";
 import { SubjectScheduleDTO } from "../../../interfaces/http/types/SubjectScheduleDTO";
+import { SubjectSchedule } from "../../../domain/SubjectSchedule";
 
-interface FilterSchedule {
+export interface FilterSchedule {
   schoolYear?: string;
   semester?: number;
-  sectionId?: string; // Filter by Section
-  teacherId?: string; // Filter by Teacher
-  subjectId?: string; // Filter by Subject
-  room?: string; // Filter by Physical Room (New)
+  sectionId?: string;
+  teacherId?: string;
+  subjectId?: string;
+  room?: string;
 }
 
 export class GetAllScheduleUseCase {
@@ -21,10 +22,9 @@ export class GetAllScheduleUseCase {
     totalPages: number;
     schedules: SubjectScheduleDTO[];
   }> {
-    const query: Record<string, string | number> = {};
+    const query: FilterQuery<FilterSchedule> = {};
     if (filters.schoolYear) query.schoolYear = filters.schoolYear;
     if (filters.semester) query.semester = filters.semester;
-    // if (filters.sectionId) query.sectionId = filters.sectionId; // Removed sectionId
     if (filters.teacherId) query["schedules.teacherId"] = filters.teacherId; // Updated to search inside schedules
     if (filters.subjectId) query.subject = filters.subjectId;
 
@@ -32,27 +32,44 @@ export class GetAllScheduleUseCase {
       query["schedules.room"] = filters.room;
     }
 
+    const raw = await SubjectScheduleModel.aggregate([
+      {
+        $match: query,
+      },
+      {
+        $addFields: {
+          schedules: {
+            $filter: {
+              input: "$schedules",
+              as: "schedule",
+              cond: { $eq: ["$$schedule.teacherId", filters.teacherId] },
+            },
+          },
+        },
+      },
+      {
+        $skip: skip,
+      },
+      {
+        $limit: limit,
+      },
+    ]);
+
     const [schedules, totalDocs] = await Promise.all([
-      SubjectScheduleModel.find(query)
-        .skip(skip)
-        .limit(limit)
-        .populate("subject")
-        // .populate("section") // Removed
-        // .populate({ // Removed top-level teacher
-        //   path: "teacher",
-        //   populate: "userId",
-        // })
-        .populate("schedules.room")
-        .populate({
-          path: "schedules.teacher",
-          populate: { path: "userId" }, // Assuming Staff has userId ref
-        })
-        .lean<SubjectScheduleDTO[]>(),
+      SubjectScheduleModel.populate(raw, [
+        { path: "subject" },
+        { path: "schedules.room" },
+        { path: "schedules.teacher" },
+      ]) as unknown as SubjectScheduleDTO[],
       SubjectScheduleModel.countDocuments(query),
     ]);
 
     const totalPages = Math.ceil(totalDocs / limit);
 
-    return { totalDocs, totalPages, schedules };
+    return {
+      totalDocs,
+      totalPages,
+      schedules,
+    };
   }
 }

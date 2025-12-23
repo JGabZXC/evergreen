@@ -10,6 +10,8 @@ import {
   UpdateSubjectScheduleUseCase,
 } from "../../../application/use-cases/scheduling";
 import { StaffRole } from "../../../domain/types/Role";
+import { FilterQuery } from "mongoose";
+import { FilterSchedule } from "../../../application/use-cases/scheduling/GetAllScheduleUseCase";
 
 const manageSubjectScheduleUseCase = new ManageSubjectScheduleUseCase();
 const getAllScheduleUseCase = new GetAllScheduleUseCase();
@@ -22,7 +24,6 @@ export const getSchedule = async (req: AuthenticatedRequest, res: Response) => {
     limit = 10,
     schoolYear,
     semester,
-    // sectionId, // Removed
     teacherId,
     subjectId,
     room,
@@ -46,22 +47,20 @@ export const getSchedule = async (req: AuthenticatedRequest, res: Response) => {
 
   const skip = (Number(page) - 1) * Number(limit);
 
-  const filter: Record<string, string | number> = {};
+  const filter: FilterQuery<FilterSchedule> = {};
 
-  if (req.user?.role === StaffRole.Teacher) {
+  if (req.user?.role === StaffRole.Teacher)
     filter.teacherId = req.user.employeeId || "";
-  }
-  if (schoolYear) filter.schoolYear = schoolYear as string;
+  if (schoolYear) filter.schoolYear = schoolYear;
   if (semester) filter.semester = Number(semester);
-  // if (sectionId) filter.sectionId = sectionId as string; // Removed
-  if (teacherId) filter.teacherId = teacherId as string;
-  if (subjectId) filter.subjectId = subjectId as string;
-  if (room) filter.room = room as string;
+  if (teacherId) filter.teacherId = teacherId;
+  if (subjectId) filter.subjectId = subjectId;
+  if (room) filter.room = room;
 
   try {
     let schedules;
     if (id) {
-      schedules = await getScheduleUseCase.execute(id as string);
+      schedules = await getScheduleUseCase.execute(id);
     } else {
       schedules = await getAllScheduleUseCase.execute(
         filter,

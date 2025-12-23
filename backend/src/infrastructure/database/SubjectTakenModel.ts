@@ -9,7 +9,6 @@ export const SubjectTakenSchema = new Schema<BaseSubjectTaken & Document>(
     scheduleId: {
       type: Schema.Types.ObjectId,
       ref: "SubjectSchedule",
-      required: false, // Optional for credited subjects
     },
     schoolYear: { type: String, required: true },
     semester: {
@@ -42,13 +41,6 @@ SubjectTakenSchema.virtual("student", {
   ref: "Student",
   localField: "studentId",
   foreignField: "studentId",
-  justOne: true,
-});
-
-SubjectTakenSchema.virtual("schedule", {
-  ref: "SubjectSchedule",
-  localField: "scheduleId",
-  foreignField: "_id",
   justOne: true,
 });
 

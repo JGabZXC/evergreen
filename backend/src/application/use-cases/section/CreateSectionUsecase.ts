@@ -41,7 +41,6 @@ export class CreateSectionUseCase {
       });
       return createdSection;
     } catch (err: any) {
-      console.log(err);
       if (err.code === 11000) {
         if (err.keyPattern?.adviserId) {
           throw new ConflictError(

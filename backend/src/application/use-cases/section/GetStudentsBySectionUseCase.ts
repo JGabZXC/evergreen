@@ -17,8 +17,6 @@ export class GetStudentsBySectionUseCase {
 
     if (semester) query.semester = semester;
 
-    console.log(query);
-
     const students = (await EnrollmentRecordModel.aggregate([
       { $match: query },
       {
@@ -59,8 +57,6 @@ export class GetStudentsBySectionUseCase {
         },
       },
     ])) as PopulatedStudentCourseStringDTO[];
-
-    console.log(students);
 
     return students;
   }

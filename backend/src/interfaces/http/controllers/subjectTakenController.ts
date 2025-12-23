@@ -84,7 +84,7 @@ export const getSubjectTaken = async (
           "schedules.teacherId": teacherId,
         }).select("_id");
         const scheduleIds = schedules.map((s) => s._id);
-        filter.scheduleId = { $in: scheduleIds } as any;
+        filter.scheduleId = { $in: scheduleIds };
       }
 
       if (scheduleId) filter.scheduleId = scheduleId;

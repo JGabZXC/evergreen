@@ -112,8 +112,6 @@ export class ManageSubjectScheduleUseCase {
       });
 
       if (schedule) {
-        console.log(`Syncing schedules for subject ${data.subject}`);
-
         // Find SubjectTaken records that match this subject/year/semester
         // AND have no schedule yet.
         // Since we removed sectionId, we rely on the fact that students enrolled

@@ -1,6 +1,7 @@
 import { FilterQuery } from "mongoose";
 import { SubjectTakenModel } from "../../../infrastructure/database/SubjectTakenModel";
 import { SubjectTakenDTO } from "../../../interfaces/http/types/SubjectTakenDTO";
+import { SubjectStatus } from "../../../domain/SubjectTaken";
 
 export interface FilterSubjectTaken {
   subject?: string;
@@ -8,13 +9,13 @@ export interface FilterSubjectTaken {
   teacherId?: string;
   scheduleId?: string;
   schoolYear?: string;
-  semester?: string;
-  status?: string;
+  semester?: number;
+  status?: SubjectStatus;
 }
 
 export class GetAllSubjectTakenUseCase {
-  async execute(filter: FilterSubjectTaken, skip = 0, limit = 10) {
-    console.log(filter);
+  async execute(filter: FilterQuery<FilterSubjectTaken>, skip = 0, limit = 10) {
+    console.log("😂😂😂", filter);
     const [subjectTakens, totalDocs] = await Promise.all([
       SubjectTakenModel.find(filter)
         .skip(skip)
@@ -23,7 +24,7 @@ export class GetAllSubjectTakenUseCase {
         .populate("student")
         .populate({
           path: "scheduleId",
-          populate: { path: "teacher" }, // Populate teacher inside schedule
+          populate: { path: "schedules.teacher" }, // Populate teacher inside schedule
         })
         .lean<SubjectTakenDTO[]>(),
       SubjectTakenModel.countDocuments(filter),

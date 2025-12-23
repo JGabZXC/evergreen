@@ -170,7 +170,6 @@ export const getSectionStudents = async (req: Request, res: Response) => {
     }
 
     const semesterNumber = semester ? Number(semester) : undefined;
-    console.log(semesterNumber);
 
     const students = await getStudentsBySectionUseCase.execute(
       id,

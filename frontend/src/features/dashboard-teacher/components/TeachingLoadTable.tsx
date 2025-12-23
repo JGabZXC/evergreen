@@ -68,7 +68,6 @@ const TeachingLoadTable = ({
                 <tr className="bg-base-200 sticky top-0 z-10">
                   <th>Subject Code</th>
                   <th>Subject Name</th>
-                  <th>Section</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -97,13 +96,6 @@ const TeachingLoadTable = ({
                         {typeof cls.subject === "object"
                           ? cls.subject.description
                           : ""}
-                      </td>
-                      <td>
-                        {cls.section ? (
-                          cls.section.name
-                        ) : (
-                          <span className="badge badge-ghost">Mixed/Open</span>
-                        )}
                       </td>
                       <td>
                         <div className="flex items-center gap-2">
