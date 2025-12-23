@@ -5,7 +5,8 @@ import {
   BadRequestError,
   NotFoundError,
 } from "../../../interfaces/http/middleware/HttpErrors";
-import { SubjectStatus } from "../../../domain/SubjectTaken";
+import { SubjectStatus, SubjectTaken } from "../../../domain/SubjectTaken";
+import { SubjectScheduleDTO } from "../../../interfaces/http/types/SubjectScheduleDTO";
 
 interface GradeInput {
   subjectTakenId: string; // The ID of the specific row in the grade sheet
@@ -13,6 +14,13 @@ interface GradeInput {
   grade: number;
   remarks?: string;
 }
+
+type SubjectTakenPopulatedSchdulesAndTeacherDTO = Omit<
+  SubjectTaken,
+  "scheduleId"
+> & {
+  scheduleId: SubjectScheduleDTO;
+};
 
 export class UpdateGradeUseCase {
   async execute(
@@ -25,12 +33,21 @@ export class UpdateGradeUseCase {
     }
 
     // 1. Find the record and ensure this teacher owns it (Security)
-    const record = await SubjectTakenModel.findOne({
-      _id: input.subjectTakenId,
-      teacherId: teacherId,
-    });
+    const record = await SubjectTakenModel.findById(
+      input.subjectTakenId
+    ).populate("scheduleId");
 
     if (!record) {
+      throw new NotFoundError(
+        "Grade record not found or you are not the assigned teacher."
+      );
+    }
+
+    const isAssigned = (
+      record as unknown as SubjectTakenPopulatedSchdulesAndTeacherDTO
+    ).scheduleId.schedules.some((s) => s.teacherId === teacherId);
+
+    if (!isAssigned) {
       throw new NotFoundError(
         "Grade record not found or you are not the assigned teacher."
       );

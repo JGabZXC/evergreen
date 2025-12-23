@@ -15,7 +15,6 @@ export interface FilterSubjectTaken {
 
 export class GetAllSubjectTakenUseCase {
   async execute(filter: FilterQuery<FilterSubjectTaken>, skip = 0, limit = 10) {
-    console.log("😂😂😂", filter);
     const [subjectTakens, totalDocs] = await Promise.all([
       SubjectTakenModel.find(filter)
         .skip(skip)

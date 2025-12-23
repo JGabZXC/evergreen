@@ -1,7 +1,6 @@
 import { FilterQuery } from "mongoose";
 import { SubjectScheduleModel } from "../../../infrastructure/database/SubjectScheduleModel";
 import { SubjectScheduleDTO } from "../../../interfaces/http/types/SubjectScheduleDTO";
-import { SubjectSchedule } from "../../../domain/SubjectSchedule";
 
 export interface FilterSchedule {
   schoolYear?: string;
@@ -27,42 +26,40 @@ export class GetAllScheduleUseCase {
     if (filters.semester) query.semester = filters.semester;
     if (filters.teacherId) query["schedules.teacherId"] = filters.teacherId; // Updated to search inside schedules
     if (filters.subjectId) query.subject = filters.subjectId;
-
     if (filters.room) {
       query["schedules.room"] = filters.room;
     }
 
-    const raw = await SubjectScheduleModel.aggregate([
+    const [promise] = await SubjectScheduleModel.aggregate([
+      { $match: query },
       {
-        $match: query,
-      },
-      {
-        $addFields: {
-          schedules: {
-            $filter: {
-              input: "$schedules",
-              as: "schedule",
-              cond: { $eq: ["$$schedule.teacherId", filters.teacherId] },
+        $facet: {
+          metadata: [{ $count: "total" }],
+          data: [
+            {
+              $addFields: {
+                schedules: {
+                  $filter: {
+                    input: "$schedules",
+                    as: "schedule",
+                    cond: { $eq: ["$$schedule.teacherId", filters.teacherId] },
+                  },
+                },
+              },
             },
-          },
+            { $skip: skip },
+            { $limit: limit },
+          ],
         },
-      },
-      {
-        $skip: skip,
-      },
-      {
-        $limit: limit,
       },
     ]);
 
-    const [schedules, totalDocs] = await Promise.all([
-      SubjectScheduleModel.populate(raw, [
-        { path: "subject" },
-        { path: "schedules.room" },
-        { path: "schedules.teacher" },
-      ]) as unknown as SubjectScheduleDTO[],
-      SubjectScheduleModel.countDocuments(query),
-    ]);
+    const totalDocs = promise.metadata[0]?.total || 0;
+    const schedules = (await SubjectScheduleModel.populate(promise.data, [
+      { path: "subject" },
+      { path: "schedules.room" },
+      { path: "schedules.teacher" },
+    ])) as unknown as SubjectScheduleDTO[];
 
     const totalPages = Math.ceil(totalDocs / limit);
 
