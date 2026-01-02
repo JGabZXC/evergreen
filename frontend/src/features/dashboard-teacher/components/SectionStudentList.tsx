@@ -36,7 +36,7 @@ export default function SectionStudentList() {
 
   if (loading) {
     return (
-      <div className="card bg-base-100 shadow-xl h-full flex items-center justify-center min-h-[400px]">
+      <div className="card bg-base-100 shadow-xl flex items-center justify-center min-h-[400px]">
         <span className="loading loading-spinner loading-lg text-primary"></span>
       </div>
     );
@@ -47,9 +47,9 @@ export default function SectionStudentList() {
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="card bg-base-100 shadow-xl h-full"
+        className="card bg-base-100 shadow-xl"
       >
-        <div className="card-body items-center justify-center text-center">
+        <div className="card-body items-center justify-center text-center min-h-[400px]">
           <Users className="w-12 h-12 text-gray-300 mb-4" />
           <h3 className="card-title text-lg">No Advisory Class</h3>
           <p className="text-gray-500">

@@ -36,7 +36,9 @@ export class EnrollStudentUseCase {
       // 0. Validate School Year Status
       const schoolYearRecord = await SchoolYearModel.findOne({
         year: input.schoolYear,
-      }).session(session);
+      })
+        .session(session)
+        .lean();
 
       if (!schoolYearRecord) {
         throw new NotFoundError(`School Year ${input.schoolYear} not found.`);
@@ -47,19 +49,47 @@ export class EnrollStudentUseCase {
           `Cannot enroll in School Year ${input.schoolYear} because it is already closed.`
         );
       }
-
-      // Validate Semester exists in School Year for the specific Department
       const department = getDepartment(input.gradeLevel);
       const terms =
         department === Department.College
           ? schoolYearRecord.terms.college
           : schoolYearRecord.terms.k12;
 
-      const termExists = terms.some((t) => t.semester === input.semester);
-      if (!termExists) {
+      const term = terms.find((t) => t.semester === input.semester);
+      if (!term) {
         throw new BadRequestError(
           `Semester ${input.semester} is not scheduled for School Year ${input.schoolYear} (${department}).`
         );
+      }
+
+      const now = new Date();
+      const termStartDate = new Date(term.startDate);
+      const termEndDate = new Date(term.endDate);
+
+      if (now < termStartDate) {
+        throw new BadRequestError(
+          `Cannot enroll in ${input.schoolYear} - ${
+            input.semester === 1 ? "1st" : input.semester === 2 ? "2nd" : "3rd"
+          } Semester because it has not started yet (Start Date: ${termStartDate.toLocaleDateString()}).`
+        );
+      }
+
+      if (now > termEndDate) {
+        throw new BadRequestError(
+          `Cannot enroll in ${input.schoolYear} - ${
+            input.semester === 1 ? "1st" : input.semester === 2 ? "2nd" : "3rd"
+          } Semester because it has already ended (End Date: ${termEndDate.toLocaleDateString()}).`
+        );
+      }
+
+      const laterTerms = terms.filter((t) => t.semester > input.semester);
+      for (const laterTerm of laterTerms) {
+        const laterTermStart = new Date(laterTerm.startDate);
+        if (now >= laterTermStart) {
+          throw new BadRequestError(
+            `Cannot enroll in Semester ${input.semester} because Semester ${laterTerm.semester} has already started.`
+          );
+        }
       }
 
       // 1. Fetch Student & Validate Existence
