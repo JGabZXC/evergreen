@@ -10,6 +10,11 @@ import { SubjectScheduleDTO } from "../../../interfaces/http/types/SubjectSchedu
 import { SchoolYearModel } from "../../../infrastructure/database/SchoolYearModel";
 import { SchoolYearStatus } from "../../../domain/SchoolYear";
 import { Semester } from "../../../domain/types/Semester";
+import { EnrollmentRecordModel } from "../../../infrastructure/database/EnrollmentRecordModel";
+import {
+  getDepartment,
+  Department,
+} from "../../../domain/utils/DepartmentUtils";
 
 interface GradeInput {
   subjectTakenId: string; // The ID of the specific row in the grade sheet
@@ -73,11 +78,29 @@ export class UpdateGradeUseCase {
     }
 
     // Check Term Deadline (Grace period: 1 week after next term starts)
+    // Fetch Enrollment to determine Department (College vs K12)
+    const enrollment = await EnrollmentRecordModel.findOne({
+      studentId: record.studentId,
+      schoolYear: record.schoolYear,
+      semester: record.semester,
+    }).session(session);
+
+    if (!enrollment) {
+      // Fallback or Error? If no enrollment, maybe just assume College or throw?
+      // For safety, let's assume College if not found, or throw.
+      // But SubjectTaken should imply enrollment.
+      throw new NotFoundError("Student enrollment record not found.");
+    }
+
+    const department = getDepartment(enrollment.gradeLevel);
+    const termsList =
+      department === Department.College
+        ? schoolYearRecord.terms.college
+        : schoolYearRecord.terms.k12;
+
     const currentSemester = record.semester;
     // Sort terms by semester to ensure order (First, Second, Third)
-    const terms = schoolYearRecord.terms.sort(
-      (a, b) => a.semester - b.semester
-    );
+    const terms = termsList.sort((a, b) => a.semester - b.semester);
     const currentTermIndex = terms.findIndex(
       (t) => t.semester === currentSemester
     );

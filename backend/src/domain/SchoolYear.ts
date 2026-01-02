@@ -12,12 +12,17 @@ export interface TermPeriod {
   endDate: Date;
 }
 
+export interface DepartmentPeriods {
+  college: TermPeriod[];
+  k12: TermPeriod[];
+}
+
 export interface BaseSchoolYear {
   year: string; // e.g., "2023-2024"
   startDate: Date;
   endDate: Date;
   status: SchoolYearStatus;
-  terms: TermPeriod[];
+  terms: DepartmentPeriods;
 }
 
 export interface SchoolYear extends BaseSchoolYear {

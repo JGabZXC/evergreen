@@ -284,3 +284,31 @@ export interface SubjectTaken {
   // Virtuals/Populated
   student?: Student;
 }
+
+export enum SchoolYearStatus {
+  Active = "Active",
+  Closed = "Closed",
+  Upcoming = "Upcoming",
+}
+
+export interface TermPeriod {
+  semester: Semester;
+  startDate: string;
+  endDate: string;
+}
+
+export interface DepartmentPeriods {
+  college: TermPeriod[];
+  k12: TermPeriod[];
+}
+
+export interface SchoolYear {
+  _id: string;
+  year: string;
+  startDate: string;
+  endDate: string;
+  status: SchoolYearStatus;
+  terms: DepartmentPeriods;
+  createdAt: string;
+  updatedAt: string;
+}

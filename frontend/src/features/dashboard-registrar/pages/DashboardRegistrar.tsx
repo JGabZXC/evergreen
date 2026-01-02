@@ -11,6 +11,7 @@ import {
   ClipboardList,
   DoorOpen,
   LayoutGrid,
+  Calendar,
 } from "lucide-react";
 import DashboardOverview from "../components/DashboardOverview";
 import ManualEnrollment from "../components/ManualEnrollment";
@@ -24,6 +25,7 @@ import SidebarItem from "../components/SidebarItem";
 import CourseList from "../components/CourseList";
 import RoomList from "../components/RoomList";
 import SectionList from "../components/SectionList";
+import SchoolYearManagement from "../components/SchoolYearManagement";
 
 export default function DashboardRegistrar() {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -49,6 +51,8 @@ export default function DashboardRegistrar() {
         return <RoomList />;
       case "sections":
         return <SectionList />;
+      case "school-year":
+        return <SchoolYearManagement />;
       default:
         return <DashboardOverview />;
     }
@@ -146,6 +150,13 @@ export default function DashboardRegistrar() {
             isActive={activeTab === "sections"}
             isOpen={isSidebarOpen}
             onClick={() => setActiveTab("sections")}
+          />
+          <SidebarItem
+            icon={Calendar}
+            label="School Year"
+            isActive={activeTab === "school-year"}
+            isOpen={isSidebarOpen}
+            onClick={() => setActiveTab("school-year")}
           />
         </nav>
 

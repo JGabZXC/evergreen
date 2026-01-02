@@ -17,6 +17,7 @@ import courseRoutes from "./interfaces/http/routes/courseRoutes";
 import roomRoutes from "./interfaces/http/routes/roomRoutes";
 import subjectTakenRoutes from "./interfaces/http/routes/subjectTakenRoutes";
 import announcementRoutes from "./interfaces/http/routes/announcementRoutes";
+import schoolYearRoutes from "./interfaces/http/routes/schoolYearRoutes";
 
 dotenv.config({
   path: "../.env",
@@ -46,6 +47,7 @@ app.use("/api/teacher", teacherRoutes);
 app.use("/api/course", courseRoutes);
 app.use("/api/room", roomRoutes);
 app.use("/api/announcements", announcementRoutes);
+app.use("/api/school-year", schoolYearRoutes);
 
 app.use(errorHandler);
 

@@ -54,9 +54,10 @@ export const useGradebook = ({
       // Refresh to get calculated final grades
       await fetchGrades();
       return true;
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to update grade", err);
-      toast.error("Failed to update grade");
+      const message = err.response?.data?.message || "Failed to update grade";
+      toast.error(message);
       return false;
     }
   };

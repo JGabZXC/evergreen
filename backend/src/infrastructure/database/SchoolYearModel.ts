@@ -22,7 +22,10 @@ const SchoolYearSchema = new Schema<SchoolYear & Document>(
       enum: SchoolYearStatus,
       default: SchoolYearStatus.Upcoming,
     },
-    terms: [TermPeriodSchema],
+    terms: {
+      college: [TermPeriodSchema],
+      k12: [TermPeriodSchema],
+    },
   },
   { timestamps: true }
 );

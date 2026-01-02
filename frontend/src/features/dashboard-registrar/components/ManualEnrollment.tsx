@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Save,
@@ -19,16 +19,14 @@ import {
 import { getStudent } from "../services/studentService";
 
 import CreditSubjectsModal, { type CreditItem } from "./CreditSubjectsModal";
-import {
-  getCurrentSchoolYear,
-  getSchoolYearOptions,
-} from "../../../utils/schoolYear";
+import { getCurrentSchoolYear } from "../../../utils/schoolYear";
 import {
   GradeLevel,
   Semester,
   type CurriculumItem,
 } from "../../../shared/types";
 import type { StudentAggregate } from "../types";
+import { useSchoolYears } from "../../../shared/hooks/useSchoolYears";
 
 // --- Types ---
 type EnrollmentType = "new" | "transferee" | "existing";
@@ -48,6 +46,22 @@ export default function ManualEnrollment() {
   const [gradeLevel, setGradeLevel] = useState(GradeLevel.Grade11);
   const [schoolYear, setSchoolYear] = useState(getCurrentSchoolYear());
   const [section, setSection] = useState("");
+
+  const { schoolYears, activeSchoolYear } = useSchoolYears();
+
+  // Set default school year to active one when loaded
+  useEffect(() => {
+    if (activeSchoolYear) {
+      setSchoolYear(activeSchoolYear.year);
+    }
+  }, [activeSchoolYear]);
+
+  // Reset semester if switching from College to K12
+  useEffect(() => {
+    if (!gradeLevel.includes("COL") && selectedSemester === Semester.Third) {
+      setSelectedSemester(Semester.First);
+    }
+  }, [gradeLevel, selectedSemester]);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -306,7 +320,9 @@ export default function ManualEnrollment() {
                       >
                         <option value={Semester.First}>1st Semester</option>
                         <option value={Semester.Second}>2nd Semester</option>
-                        <option value={Semester.Third}>3rd Semester</option>
+                        {gradeLevel.includes("COL") && (
+                          <option value={Semester.Third}>3rd Semester</option>
+                        )}
                       </select>
                     </div>
                     <div className="form-control">
@@ -321,11 +337,16 @@ export default function ManualEnrollment() {
                           value={schoolYear}
                           onChange={(e) => setSchoolYear(e.target.value)}
                         >
-                          {getSchoolYearOptions().map((sy) => (
-                            <option key={sy} value={sy}>
-                              {sy}
-                            </option>
-                          ))}
+                          {schoolYears.length > 0 ? (
+                            schoolYears.map((sy) => (
+                              <option key={sy._id} value={sy.year}>
+                                {sy.year}{" "}
+                                {sy.status === "Active" ? "(Active)" : ""}
+                              </option>
+                            ))
+                          ) : (
+                            <option value={schoolYear}>{schoolYear}</option>
+                          )}
                         </select>
                       </div>
                     </div>

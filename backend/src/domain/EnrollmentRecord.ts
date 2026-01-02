@@ -16,7 +16,7 @@ export interface BaseEnrollmentRecord {
   gradeLevel: GradeLevel;
   enrollmentDate: Date;
   status: EnrollmentStatus;
-  schoolYear: Schema.Types.ObjectId; // Reference to SchoolYear
+  schoolYear: string;
   section?: Schema.Types.ObjectId; // Section reference
   semester: Semester;
 }

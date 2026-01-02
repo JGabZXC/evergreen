@@ -19,17 +19,16 @@ import { SchoolYearStatus } from "../../../domain/SchoolYear";
 import { StudentAdvisingService } from "../../services/studentAdvisingService";
 import { ClassroomAllocationService } from "../../services/classroomAllocationService";
 import { Subject } from "../../../domain/Subject";
-
-export interface EnrollStudentInput
-  extends Omit<BaseEnrollmentRecord, "schoolYear"> {
-  schoolYear: string;
-}
+import {
+  getDepartment,
+  Department,
+} from "../../../domain/utils/DepartmentUtils";
 
 export class EnrollStudentUseCase {
   private advisingService = new StudentAdvisingService();
   private allocationService = new ClassroomAllocationService();
 
-  async execute(input: EnrollStudentInput) {
+  async execute(input: BaseEnrollmentRecord) {
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -45,7 +44,21 @@ export class EnrollStudentUseCase {
 
       if (schoolYearRecord.status === SchoolYearStatus.Closed) {
         throw new BadRequestError(
-          `Cannot enroll in a closed school year (${input.schoolYear}).`
+          `Cannot enroll in School Year ${input.schoolYear} because it is already closed.`
+        );
+      }
+
+      // Validate Semester exists in School Year for the specific Department
+      const department = getDepartment(input.gradeLevel);
+      const terms =
+        department === Department.College
+          ? schoolYearRecord.terms.college
+          : schoolYearRecord.terms.k12;
+
+      const termExists = terms.some((t) => t.semester === input.semester);
+      if (!termExists) {
+        throw new BadRequestError(
+          `Semester ${input.semester} is not scheduled for School Year ${input.schoolYear} (${department}).`
         );
       }
 
@@ -75,7 +88,7 @@ export class EnrollStudentUseCase {
       // 3. Check for Duplicate Active Enrollment
       const activeEnrollment = await EnrollmentRecordModel.findOne({
         studentId: input.studentId,
-        schoolYear: schoolYearRecord._id,
+        schoolYear: input.schoolYear,
         semester: input.semester,
         status: { $ne: EnrollmentStatus.Dropped },
       }).session(session);
@@ -173,7 +186,7 @@ export class EnrollStudentUseCase {
             gradeLevel: input.gradeLevel,
             enrollmentDate: new Date(),
             status: EnrollmentStatus.Enrolled,
-            schoolYear: schoolYearRecord._id,
+            schoolYear: input.schoolYear,
             semester: input.semester,
           },
         ],
