@@ -7,6 +7,9 @@ import {
 } from "../../../interfaces/http/middleware/HttpErrors";
 import { SubjectStatus, SubjectTaken } from "../../../domain/SubjectTaken";
 import { SubjectScheduleDTO } from "../../../interfaces/http/types/SubjectScheduleDTO";
+import { SchoolYearModel } from "../../../infrastructure/database/SchoolYearModel";
+import { SchoolYearStatus } from "../../../domain/SchoolYear";
+import { Semester } from "../../../domain/types/Semester";
 
 interface GradeInput {
   subjectTakenId: string; // The ID of the specific row in the grade sheet
@@ -51,6 +54,50 @@ export class UpdateGradeUseCase {
       throw new NotFoundError(
         "Grade record not found or you are not the assigned teacher."
       );
+    }
+
+    // 1.5 Validate School Year and Term Deadlines
+    const schoolYearRecord = await SchoolYearModel.findOne({
+      year: record.schoolYear,
+    }).session(session);
+
+    if (!schoolYearRecord) {
+      throw new NotFoundError(`School Year ${record.schoolYear} not found.`);
+    }
+
+    // Check if School Year is Closed
+    if (schoolYearRecord.status === SchoolYearStatus.Closed) {
+      throw new BadRequestError(
+        "The school year has ended. You cannot edit grades anymore. Please request a grade change from the registrar."
+      );
+    }
+
+    // Check Term Deadline (Grace period: 1 week after next term starts)
+    const currentSemester = record.semester;
+    // Sort terms by semester to ensure order (First, Second, Third)
+    const terms = schoolYearRecord.terms.sort(
+      (a, b) => a.semester - b.semester
+    );
+    const currentTermIndex = terms.findIndex(
+      (t) => t.semester === currentSemester
+    );
+
+    if (currentTermIndex !== -1) {
+      const nextTerm = terms[currentTermIndex + 1];
+      // If there is a next term, check if we are past the grace period
+      if (nextTerm) {
+        const oneWeekAfterNextTermStart = new Date(nextTerm.startDate);
+        oneWeekAfterNextTermStart.setDate(
+          oneWeekAfterNextTermStart.getDate() + 7
+        );
+
+        const now = new Date();
+        if (now > oneWeekAfterNextTermStart) {
+          throw new BadRequestError(
+            `Cannot edit grades for ${Semester[currentSemester]} Semester because the grace period (1 week after next semester start) has passed.`
+          );
+        }
+      }
     }
 
     // 2. Update the specific term grade
