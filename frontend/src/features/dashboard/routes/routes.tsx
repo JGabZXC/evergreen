@@ -3,15 +3,19 @@ import { ProfileForm } from "../../dashboard-student/pages/ProfileForm";
 
 export const dashboardRoutes = [
   {
-    path: "/dashboard",
+    index: true,
     element: <DashboardMain />,
   },
   {
-    path: "/student/profile/create",
+    path: "student/profile/create",
     element: <ProfileForm />,
   },
   {
-    path: "/student/profile/edit",
+    path: "student/profile/edit",
     element: <ProfileForm />,
+  },
+  {
+    path: "*",
+    element: <DashboardMain />,
   },
 ];

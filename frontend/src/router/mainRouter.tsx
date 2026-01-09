@@ -29,6 +29,7 @@ export const router = createBrowserRouter([
         ],
       },
       {
+        path:"/dashboard",
         element: (
           <AxiosInterceptor>
             <ProtectedRoute
