@@ -14,6 +14,7 @@ import type {
   Teacher,
   TimeSlot,
 } from "../../../shared/types";
+import type {User} from "../../auth/types/auth.types.ts";
 
 // --- Domain Interfaces ---
 
@@ -31,12 +32,12 @@ export interface EnrollmentRecord {
 // Matches the aggregation result from GetAllStudentUseCase
 export interface StudentAggregate {
   _id: string;
-  userId: string;
+  userId: Omit<User, "role" | "active" | "createdAt" | "updatedAt">;
   studentId: string;
   isActive: boolean;
 
   // Populated Fields via Aggregation
-  course?: Course;
+  course?: Omit<Course, "code" | "_id" | "gradeAvailable" | "curriculum" | "createdAt" | "updatedAt">;
   profile?: StudentProfile;
   latestEnrollment?: EnrollmentRecord;
 

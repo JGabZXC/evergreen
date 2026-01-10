@@ -13,6 +13,7 @@ import {
   GetStudentScheduleFilter,
   GetStudentScheduleUseCase,
 } from "../../../application/use-cases/student/GetStudentScheduleUseCase";
+import { GetStudentEnrollmentHistoryUseCase } from "../../../application/use-cases/student/GetStudentEnrollmentHistoryUseCase";
 
 const getGrades = new GetStudentGradesUseCase();
 
@@ -20,16 +21,19 @@ const getAllStudentUseCase = new GetAllStudentUseCase();
 const getStudentUseCase = new GetStudentUseCase();
 const updateStudentProfileUseCase = new UpdateStudentProfileUseCase();
 const getStudentScheduleUseCase = new GetStudentScheduleUseCase();
+const getStudentEnrollmentHistoryUseCase = new GetStudentEnrollmentHistoryUseCase();
 
 export const getStudents = async (req: Request, res: Response) => {
-  let {
+  const {
     page = 1,
-    limit = 10,
+    limit: queryLimit = 10,
     course,
     studentId,
     view = "enrolled",
+    schoolYear,
   } = req.query;
-  let { id } = req.params;
+  const { id } = req.params;
+  let limit = queryLimit;
 
   if (id && typeof id !== "string") {
     throw new BadRequestError("Student ID is required and must be a string");
@@ -51,6 +55,7 @@ export const getStudents = async (req: Request, res: Response) => {
   const filter: Record<string, string | number | boolean> = {};
   if (course) filter.course = course as string;
   if (studentId) filter.studentId = studentId as string;
+  if (schoolYear) filter.schoolYear = schoolYear as string;
 
   if (view === "enrolled") {
     filter.isActive = true;
@@ -154,6 +159,62 @@ export const getStudentSchedule = async (
     const { schedules, enrolledSubjects } =
       await getStudentScheduleUseCase.execute(filter);
     res.status(HttpStatus.OK).json({ schedules, enrolledSubjects });
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const updateProfileByRegistrar = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { id } = req.params; // Student ID (_id)
+    const profileData = req.body;
+
+    console.log(profileData);
+
+    if(!id || typeof id !== "string") {
+      throw new BadRequestError("Student ID is required and must be a string");
+    }
+
+    const result = await updateStudentProfileUseCase.execute(
+      id,
+      profileData,
+      false // byUserId = false
+    );
+    res.status(HttpStatus.OK).json(result);
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getEnrollmentHistory = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params; // Student ID
+    let { page = 1, limit = 10 } = req.query;
+
+    if((page && isNaN(Number(page))) || (page && Number(page) < 1)) {
+      throw new BadRequestError("Page must be a positive number");
+    }
+    if((limit && isNaN(Number(limit))) || (limit && Number(limit) < 1)) {
+      throw new BadRequestError("Limit must be a positive number");
+    }
+
+    if (limit && Number(limit) > 100) {
+      limit = 100;
+    }
+
+    if (!id || typeof id !== "string") {
+      throw new BadRequestError("Student ID is required and must be a string");
+    }
+
+    const result = await getStudentEnrollmentHistoryUseCase.execute(
+      id,
+      Number(page),
+      Number(limit)
+    );
+    res.status(HttpStatus.OK).json(result);
   } catch (error) {
     throw error;
   }

@@ -1,10 +1,20 @@
 import { StudentAggregate } from "../../../domain/Student";
 import { StudentModel } from "../../../infrastructure/database/StudentModel";
-import mongoose from "mongoose";
+import { SchoolYearModel } from "../../../infrastructure/database/SchoolYearModel";
+import { SchoolYearStatus } from "../../../domain/SchoolYear";
+import mongoose, {FilterQuery, PipelineStage, Types} from "mongoose";
+
+export interface FilterStudent {
+  course?: string | Types.ObjectId;
+  isActive?: boolean;
+  studentId?: string;
+  schoolYear?: string; // Special field: used for enrollment lookup, not student match
+  search?: string;     // Optional: if you implement text search later
+}
 
 export class GetAllStudentUseCase {
   async execute(
-    filter: Record<string, any>,
+    filter: FilterQuery<FilterStudent>,
     skip: number,
     limit: number,
     viewMode: "enrolled" | "all" = "enrolled"
@@ -13,25 +23,41 @@ export class GetAllStudentUseCase {
     totalPages: number;
     students: StudentAggregate[];
   }> {
-    const pipeline: any[] = [];
+    const pipeline: PipelineStage[] = [];
 
-    // 1. Match Filter (Active/Inactive, etc)
-    // For 'enrolled' view, we usually only want active students, but let's respect the passed filter
-    if (Object.keys(filter).length > 0) {
-      // Ensure course is cast to ObjectId for aggregation
-      if (filter.course && typeof filter.course === "string") {
-        filter.course = new mongoose.Types.ObjectId(filter.course);
-      }
-      pipeline.push({ $match: filter });
+    const queryFilter: FilterStudent = { ...filter };
+    let targetSchoolYear = queryFilter.schoolYear;
+
+    // Remove schoolYear from student match filter as it belongs to enrollment
+    delete queryFilter.schoolYear;
+
+    if (!targetSchoolYear) {
+      const activeSy = await SchoolYearModel.findOne({
+        status: SchoolYearStatus.Active,
+      });
+      if (activeSy) targetSchoolYear = activeSy.year;
     }
 
-    // 2. Lookup Latest Enrollment
+    if (Object.keys(queryFilter).length > 0) {
+      // Ensure course is cast to ObjectId for aggregation
+        if (queryFilter.course && typeof queryFilter.course === "string") {
+            queryFilter.course = new mongoose.Types.ObjectId(queryFilter.course);
+        }
+      pipeline.push({ $match: queryFilter });
+    }
+
+    const lookupMatch: Record<string, any> = { $expr: { $eq: ["$studentId", "$$sid"] } };
+
+    if (targetSchoolYear) {
+      lookupMatch.schoolYear = targetSchoolYear;
+    }
+
     pipeline.push({
       $lookup: {
         from: "enrollmentrecords",
         let: { sid: "$studentId" },
         pipeline: [
-          { $match: { $expr: { $eq: ["$studentId", "$$sid"] } } },
+          { $match: lookupMatch },
           { $sort: { enrollmentDate: -1 } }, // Get latest
           { $limit: 1 },
         ],
@@ -39,9 +65,6 @@ export class GetAllStudentUseCase {
       },
     });
 
-    // 3. Unwind Enrollment
-    // If viewMode is 'enrolled', we strictly require an enrollment record (preserve=false)
-    // If viewMode is 'all', we keep students even without enrollment (preserve=true)
     pipeline.push({
       $unwind: {
         path: "$latestEnrollment",
@@ -50,21 +73,12 @@ export class GetAllStudentUseCase {
     });
 
     pipeline.push({
-      $lookup: {
-        from: "studentprofiles",
-        localField: "studentId",
-        foreignField: "studentId",
-        as: "profile",
-      },
-    });
-    pipeline.push({
       $unwind: {
         path: "$profile",
         preserveNullAndEmptyArrays: true,
       },
     });
 
-    // 5. Lookup Course
     pipeline.push({
       $lookup: {
         from: "courses",
@@ -73,12 +87,54 @@ export class GetAllStudentUseCase {
         as: "course",
       },
     });
+
     pipeline.push({
       $unwind: {
         path: "$course",
+
         preserveNullAndEmptyArrays: true,
       },
     });
+
+    pipeline.push({
+      $addFields: {
+        course: {
+          $cond: {
+            if: { $ifNull: ["$course", false] },
+            then: { name: "$course.name" },
+            else: "$$REMOVE",
+          },
+        },
+      },
+    });
+
+    pipeline.push({
+      $lookup : {
+        from: "users",
+        localField: "userId",
+        foreignField: "_id",
+        as: "userId"
+      }
+    });
+
+    pipeline.push({
+      $unwind: {
+        path: "$userId",
+        preserveNullAndEmptyArrays: true,
+      }
+    })
+
+    pipeline.push({
+      $addFields: {
+        userId: {
+          $cond: {
+            if: { $ifNull: ["$userId", false] },
+            then: { _id: "$userId._id", email: "$userId.email"},
+            else: "$$REMOVE",
+          }
+        }
+      }
+    })
 
     pipeline.push({
       $facet: {

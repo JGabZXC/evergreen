@@ -1,9 +1,11 @@
-import { useState, useEffect } from "react";
-import { Search, Users, Loader2, RefreshCw, Eye } from "lucide-react";
+import React, { useState, useEffect, useCallback } from "react";
+import { Search, Users, Loader2, RefreshCw, Eye, Calendar } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { getStudents } from "../services/studentService";
 import StudentProfileModal from "./StudentProfileModal";
 import type { StudentAggregate } from "../types";
+import { useSchoolYears } from "../../../shared/hooks/useSchoolYears";
+import { SchoolYearStatus } from "../../../shared/types";
 
 export default function StudentRecords() {
   const [students, setStudents] = useState<StudentAggregate[]>([]);
@@ -13,15 +15,31 @@ export default function StudentRecords() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
+  const { schoolYears, loading: syLoading } = useSchoolYears();
+  const [selectedSchoolYear, setSelectedSchoolYear] = useState("");
+
+  // Set default active school year
+  useEffect(() => {
+    if (schoolYears.length > 0 && !selectedSchoolYear) {
+      const active = schoolYears.find(
+        (sy) => sy.status === SchoolYearStatus.Active
+      );
+      if (active) setSelectedSchoolYear(active.year);
+      else setSelectedSchoolYear(schoolYears[0].year);
+    }
+  }, [schoolYears, selectedSchoolYear]);
+
   // Modal State
   const [selectedStudent, setSelectedStudent] =
     useState<StudentAggregate | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const fetchStudents = async () => {
+  const fetchStudents = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await getStudents(page, 10, viewMode, searchTerm);
+      // Pass selectedSchoolYear if viewMode is 'enrolled' (or both if needed, but important for enrolled)
+      const syParam = viewMode === 'enrolled' ? selectedSchoolYear : '';
+      const data = await getStudents(page, 10, viewMode, searchTerm, syParam);
 
       if (data.totalPages > 0 && page > data.totalPages) {
         setPage(1);
@@ -35,11 +53,13 @@ export default function StudentRecords() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, viewMode, searchTerm, selectedSchoolYear]);
 
   useEffect(() => {
+    if (viewMode === "enrolled" && !selectedSchoolYear && syLoading) return;
+
     fetchStudents();
-  }, [page, viewMode]); // Refetch on page or mode change
+  }, [fetchStudents, syLoading, selectedSchoolYear, viewMode]); // Refetch on page, mode, or SY change
 
   // Handle Search Debounce or Enter
   const handleSearch = (e: React.FormEvent) => {
@@ -71,6 +91,31 @@ export default function StudentRecords() {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
+            {/* School Year Select */}
+             {viewMode === "enrolled" && (
+              <div className="join">
+                <div className="join-item flex items-center bg-base-200 px-3 border border-base-300">
+                  <Calendar size={16} className="opacity-70" />
+                </div>
+                <select
+                  className="select select-bordered select-sm join-item"
+                  value={selectedSchoolYear}
+                  onChange={(e) => {
+                    setSelectedSchoolYear(e.target.value);
+                    setPage(1);
+                  }}
+                  disabled={syLoading}
+                >
+                  <option value="">-- Active SY --</option>
+                  {schoolYears.map((sy) => (
+                    <option key={sy._id} value={sy.year}>
+                      {sy.year} {sy.status === SchoolYearStatus.Active ? "(Active)" : ""}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
             {/* View Mode Toggle */}
             <div className="join">
               <button
@@ -182,7 +227,7 @@ export default function StudentRecords() {
                       </td>
                       <td>
                         <span className="badge badge-ghost badge-sm">
-                          {student.course?.code || "N/A"}
+                          {student.course?.name || "N/A"}
                         </span>
                       </td>
                       <td className="font-medium text-primary">

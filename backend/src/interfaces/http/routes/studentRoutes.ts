@@ -5,6 +5,8 @@ import {
   getMyGrades,
   getStudents,
   updateProfile,
+  updateProfileByRegistrar,
+  getEnrollmentHistory,
   getMyProfile,
   getStudentSchedule,
 } from "../controllers/studentController";
@@ -19,6 +21,11 @@ router.route("/my-schedule").get(authGuard, isStudent, getStudentSchedule);
 router.route("/my-grades").get(authGuard, isStudent, getMyGrades);
 
 router.get("/", authGuard, isRegistrar, getStudents);
+
+// Specific ID sub-routes must be defined before generic /:id
+router.patch("/:id/profile", authGuard, isRegistrar, updateProfileByRegistrar);
+router.get("/:id/enrollment-history", authGuard, isRegistrar, getEnrollmentHistory);
+
 router.get("/:id", authGuard, isRegistrar, getStudents);
 
 export default router;

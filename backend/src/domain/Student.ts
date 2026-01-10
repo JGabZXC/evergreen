@@ -1,3 +1,5 @@
+import {User} from "./User";
+
 export interface ParentContact {
   name: string;
   phone: string;
@@ -36,7 +38,9 @@ export interface Student extends BaseStudent {
   isActive: boolean;
 }
 
-export interface StudentAggregate extends Omit<Student, "course"> {
-  course: Course;
+export interface StudentAggregate extends Omit<Student, "course" | "userId"> {
+  _id: Schema.Types.ObjectId;
+  userId: Omit<User, "password" | "role" | "active" | "createdAt" | "updatedAt">;
+  course?: Course;
   latestEnrollment?: EnrollmentRecord;
 }

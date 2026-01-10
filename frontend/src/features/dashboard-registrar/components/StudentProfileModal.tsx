@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
-import { X, Save, User, Calendar, MapPin, Phone, History } from "lucide-react";
-// import { updateStudentProfile } from "../services/studentService";
+import { X, Save, User, Calendar, MapPin, Phone, Loader2 } from "lucide-react";
+import { updateStudentProfile, getStudentEnrollmentHistory } from "../services/studentService";
 import { toast } from "react-toastify";
-import type { StudentAggregate } from "../types";
+import type { StudentAggregate, EnrollmentRecord } from "../types";
 
 interface Props {
   student: StudentAggregate | null;
@@ -30,6 +30,13 @@ export default function StudentProfileModal({
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // History State
+  const [history, setHistory] = useState<EnrollmentRecord[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [historyPage, setHistoryPage] = useState(1);
+  const [hasMoreHistory, setHasMoreHistory] = useState(true);
+  const observerTarget = useRef(null);
+
   useEffect(() => {
     if (student && student.profile) {
       setFormData({
@@ -42,8 +49,55 @@ export default function StudentProfileModal({
         street: student.profile.address?.street || "",
         city: student.profile.address?.city || "",
       });
+
+      // Reset history on student switch
+      setHistory([]);
+      setHistoryPage(1);
+      setHasMoreHistory(true);
     }
   }, [student]);
+
+  const fetchHistory = useCallback(async () => {
+    if (!student || !hasMoreHistory || historyLoading) return;
+
+    setHistoryLoading(true);
+    try {
+      const data = await getStudentEnrollmentHistory(student._id, historyPage, 10);
+      setHistory((prev) => (historyPage === 1 ? data.history : [...prev, ...data.history]));
+      setHasMoreHistory(historyPage < data.totalPages);
+      setHistoryPage((prev) => prev + 1);
+    } catch (error) {
+      console.error("Failed to fetch history", error);
+    } finally {
+      setHistoryLoading(false);
+    }
+  }, [student, hasMoreHistory, historyLoading, historyPage]);
+
+  // Initial fetch when tab changes to history
+  useEffect(() => {
+    if (activeTab === "history" && historyPage === 1 && student) {
+      fetchHistory();
+    }
+  }, [activeTab, student]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Infinite Scroll Observer
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMoreHistory) {
+          fetchHistory();
+        }
+      },
+      { threshold: 1.0 }
+    );
+
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current);
+    }
+
+    return () => observer.disconnect();
+  }, [fetchHistory, hasMoreHistory]);
+
 
   if (!isOpen || !student) return null;
 
@@ -66,7 +120,7 @@ export default function StudentProfileModal({
         },
       };
 
-      //   await updateStudentProfile(student.id, payload);
+      await updateStudentProfile(student._id, payload);
       toast.success("Profile updated successfully");
       setIsEditing(false);
       onUpdate();
@@ -107,10 +161,10 @@ export default function StudentProfileModal({
                 <span className="badge badge-outline">
                   {student.course?.code || "N/A"}
                 </span>
-                {student.latestEnrollment && (
-                  <span className="badge badge-primary">
-                    {student.latestEnrollment.gradeLevel}
-                  </span>
+                {student.isActive ? (
+                    <span className="badge badge-success badge-outline">Active</span>
+                ) : (
+                    <span className="badge badge-error badge-outline">Inactive</span>
                 )}
               </div>
             </div>
@@ -267,49 +321,50 @@ export default function StudentProfileModal({
             </form>
           ) : (
             <div className="space-y-4">
-              {/* Currently, specific history list fetching is not implemented in GetAllStudents, 
-                        only latestEnrollment. For full history, we'd fetch separate endpoint.
-                        For now, displaying latest enrollment as a card. 
-                    */}
-              <div className="alert alert-info shadow-sm bg-base-200 border-none">
-                <History size={24} />
-                <div>
-                  <h3 className="font-bold">Latest Enrollment Record</h3>
-                  {student.latestEnrollment ? (
-                    <div className="text-sm mt-1">
-                      <p>
-                        SY: {student.latestEnrollment.schoolYear} -{" "}
-                        {student.latestEnrollment.semester === 1
-                          ? "1st Sem"
-                          : student.latestEnrollment.semester === 2
-                          ? "2nd Sem"
-                          : "Summer"}
-                      </p>
-                      <p>Level: {student.latestEnrollment.gradeLevel}</p>
-                      <p>Status: {student.latestEnrollment.status}</p>
-                      <p className="text-xs opacity-60 mt-1">
-                        Enrolled on:{" "}
-                        {new Date(
-                          student.latestEnrollment.enrollmentDate
-                        ).toLocaleDateString()}
-                      </p>
+                {history.length === 0 && !historyLoading && (
+                    <div className="text-center py-10 opacity-50">
+                        No enrollment history found.
                     </div>
-                  ) : (
-                    <p className="text-sm">No enrollment record found.</p>
-                  )}
-                </div>
-                {student.latestEnrollment && (
-                  <button className="btn btn-sm btn-ghost">View Details</button>
+                )}
+
+                {history.map((record, index) => (
+                    <div key={record._id || index} className="card bg-base-200 shadow-sm border border-base-300">
+                        <div className="card-body p-4">
+                            <div className="flex justify-between items-start">
+                                <div>
+                                    <div className="font-bold text-lg flex items-center gap-2">
+                                        SY {record.schoolYear}
+                                        <span className="badge badge-sm badge-outline">
+                                            {record.semester === 1 ? "1st Sem" : record.semester === 2 ? "2nd Sem" : "Summer"}
+                                        </span>
+                                    </div>
+                                    <div className="text-sm opacity-70 mt-1">
+                                        Grade Level: {record.gradeLevel}
+                                    </div>
+                                </div>
+                                <div className={`badge ${
+                                    record.status === "Enrolled" ? "badge-success" : 
+                                    record.status === "Dropped" ? "badge-error" : "badge-neutral"
+                                }`}>
+                                    {record.status}
+                                </div>
+                            </div>
+
+                            <div className="mt-2 text-xs opacity-50 flex justify-between items-center bg-base-100/50 p-2 rounded">
+                                <span>Section: {typeof record.section === 'object' ? record.section?.name : record.section || "N/A"}</span>
+                                <span>{new Date(record.enrollmentDate).toLocaleDateString()}</span>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+
+              {/* Load More Trigger */}
+              <div ref={observerTarget} className="flex justify-center py-4">
+                {historyLoading && <Loader2 className="animate-spin text-primary" />}
+                {!hasMoreHistory && history.length > 0 && (
+                    <span className="text-xs opacity-50">No more records</span>
                 )}
               </div>
-
-              {/* Placeholder for future full history list */}
-              <div className="divider text-xs text-base-content/30">
-                Previous Records
-              </div>
-              <p className="text-center text-sm text-base-content/50 italic">
-                Full history feature coming soon...
-              </p>
             </div>
           )}
         </div>

@@ -1,14 +1,6 @@
 import type {
-  Course,
-  Room,
-  Semester,
-  Subject,
-  Teacher,
-  Student,
   SubjectTaken,
-  SubjectStatus,
-  StudentProfile,
-} from "../../../shared/types/index.ts";
+} from "../../../shared/types";
 
 export type { SubjectTaken }; // Re-export for local usage if needed
 
