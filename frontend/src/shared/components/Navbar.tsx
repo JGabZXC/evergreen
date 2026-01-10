@@ -1,32 +1,19 @@
 import { Link } from "react-router";
 import logo from "../../assets/evergreen_logo.png";
 import { useLocation } from "react-router";
-import { useEffect, useState } from "react";
 import { Moon, Sun } from "lucide-react";
 import { useAuth } from "../../features/auth/hooks/useAuth";
 import { useLogout } from "../../features/auth/hooks/useLogout";
+import {useTheme} from "../hooks/useTheme.ts";
 
 function Navbar() {
   const location = useLocation();
   const { user } = useAuth();
   const { logout } = useLogout();
+  const {toggleTheme, theme} = useTheme();
+
 
   const isInLoginPage = location.pathname === "/login";
-
-  const [theme, setTheme] = useState(
-    localStorage.getItem("theme") ? localStorage.getItem("theme") : "light"
-  );
-
-  useEffect(() => {
-    if (theme) {
-      document.documentElement.setAttribute("data-theme", theme);
-      localStorage.setItem("theme", theme);
-    }
-  }, [theme]);
-
-  const toggleTheme = () => {
-    setTheme(theme === "caramellatte" ? "forest" : "caramellatte");
-  };
 
   return (
     <nav className="navbar bg-base-100/80 backdrop-blur-md shadow-lg sticky top-0 z-50 flex justify-between dark:bg-white/10">
@@ -41,7 +28,7 @@ function Navbar() {
         </Link>
       </div>
 
-      <div className="flex gap-2">
+      <div className="flex items-center gap-2">
         <button
           className="btn btn-ghost btn-circle"
           onClick={toggleTheme}
