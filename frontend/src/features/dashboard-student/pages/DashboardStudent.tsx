@@ -37,31 +37,45 @@ export function DashboardStudent() {
     const { enrolledSubjects, schedules } = scheduleData;
 
     return enrolledSubjects.map((grade) => {
-      const subjectId =
-        typeof grade.subject === "object" ? grade.subject._id : grade.subject;
+      let matchedSchedule = undefined;
 
-      const matchedSchedule = schedules.find((s) => {
-        const sSubjectId =
-          typeof s.subject === "object" ? s.subject._id : s.subject;
-        // teacherId in SubjectSchedule might be populated or string
-        const sTeacherId =
-          typeof s.teacherId === "object"
-            ? (s.teacherId as any)._id
-            : s.teacherId;
-        return sSubjectId === subjectId && sTeacherId === grade.teacherId;
-      });
+      // 1. Try matching by scheduleId if available
+      if (grade.scheduleId) {
+        const sId =
+          typeof grade.scheduleId === "object"
+            ? grade.scheduleId._id
+            : grade.scheduleId;
+        matchedSchedule = schedules.find((s) => s._id === sId);
+      }
+
+      // 2. Fallback: match by subject ID
+      if (!matchedSchedule) {
+        const subjectId =
+          typeof grade.subject === "object" ? grade.subject._id : grade.subject;
+
+        matchedSchedule = schedules.find((s) => {
+          const sSubjectId =
+            typeof s.subject === "object" ? s.subject._id : s.subject;
+          return sSubjectId === subjectId;
+        });
+      }
 
       if (matchedSchedule) {
         const scheduleStr = matchedSchedule.schedules
           .map((slot) => `${slot.day} ${slot.startTime}-${slot.endTime}`)
           .join(", ");
 
-        const room = matchedSchedule.schedules[0]?.room;
+        const firstRoom = matchedSchedule.schedules[0]?.room;
+        const roomName = firstRoom
+          ? typeof firstRoom === "object"
+            ? firstRoom.name
+            : firstRoom // If it's a string ID, we just display it (or "TBA" if logic prefers)
+          : "TBA";
 
         return {
           ...grade,
           schedule: scheduleStr,
-          classroomId: room || grade.classroomId,
+          room: roomName,
         };
       }
       return grade;
@@ -82,7 +96,7 @@ export function DashboardStudent() {
     return (
       <div className="alert alert-error shadow-lg max-w-2xl mx-auto mt-10">
         <div>
-          <AlertCircle className="stroke-current flex-shrink-0 h-6 w-6" />
+          <AlertCircle className="stroke-current shrink-0 h-6 w-6" />
           <span>
             {profileError || "Error loading profile. Please try again later."}
           </span>
@@ -146,7 +160,7 @@ export function DashboardStudent() {
           className="alert alert-warning shadow-lg"
         >
           <div>
-            <AlertCircle className="stroke-current flex-shrink-0 h-6 w-6" />
+            <AlertCircle className="stroke-current shrink-0 h-6 w-6" />
             <span>
               Your profile is incomplete. Please update your profile to
               continue.

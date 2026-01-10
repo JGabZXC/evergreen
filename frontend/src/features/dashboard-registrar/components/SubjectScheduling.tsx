@@ -153,7 +153,15 @@ export default function SubjectScheduling() {
                         {schedules.map((schedule) => {
                             // Extract unique teachers from slots
                             const uniqueTeachers = Array.from(
-                                new Set(schedule.schedules.map((s) => s.teacherId !== "TBA" ? (typeof s.teacher?.userId === "object") ? s.teacher.userId.email : s.teacher?.userId : "TBA"))
+                                new Set(
+                                    schedule.schedules.map((s) => {
+                                        if (s.teacherId === "TBA" || !s.teacherId) return "TBA";
+                                        if (s.teacher && typeof s.teacher.userId === "object") {
+                                            return s.teacher.userId.email;
+                                        }
+                                        return s.teacherId;
+                                    })
+                                )
                             );
 
                             const isAssigned = uniqueTeachers.some((t) => t !== "TBA");

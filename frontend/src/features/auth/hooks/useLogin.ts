@@ -5,6 +5,7 @@ import { parseError } from "../../../utils/parseErrors";
 import { useAuth } from "./useAuth";
 import type { AuthResponse } from "../types/auth.types";
 import { useLocation, useNavigate } from "react-router";
+import axios from "axios";
 
 export function useLogin() {
   const { setUser, setIsAuth } = useAuth();
@@ -48,19 +49,21 @@ export function useLogin() {
         toast.success("Login successful!");
         navigate(from, { replace: true });
       }
-    } catch (error: any) {
-      if (error.name === "CanceledError" || error.code === "ERR_CANCELED")
-        return;
+    } catch (error) {
+      if(axios.isAxiosError(error)) {
+        if (error.name === "CanceledError" || error.code === "ERR_CANCELED")
+          return;
 
-      const parsedError = parseError(error);
+        const parsedError = parseError(error);
 
-      if (parsedError.global) {
-        setErrors(parsedError);
-        toast.error(parsedError);
-      } else {
-        setErrors(parsedError);
+        if (parsedError.global) {
+          setErrors(parsedError);
+          toast.error(parsedError);
+        } else {
+          setErrors(parsedError);
+        }
+        console.error("Login failed", error);
       }
-      console.error("Login failed", error);
     } finally {
       setLoading(false);
     }

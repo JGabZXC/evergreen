@@ -6,6 +6,13 @@ import {
 } from "../services/gradeService";
 import { getCurrentSchoolYear } from "../../../utils/schoolYear";
 import { Semester, type SubjectTaken } from "../../../shared/types/index.ts";
+import axios from "axios";
+
+interface GradeBookResponseError {
+    error: {
+      message: string;
+    }
+}
 
 export const useGradebook = ({
   subjectId,
@@ -54,10 +61,12 @@ export const useGradebook = ({
       // Refresh to get calculated final grades
       await fetchGrades();
       return true;
-    } catch (err: any) {
-      console.error("Failed to update grade", err);
-      const message = err.response?.data?.message || "Failed to update grade";
-      toast.error(message);
+    } catch (err) {
+      if(axios.isAxiosError<GradeBookResponseError>(err)) {
+        console.error("Failed to update grade", err);
+        const message = err.response?.data?.error.message || "Failed to update grade";
+        toast.error(message);
+      }
       return false;
     }
   };

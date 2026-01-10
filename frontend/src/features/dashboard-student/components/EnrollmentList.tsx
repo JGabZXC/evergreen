@@ -1,10 +1,15 @@
 import { Clock10Icon } from "lucide-react";
-import type { SubjectTaken, Subject, Room } from "../../../shared/types";
+import type { SubjectTaken, Subject } from "../../../shared/types";
+
+export interface EnrolledSubjectDisplay extends SubjectTaken {
+  schedule?: string;
+  room?: string;
+}
 
 export default function EnrollmentList({
   subjects,
 }: {
-  subjects: SubjectTaken[];
+  subjects: EnrolledSubjectDisplay[];
 }) {
   return (
     <div className="card bg-base-100 shadow-md border border-base-200 h-full dark:border-white/10">
@@ -30,7 +35,6 @@ export default function EnrollmentList({
             <tbody>
               {subjects.map((st) => {
                 const subject = st.subject as Subject;
-                const room = st.classroomId as Room;
 
                 return (
                   <tr key={st._id}>
@@ -45,7 +49,7 @@ export default function EnrollmentList({
                       </div>
                     </td>
                     <td className="text-sm text-gray-500">
-                      {room?.name || "TBA"}
+                      {st.room || "TBA"}
                     </td>
                     <td className="text-center font-mono">
                       {st.finalGrade ? (
