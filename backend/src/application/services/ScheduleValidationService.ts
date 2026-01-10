@@ -19,7 +19,7 @@ export class ScheduleValidationService {
 
       if (!current || !next) continue;
 
-      if (current.day === next.day) {
+      if (current.day === next.day && current.room.toString() === next.room.toString()) {
         const currentEnd = this.toMinutes(current.endTime);
         const nextStart = this.toMinutes(next.startTime);
 
@@ -42,24 +42,6 @@ export class ScheduleValidationService {
     }
   }
 
-  static checkConflicts(
-    newSchedules: TimeSlot[],
-    existingRecords: any[],
-    errorMsg: string
-  ) {
-    for (const record of existingRecords) {
-      for (const existingSlot of record.schedules) {
-        for (const newSlot of newSchedules) {
-          if (this.isOverlap(newSlot, existingSlot)) {
-            throw new ConflictError(
-              `${errorMsg} on ${newSlot.day} ${newSlot.startTime}-${newSlot.endTime}`
-            );
-          }
-        }
-      }
-    }
-  }
-
   static isOverlap(slotA: TimeSlot, slotB: TimeSlot): boolean {
     if (slotA.day !== slotB.day) return false;
     const sA = this.toMinutes(slotA.startTime);
@@ -78,5 +60,3 @@ export class ScheduleValidationService {
     return h * 60 + m;
   }
 }
-
-import { ConflictError } from "../../interfaces/http/middleware/HttpErrors";

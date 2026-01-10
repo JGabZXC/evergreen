@@ -8,13 +8,12 @@ import type {
   RoomType,
   Section,
   Semester,
-  Staff,
   StudentProfile,
   Subject,
   SubjectSchedule,
   Teacher,
   TimeSlot,
-} from "../../../shared/types/index.ts";
+} from "../../../shared/types";
 
 // --- Domain Interfaces ---
 
@@ -94,8 +93,6 @@ export interface EnrollPayload {
 
 export interface CreateSchedulePayload {
   subject: string;
-  // teacherId: string; // REMOVED
-  // sectionId?: string; // REMOVED
   schoolYear: string;
   semester: Semester;
   schedules: (Omit<TimeSlot, "_id"> & { teacherId?: string })[];

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { BookOpen, Users, Clock, Calendar } from "lucide-react";
-import StatsCard from "../components/StatsCard";
+import { Calendar } from "lucide-react";
 import FacultyTasks from "../components/FacultyTasks";
 import UpcomingClasses from "../components/UpcomingClasses";
 import RecentAnnouncements from "../components/RecentAnnouncements";
@@ -12,7 +11,7 @@ import { getCurrentSchoolYear } from "../../../utils/schoolYear";
 import TeachingLoadTable from "../components/TeachingLoadTable";
 import Gradebook from "../components/GradeBook";
 import { pageVariants } from "../../../shared/animations";
-import { Semester } from "../../../shared/types/index.ts";
+import { Semester } from "../../../shared/types";
 import { useTeacherSchedule } from "../hooks/useTeacherSchedule";
 
 export function DashboardTeacher() {
@@ -57,31 +56,6 @@ export function DashboardTeacher() {
             </p>
           </div>
         </div>
-      </div>
-
-      {/* Quick Stats Row */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <StatsCard
-          title="Total Classes"
-          value="8"
-          icon={<BookOpen size={24} />}
-          color="text-blue-600"
-          bgColor="bg-blue-100"
-        />
-        <StatsCard
-          title="Total Students"
-          value="245"
-          icon={<Users size={24} />}
-          color="text-green-600"
-          bgColor="bg-green-100"
-        />
-        <StatsCard
-          title="Pending Grades"
-          value="3"
-          icon={<Clock size={24} />}
-          color="text-orange-600"
-          bgColor="bg-orange-100"
-        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

@@ -1,4 +1,4 @@
-import { FilterQuery } from "mongoose";
+import { FilterQuery, PipelineStage } from "mongoose";
 import { SubjectScheduleModel } from "../../../infrastructure/database/SubjectScheduleModel";
 import { SubjectScheduleDTO } from "../../../interfaces/http/types/SubjectScheduleDTO";
 
@@ -30,26 +30,31 @@ export class GetAllScheduleUseCase {
       query["schedules.room"] = filters.room;
     }
 
+    const pipeline: PipelineStage.FacetPipelineStage[] = []
+
+    if(filters.teacherId) {
+      pipeline.push({
+        $addFields: {
+          schedules: {
+            $filter: {
+              input: "$schedules",
+              as: "schedule",
+              cond: { $eq: ["$$schedule.teacherId", filters.teacherId] },
+            },
+          },
+        },
+      });
+    }
+
+    pipeline.push({ $skip: skip });
+    pipeline.push({ $limit: limit });
+
     const [promise] = await SubjectScheduleModel.aggregate([
       { $match: query },
       {
         $facet: {
           metadata: [{ $count: "total" }],
-          data: [
-            {
-              $addFields: {
-                schedules: {
-                  $filter: {
-                    input: "$schedules",
-                    as: "schedule",
-                    cond: { $eq: ["$$schedule.teacherId", filters.teacherId] },
-                  },
-                },
-              },
-            },
-            { $skip: skip },
-            { $limit: limit },
-          ],
+          data: pipeline
         },
       },
     ]);

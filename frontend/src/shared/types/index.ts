@@ -1,4 +1,6 @@
 // --- Enums ---
+import type {User} from "../../features/auth/types/auth.types.ts";
+
 export enum GradeLevel {
   Grade1 = "G-1",
   Grade2 = "G-2",
@@ -73,7 +75,7 @@ export interface CreateSectionPayload {
   designatedRoom?: string;
 }
 
-export interface UpdateSectionPayload extends Partial<CreateSectionPayload> {}
+export type UpdateSectionPayload = Partial<CreateSectionPayload>
 
 export interface TimeSlot {
   _id: string;
@@ -113,12 +115,7 @@ export interface Subject {
 
 export interface Teacher {
   _id: string;
-  userId: {
-    _id: string;
-    email: string;
-    username: string;
-    role: string;
-  };
+  userId: User | string;
   employeeId: string;
   department: string;
   position: string;

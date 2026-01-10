@@ -35,7 +35,7 @@ function Navbar() {
           <img
             src={logo}
             alt="Evergreen Academy Logo"
-            className="h-8 w-8 mr-2"
+            className="h-8 w-8"
           />
           Evergreen Academy
         </Link>

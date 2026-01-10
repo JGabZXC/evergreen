@@ -15,7 +15,7 @@ export const getCurrentSchoolYear = () => {
   const month = now.getMonth(); // 0-11
   const year = now.getFullYear();
 
-  // Assuming School Year starts in June/August.
+  // School Year starts in June/August.
   // If we are in Jan-May, we are in the previous year's school year (e.g., May 2025 is AY 2024-2025)
   // If we are in June-Dec, we are in the current year's school year (e.g., June 2025 is AY 2025-2026)
 
