@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { getTeacherSchedule } from "../services/scheduleService";
 import type { SubjectSchedule } from "../../../shared/types/index.ts";
-import { getCurrentSchoolYear } from "../../../utils/schoolYear";
 
-export const useTeacherSchedule = () => {
+
+export const useTeacherSchedule = (schoolYearFilter: string = "All") => {
   const [schedules, setSchedules] = useState<SubjectSchedule[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -11,7 +11,9 @@ export const useTeacherSchedule = () => {
   const fetchSchedule = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await getTeacherSchedule(getCurrentSchoolYear());
+      const querySchoolYear =
+        schoolYearFilter === "All" ? undefined : schoolYearFilter;
+      const data = await getTeacherSchedule(querySchoolYear);
       setSchedules(data);
       setError(null);
     } catch (err) {
@@ -20,7 +22,7 @@ export const useTeacherSchedule = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [schoolYearFilter]);
 
   useEffect(() => {
     fetchSchedule();

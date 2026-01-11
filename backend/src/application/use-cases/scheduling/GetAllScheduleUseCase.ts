@@ -46,6 +46,40 @@ export class GetAllScheduleUseCase {
       });
     }
 
+    pipeline.push({
+      $addFields: {
+        minSortKey: {
+          $min: {
+            $map: {
+              input: "$schedules",
+              as: "sch",
+              in: {
+                $concat: [
+                  {
+                    $switch: {
+                      branches: [
+                        { case: { $eq: ["$$sch.day", "Mon"] }, then: "1" },
+                        { case: { $eq: ["$$sch.day", "Tue"] }, then: "2" },
+                        { case: { $eq: ["$$sch.day", "Wed"] }, then: "3" },
+                        { case: { $eq: ["$$sch.day", "Thu"] }, then: "4" },
+                        { case: { $eq: ["$$sch.day", "Fri"] }, then: "5" },
+                        { case: { $eq: ["$$sch.day", "Sat"] }, then: "6" },
+                        { case: { $eq: ["$$sch.day", "Sun"] }, then: "7" },
+                      ],
+                      default: "8",
+                    },
+                  },
+                  "$$sch.startTime",
+                ],
+              },
+            },
+          },
+        },
+      },
+    });
+
+    pipeline.push({ $sort: { minSortKey: 1 } });
+
     pipeline.push({ $skip: skip });
     pipeline.push({ $limit: limit });
 
@@ -65,6 +99,25 @@ export class GetAllScheduleUseCase {
       { path: "schedules.room" },
       { path: "schedules.teacher" },
     ])) as unknown as SubjectScheduleDTO[];
+
+    const dayMap: Record<string, number> = {
+      Mon: 1,
+      Tue: 2,
+      Wed: 3,
+      Thu: 4,
+      Fri: 5,
+      Sat: 6,
+      Sun: 7,
+    };
+
+    schedules.forEach((schedule) => {
+      schedule.schedules.sort((a, b) => {
+        const dayA = dayMap[a.day as string] || 8;
+        const dayB = dayMap[b.day as string] || 8;
+        if (dayA !== dayB) return dayA - dayB;
+        return (a.startTime || "").localeCompare(b.startTime || "");
+      });
+    });
 
     const totalPages = Math.ceil(totalDocs / limit);
 

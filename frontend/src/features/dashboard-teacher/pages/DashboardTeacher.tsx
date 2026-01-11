@@ -16,7 +16,7 @@ import { useTeacherSchedule } from "../hooks/useTeacherSchedule";
 
 export function DashboardTeacher() {
   const { user } = useAuth();
-  const { schedules, loading } = useTeacherSchedule();
+  const { schedules, loading } = useTeacherSchedule(getCurrentSchoolYear());
   const [selectedClass, setSelectedClass] = useState<{
     scheduleId: string;
     subjectId: string;
