@@ -15,6 +15,7 @@ import { type Section } from "../../../shared/types";
 import { AnimatePresence, motion } from "framer-motion";
 import { getSchoolYearOptions } from "../../../utils/schoolYear";
 import { GradeLevel } from "../../../shared/types/";
+import SimpleLoading from "../../../shared/components/SimpleLoading.tsx";
 
 export default function SectionList() {
   const [currentPage, setCurrentPage] = useState(1);
@@ -41,6 +42,7 @@ export default function SectionList() {
 
   // Reset page when filters change
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCurrentPage(1);
   }, [gradeLevel, schoolYear, capacity]);
 
@@ -164,9 +166,7 @@ export default function SectionList() {
 
       <AnimatePresence mode="wait">
         {loading ? (
-          <div className="flex justify-center py-10">
-            <span className="loading loading-spinner loading-lg"></span>
-          </div>
+          <SimpleLoading />
         ) : (
           <motion.div
             key={currentPage + sections.length}

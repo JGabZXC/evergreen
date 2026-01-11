@@ -62,7 +62,7 @@ export interface Section {
   gradeLevel: GradeLevel;
   schoolYear: string;
   currentCapacity: number;
-  designatedRoom?: string | Room; // Room ID
+  designatedRoom?: string | Room;
   createdAt: string;
   updatedAt: string;
 }

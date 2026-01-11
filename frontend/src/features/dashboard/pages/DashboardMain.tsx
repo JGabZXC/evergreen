@@ -1,21 +1,15 @@
 import { Navigate, useRoutes, type RouteObject } from "react-router"; // Updated import from react-router-dom
 import { useAuth } from "../../auth/hooks/useAuth";
 import { StaffRole, StudentRole } from "../../auth/types/auth.types";
-import { DashboardTeacher } from "../../dashboard-teacher/pages/DashboardTeacher";
 import DashboardRegistrar from "../../dashboard-registrar/pages/DashboardRegistrar";
 import { DashboardStudent } from "../../dashboard-student/pages/DashboardStudent";
 import DashboardAppointer from "../../dashboard-appointer/pages/DashboardAppointer";
-import TeacherLayout from "../../../shared/layouts/TeacherLayout";
+import {teacherDashboardRoutes} from "../../dashboard-teacher/routes.tsx";
 
 export default function DashboardMain() {
   const { user } = useAuth();
 
-  const teacherRoutes: RouteObject[] = [
-    {
-      element: <TeacherLayout />,
-      children: [{ index: true, element: <DashboardTeacher /> }],
-    },
-  ];
+  const teacherRoutes: RouteObject[] = teacherDashboardRoutes;
   const studentRoutes: RouteObject[] = [{ index: true, element: <DashboardStudent /> }];
   const registrarRoutes: RouteObject[] = [{ index: true, element: <DashboardRegistrar /> }];
   const appointerRoutes: RouteObject[] = [{ index: true, element: <DashboardAppointer /> }];
