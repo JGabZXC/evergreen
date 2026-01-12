@@ -4,6 +4,7 @@ import { GetStudentGradesUseCase } from "../../../application/use-cases/student/
 import {
   GetAllStudentUseCase,
   GetStudentUseCase,
+  GetAllStudentUseCaseByTeacher,
 } from "../../../application/use-cases/student";
 import { UpdateStudentProfileUseCase } from "../../../application/use-cases/student/UpdateStudentProfileUseCase";
 import { BadRequestError, NotFoundError } from "../middleware/HttpErrors";
@@ -18,6 +19,7 @@ import { GetStudentEnrollmentHistoryUseCase } from "../../../application/use-cas
 const getGrades = new GetStudentGradesUseCase();
 
 const getAllStudentUseCase = new GetAllStudentUseCase();
+const getAllStudentUseCaseByTeacher = new GetAllStudentUseCaseByTeacher();
 const getStudentUseCase = new GetStudentUseCase();
 const updateStudentProfileUseCase = new UpdateStudentProfileUseCase();
 const getStudentScheduleUseCase = new GetStudentScheduleUseCase();
@@ -218,4 +220,33 @@ export const getEnrollmentHistory = async (req: Request, res: Response) => {
   } catch (error) {
     throw error;
   }
+};
+
+export const getStudentsByTeacher = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+    const { employeeId } = req.user!;
+    const { schoolYear, page = 1, limit = 10 } = req.query;
+
+    if (!employeeId) {
+      throw new BadRequestError("User is not a teacher or staff with employeeId");
+    }
+
+    if (!schoolYear || typeof schoolYear !== "string") {
+      throw new BadRequestError("School Year is required");
+    }
+
+    const skip = (Number(page) - 1) * Number(limit);
+
+    const students = await getAllStudentUseCaseByTeacher.execute(
+      {
+        teacherId: employeeId,
+        schoolYear: schoolYear,
+      },
+      skip,
+      Number(limit)
+    );
+
+    res.status(HttpStatus.OK).json(students);
 };

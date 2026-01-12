@@ -51,12 +51,12 @@ export const getSchedule = async (req: AuthenticatedRequest, res: Response) => {
 
     if (req.user?.role === StaffRole.Teacher) {
         filter.teacherId = req.user.employeeId || "";
-    } else {
-        filter.teacherId = teacherId
+    } else if (teacherId) {
+        filter.teacherId = teacherId as string;
     }
+
     if (schoolYear) filter.schoolYear = schoolYear;
     if (semester) filter.semester = Number(semester);
-    if (teacherId) filter.teacherId = teacherId;
     if (subjectId) filter.subjectId = subjectId;
     if (room) filter.room = room;
 

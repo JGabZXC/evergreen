@@ -96,7 +96,7 @@ export interface CreateSchedulePayload {
   subject: string;
   schoolYear: string;
   semester: Semester;
-  schedules: (Omit<TimeSlot, "_id"> & { teacherId?: string })[];
+  schedules: Omit<TimeSlot, "_id" | "teacher">[];
 }
 
 export interface CreateCoursePayload {

@@ -3,6 +3,7 @@ import {DashboardTeacher} from "./pages/DashboardTeacher.tsx";
 import MySections from "./pages/MySections.tsx";
 import MyClasses from "./pages/MyClasses.tsx";
 import MyAccount from "../../shared/components/MyAccount.tsx";
+import MyStudents from "./pages/MyStudents.tsx";
 
 export const teacherDashboardRoutes = [
     {
@@ -19,6 +20,10 @@ export const teacherDashboardRoutes = [
             {
                 path: "my-classes",
                 element: <MyClasses/>
+            },
+            {
+                path: "my-students",
+                element: <MyStudents/>
             },
             {
                 path: "my-account",

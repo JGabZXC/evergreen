@@ -8,8 +8,8 @@ export interface FilterStudent {
   course?: string | Types.ObjectId;
   isActive?: boolean;
   studentId?: string;
-  schoolYear?: string; // Special field: used for enrollment lookup, not student match
-  search?: string;     // Optional: if you implement text search later
+  schoolYear?: string;
+  search?: string;
 }
 
 export class GetAllStudentUseCase {

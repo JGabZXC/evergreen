@@ -12,7 +12,7 @@ export const useTeacherSchedule = (schoolYearFilter: string = "All") => {
     try {
       setLoading(true);
       const querySchoolYear =
-        schoolYearFilter === "All" ? undefined : schoolYearFilter;
+        schoolYearFilter === "all" ? undefined : schoolYearFilter;
       const data = await getTeacherSchedule(querySchoolYear);
       setSchedules(data);
       setError(null);

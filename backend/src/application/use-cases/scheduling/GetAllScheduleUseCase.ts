@@ -110,12 +110,18 @@ export class GetAllScheduleUseCase {
       Sun: 7,
     };
 
+    const toMinutes = (time: string): number => {
+      if(!time) return 0;
+      const [h, m] = time.split(":").map(Number);
+      return (h || 0) * 60 + (m || 0);
+    };
+
     schedules.forEach((schedule) => {
       schedule.schedules.sort((a, b) => {
         const dayA = dayMap[a.day as string] || 8;
         const dayB = dayMap[b.day as string] || 8;
         if (dayA !== dayB) return dayA - dayB;
-        return (a.startTime || "").localeCompare(b.startTime || "");
+        return toMinutes(a.startTime) - toMinutes(b.startTime);
       });
     });
 

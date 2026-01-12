@@ -404,10 +404,14 @@ export default function AddScheduleModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const cleanedSchedules = schedules.map(({ localId: _localId, ...rest }) => ({ // eslint-disable-line @typescript-eslint/no-unused-vars
-      ...rest,
-      teacherId: rest.teacherId === "TBA" ? undefined : rest.teacherId,
+      day: rest.day,
+      startTime: rest.startTime,
+      endTime: rest.endTime,
+      room: rest.room,
+      teacherId: rest.teacherId || "TBA",
     }));
-    const payload = {
+
+    const payload: CreateSchedulePayload = {
       ...formData,
       schedules: cleanedSchedules,
     };
