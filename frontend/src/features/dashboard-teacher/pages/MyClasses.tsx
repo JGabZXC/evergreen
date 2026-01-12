@@ -26,29 +26,30 @@ export default function MyClasses() {
             </div>
         </div>
 
-        <div className="overflow-x-auto border-2 border-base-200 dark:border-white/10 rounded-box min-h-screen">
-            <table className="table w-full">
-                <thead >
-                <tr>
-                    <th>Subject Code</th>
-                    <th>Description</th>
-                    <th>Schedule</th>
-                    <th>Semester</th>
-                    <th>School Year</th>
-                </tr>
-                </thead>
-                <tbody>
-                {loading ? (
+        <div className="card bg-base-100 shadow-xl border border-base-200">
+            <div className="overflow-x-auto border-2 border-base-200 dark:border-white/10 rounded-box min-h-screen">
+                <table className="table w-full">
+                    <thead >
                     <tr>
-                        <td colSpan={5} className="text-center py-4">Loading...</td>
+                        <th>Subject Code</th>
+                        <th>Description</th>
+                        <th>Schedule</th>
+                        <th>Semester</th>
+                        <th>School Year</th>
                     </tr>
-                ) : error ? (
-                    <tr>
-                        <td colSpan={5} className="text-center text-error py-4">{error}</td>
-                    </tr>
-                ) : (
-                    schedules.length > 0 ? (
-                        schedules.map((schedule) => {
+                    </thead>
+                    <tbody>
+                    {loading ? (
+                        <tr>
+                            <td colSpan={5} className="text-center py-4">Loading...</td>
+                        </tr>
+                    ) : error ? (
+                        <tr>
+                            <td colSpan={5} className="text-center text-error py-4">{error}</td>
+                        </tr>
+                    ) : (
+                        schedules.length > 0 ? (
+                            schedules.map((schedule) => {
                                 const subject = schedule.subject as Subject;
                                 return (
                                     <tr key={schedule._id}>
@@ -76,9 +77,10 @@ export default function MyClasses() {
                             </tr>
                         )
                     )
-                }
-                </tbody>
-            </table>
+                    }
+                    </tbody>
+                </table>
+            </div>
         </div>
     </section>
 }

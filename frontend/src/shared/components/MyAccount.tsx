@@ -9,7 +9,7 @@ export default function MyAccount() {
     const {profile, loading, error} = useMyProfile();
 
     return (
-        <section className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto">
+        <section className="p-4 md:p-6">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-3xl font-bold text-base-content">My Account</h1>
             </div>

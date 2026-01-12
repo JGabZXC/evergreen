@@ -1,5 +1,5 @@
 import {Outlet, NavLink} from "react-router";
-import {LayoutDashboard, Users, User, LogOut, Calendar} from "lucide-react";
+import {LayoutDashboard, Users, User, LogOut, Calendar, GraduationCap} from "lucide-react";
 
 import {useAuth} from "../../features/auth/hooks/useAuth";
 import {useLogout} from "../../features/auth/hooks/useLogout.ts";
@@ -79,6 +79,17 @@ export default function TeacherLayout() {
                         </li>
                         <li>
                             <NavLink
+                                to="/dashboard/my-sections"
+                                className={({isActive}: { isActive: boolean }) =>
+                                    isActive ? "active font-semibold" : "font-medium"
+                                }
+                            >
+                                <GraduationCap size={20}/>
+                                My Sections
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink
                                 to="/dashboard/my-classes"
                                 className={({isActive}: { isActive: boolean }) =>
                                     isActive ? "active font-semibold" : "font-medium"
@@ -134,4 +145,3 @@ export default function TeacherLayout() {
         </div>
     );
 }
-

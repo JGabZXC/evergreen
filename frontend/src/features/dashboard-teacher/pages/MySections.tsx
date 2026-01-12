@@ -31,33 +31,35 @@ export default function MySections() {
         ) : error ? (
             <p className="text-error">Error: {error}</p>
         ) : (
-            <div className="overflow-x-auto border-2 border-base-200 dark:border-white/10 rounded-box min-h-screen">
-                <table className="table table-zebra w-full">
-                    <thead>
-                    <tr>
-                        <th>Section Name</th>
-                        <th>Grade Level</th>
-                        <th>School Year</th>
-                        <th>Designated Room</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {mySections.length > 0 ? (
-                        mySections.map((section) => (
-                            <tr key={section._id}>
-                                <td>{section.name}</td>
-                                <td>{section.gradeLevel}</td>
-                                <td>{section.schoolYear}</td>
-                                <td>{section.designatedRoom ? typeof section.designatedRoom === "object" ? section.designatedRoom.name : "N/A" : "N/A"}</td>
-                            </tr>
-                        ))
-                    ) : (
+            <div className="card bg-base-100 shadow-xl border border-base-200">
+                <div className="overflow-x-auto border-2 border-base-200 dark:border-white/10 rounded-box min-h-screen">
+                    <table className="table table-zebra w-full">
+                        <thead>
                         <tr>
-                            <td colSpan={4} className="text-center">No sections found.</td>
+                            <th>Section Name</th>
+                            <th>Grade Level</th>
+                            <th>School Year</th>
+                            <th>Designated Room</th>
                         </tr>
-                    )}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                        {mySections.length > 0 ? (
+                            mySections.map((section) => (
+                                <tr key={section._id}>
+                                    <td>{section.name}</td>
+                                    <td>{section.gradeLevel}</td>
+                                    <td>{section.schoolYear}</td>
+                                    <td>{section.designatedRoom ? typeof section.designatedRoom === "object" ? section.designatedRoom.name : "N/A" : "N/A"}</td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan={4} className="text-center">No sections found.</td>
+                            </tr>
+                        )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         )}
     </section>
