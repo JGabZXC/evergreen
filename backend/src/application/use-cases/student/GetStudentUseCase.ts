@@ -5,7 +5,7 @@ import mongoose, { FilterQuery } from "mongoose";
 
 export class GetStudentUseCase {
   async execute(id: string): Promise<Student> {
-    const query: FilterQuery<any> = { isActive: true };
+    const query: FilterQuery<Record<string, string | boolean>> = { isActive: true };
 
     if (mongoose.Types.ObjectId.isValid(id)) {
       query._id = id;
@@ -13,7 +13,7 @@ export class GetStudentUseCase {
       query.studentId = id;
     }
 
-    let student = await StudentModel.findOne(query)
+    const student = await StudentModel.findOne(query)
       .populate({
         path: "course",
         populate: {

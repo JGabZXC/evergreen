@@ -97,6 +97,13 @@ export const getMyGrades = async (req: AuthenticatedRequest, res: Response) => {
   }
 };
 
+export const getMyCurriculumChecklist = async (req: AuthenticatedRequest, res: Response) => {
+    const { studentId } = req.user!; // Get logged-in student's ID
+
+    const student = await getStudentUseCase.execute(studentId!);
+    return res.status(HttpStatus.OK).json(student.course);
+}
+
 export const updateProfile = async (
   req: AuthenticatedRequest,
   res: Response

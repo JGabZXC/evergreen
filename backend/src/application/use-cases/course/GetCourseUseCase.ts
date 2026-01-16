@@ -3,8 +3,8 @@ import { CourseDTO } from "../../../interfaces/http/types/CourseDTO";
 
 export class GetCourseUseCase {
   async execute(code: string) {
-    return await CourseModel.findOne({ code })
-      .populate("curriculum.subject")
-      .lean<CourseDTO>();
+    return CourseModel.findOne({code})
+        .populate("curriculum.subject")
+        .lean<CourseDTO>();
   }
 }
