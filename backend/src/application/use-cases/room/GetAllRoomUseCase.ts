@@ -21,7 +21,7 @@ export class GetAllRoomUseCase {
     if (filter.isActive !== undefined) query.isActive = filter.isActive;
 
     const [rooms, totalDocs] = await Promise.all([
-      RoomModel.find(query).skip(skip).limit(limit).lean<RoomDTO[]>(),
+      RoomModel.find(query).skip(skip).limit(limit).sort('name').lean<RoomDTO[]>(),
       RoomModel.countDocuments(query),
     ]);
 

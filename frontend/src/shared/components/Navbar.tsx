@@ -41,11 +41,16 @@ function Navbar() {
           )}
         </button>
         {!isInLoginPage && (
-          <div>
+          <div className="flex items-center gap-2">
             {user ? (
-              <button onClick={logout} className="btn btn-primary">
-                Logout
-              </button>
+              <>
+                  <Link to="/dashboard" className="btn btn-ghost">
+                      Dashboard
+                  </Link>
+                  <button onClick={logout} className="btn btn-primary">
+                      Logout
+                  </button>
+              </>
             ) : (
               <Link to="/login" className="btn btn-primary">
                 Portal
