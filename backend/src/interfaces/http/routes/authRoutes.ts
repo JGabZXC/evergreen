@@ -1,25 +1,27 @@
 import { Router } from "express";
-import {
-  register,
-  login,
-  logout,
-  refresh,
-  testProtected,
-} from "../controllers/authController";
-import { requireRole } from "../middleware/permissions";
-import { authGuard } from "../middleware/authGuard";
+import {AuthController} from "../controllers/AuthController";
+import {AuthService} from "../../../application/services/AuthService";
+import {TokenService} from "../../../application/services/TokenService";
+import {PrismaUserRepository} from "../../../infrastructure/repositories/PrismaUserRepository";
+import {AuthGuard} from "../middleware/authGuard";
 
 const router = Router();
 
-router.post(
-  "/register",
-  authGuard,
-  requireRole("admin", "registrar"),
-  register
+const tokenService = new TokenService(
+    process.env.JWT_SECRET as string,
+    1000 * 60 * 10, // 10 Minutes
+    1000 * 60 * 60, // 1 Hour
 );
-router.post("/login", login);
-router.post("/logout", logout);
-router.post("/refresh", refresh);
-router.get("/test-protected", authGuard, testProtected);
+const userRepository = new PrismaUserRepository();
+
+const authService = new AuthService(tokenService, userRepository);
+const authController = new AuthController(authService);
+const authGuard = new AuthGuard(tokenService, userRepository)
+
+router.route("/login").post(authController.login);
+router.route("/logout").post(authController.logout);
+router.route("/create").post(authGuard.middleware, authController.create);
+router.route("/refresh-token").post(authController.refreshToken);
+
 
 export default router;

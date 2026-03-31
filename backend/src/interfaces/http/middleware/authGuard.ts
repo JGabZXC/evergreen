@@ -1,33 +1,30 @@
-import { AuthService } from "../../../application/services/authService";
 import { Request, Response, NextFunction } from "express";
-import { HttpStatus } from "../../../domain/HttpStatus";
-import { AuthPayload } from "../../../domain/types/AuthPayload";
+import {ITokenService} from "../../../domain/interfaces/ITokenService";
+import {IUserRepository} from "../../../domain/interfaces/IUserRepository";
+import {User} from "../../../domain/entities/User";
+import {NotFoundError, UnauthorizedError} from "./HttpErrors";
 
 export interface AuthenticatedRequest extends Request {
-  user?: AuthPayload;
+  user?: User;
 }
 
-const authService = new AuthService();
+export class AuthGuard {
+  constructor(private readonly tokenService: ITokenService,
+              private readonly userRepository: IUserRepository) {
+    this.middleware = this.middleware.bind(this);
+  }
 
-export function authGuard(
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) {
-  const token =
-    req.cookies.accessToken ||
-    req.headers["authorization"]?.toString().replace("Bearer ", "");
-  if (!token) {
-    return res
-      .status(HttpStatus.UNAUTHORIZED)
-      .json({ error: "No access token provided" });
+  public async middleware(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+      const token = req.cookies?.access_token;
+      if(!token) throw new UnauthorizedError("No token provided");
+
+      const payload = this.tokenService.verifyAccessToken(token);
+      if(!payload) throw new UnauthorizedError("Invalid access token");
+
+      const user = await this.userRepository.findById(payload.id);
+      if(!user) throw new NotFoundError("User does not exist");
+
+     req.user = user;
+     next();
   }
-  const payload = authService.verifyAccessToken(token);
-  if (!payload) {
-    return res
-      .status(HttpStatus.UNAUTHORIZED)
-      .json({ error: "Invalid or expired access token" });
-  }
-  req.user = payload;
-  next();
 }

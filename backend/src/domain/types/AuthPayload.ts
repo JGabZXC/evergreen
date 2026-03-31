@@ -1,11 +1,10 @@
-import { Role } from "./Role";
+import {Role} from "../../generated/prisma/enums";
 
 export interface AuthPayload {
-  _id: string;
+  id: string;
+  accountNumber: string;
   email: string;
   role: Role;
-  studentId?: string;
-  employeeId?: string;
   iat?: number;
   exp?: number;
 }

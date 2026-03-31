@@ -1,47 +1,23 @@
-import { FilterQuery } from "mongoose";
-import { UserModel } from "../../../infrastructure/database/UserModel";
+import { User } from "../../../domain/entities/User";
 import {
-  UserDTO,
-  UserDTOPopulated,
-} from "../../../interfaces/http/types/UserDTO";
+  GetAllUserFilter,
+  IUserRepository,
+} from "../../../domain/interfaces/IUserRepository";
+import { PaginatedResult } from "../../../domain/common/Pagination";
 
-export interface GetAllUserFilter {
-  email?: string;
-  role?: string;
-  active?: boolean;
-  embed?: boolean; // To populate Staff or Student data
-}
+export type { GetAllUserFilter };
 
 export class GetAllUserUseCase {
-  async execute(filter: FilterQuery<GetAllUserFilter>, skip = 0, limit = 10) {
-    let usersPromise;
+  constructor(private userRepository: IUserRepository) {}
 
-    if (filter.embed) {
-      filter.embed = undefined; // Remove embed so it doesn't affect the query
-      usersPromise = UserModel.find(filter)
-        .skip(skip)
-        .limit(limit)
-        .populate("staff")
-        .populate("student")
-        .lean<UserDTOPopulated[]>();
-    } else {
-      usersPromise = UserModel.find(filter)
-        .skip(skip)
-        .limit(limit)
-        .lean<UserDTO[]>();
-    }
+  async execute(
+    filter: GetAllUserFilter,
+    page = 1,
+    limit = 10,
+  ): Promise<PaginatedResult<User>> {
+    const currentPage = Number.isNaN(page) ? 1 : Math.max(1, page);
+    const pageSize = Number.isNaN(limit) ? 10 : Math.max(1, limit);
 
-    const [users, totalDocs] = await Promise.all([
-      usersPromise,
-      UserModel.countDocuments(filter),
-    ]);
-
-    const totalPages = Math.ceil(totalDocs / limit);
-
-    return {
-      totalDocs,
-      totalPages,
-      users,
-    };
+    return this.userRepository.getAll(filter, currentPage, pageSize);
   }
 }

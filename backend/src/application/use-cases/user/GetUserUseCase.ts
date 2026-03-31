@@ -1,16 +1,12 @@
-import { UserModel } from "../../../infrastructure/database/UserModel";
 import { NotFoundError } from "../../../interfaces/http/middleware/HttpErrors";
-import {
-  UserDTO,
-  UserDTOPopulated,
-} from "../../../interfaces/http/types/UserDTO";
+import { User } from "../../../domain/entities/User";
+import { IUserRepository } from "../../../domain/interfaces/IUserRepository";
 
 export class GetUserUseCase {
-  async execute(userId: string) {
-    const user = UserModel.findById(userId)
-      .populate("staff")
-      .populate("student")
-      .lean<UserDTOPopulated>();
+  constructor(private readonly userRepository: IUserRepository) {}
+
+  async execute(userId: string): Promise<User> {
+    const user = await this.userRepository.findById(userId);
 
     if (!user) {
       throw new NotFoundError("User not found");

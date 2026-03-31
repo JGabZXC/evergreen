@@ -1,4 +1,4 @@
-import { HttpStatus } from "../../../domain/HttpStatus";
+import { HttpStatus } from "../../../domain/enums/HttpStatus";
 
 export class BadRequestError extends Error {
   status: number;

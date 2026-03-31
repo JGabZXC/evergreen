@@ -1,0 +1,301 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+  moduleFormat = "cjs"
+  generatedFileExtension = "ts"
+  importFileExtension = "ts"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  STUDENT
+  TEACHER
+  REGISTRAR
+  JANITOR
+  AUDITOR
+  GUARD
+  DEAN
+  PRINCIPAL
+}
+
+model User {
+  id String @id @default(uuid())
+  accountNumber Int @unique @default(autoincrement())
+  email String @unique @db.VarChar(50)
+  password String @db.VarChar(255)
+  role Role @default(STUDENT)
+  insertedById String?
+  insertedBy User? @relation("UserToCreator", fields: [insertedById], references: [id], onDelete: SetNull)
+  isActive Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  createdUsers User[] @relation("UserToCreator")
+  userProfile UserProfile?
+  teacherAcademicBackgrounds TeacherAcademicBackground[]
+  specializations Specialization[]
+  changedSchoolYearStatuses SchoolYearStatusHistory[]
+  rooms Room[]
+  roomStatusHistories RoomStatusHistory[]
+  sections Section[]
+  sectionStudents SectionStudent[]
+  sectionTeacherSubstitutes SectionTeacherSubstitute[]
+  sectionStudentAttendances SectionStudentAttendance[]
+}
+
+model UserProfile {
+  id String @id @default(uuid())
+
+  userId String @unique
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  firstName String @db.VarChar(100)
+  middleName String? @db.VarChar(100)
+  lastName String @db.VarChar(100)
+  dateOfBirth DateTime
+  contactNumber String @db.VarChar(20)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userAddress UserAddress?
+  teacherAcademicBackground TeacherAcademicBackground[]
+  specializations Specialization[]
+}
+
+model UserAddress {
+  id String @id @default(uuid())
+  
+  userProfileId String @unique
+  userProfile UserProfile @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
+
+  homeAddress String @db.VarChar(255)
+  barangay String @db.VarChar(100)
+  municipality String @db.VarChar(100)
+  province String @db.VarChar(100)
+  region String @db.VarChar(100)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum TeacherDetailsType {
+  MASTERS
+  PHD
+  DOCTORATE
+}
+
+model TeacherAcademicBackground {
+  id String @id @default(uuid())
+  
+  userProfileId String
+  userProfile UserProfile @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
+
+  degree String @db.VarChar(255)
+  institution String @db.VarChar(255)
+  completedAt DateTime
+
+  type TeacherDetailsType @default(MASTERS)
+  approvedAt DateTime? @db.Date
+  approvedById String?
+  approvedBy User? @relation(fields: [approvedById], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Specialization {
+  id String @id @default(uuid())
+
+  userProfileId String
+  userProfile UserProfile @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
+
+  name String @db.VarChar(100)
+  description String? @db.Text
+
+  approvedAt DateTime? @db.Date
+  approvedById String?
+  approvedBy User? @relation(fields: [approvedById], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userProfileId, name])
+}
+
+enum SchoolYearStatus {
+  UPCOMING
+  ONGOING
+  COMPLETED
+}
+
+model SchoolYear {
+  id String @id @default(uuid())
+  startDate DateTime
+  endDate DateTime
+
+  status SchoolYearStatus @default(UPCOMING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  schoolYearStatusHistory SchoolYearStatusHistory[]
+  sections Section[]
+}
+
+model SchoolYearStatusHistory {
+  id String @id @default(uuid())
+
+  schoolYearId String
+  schoolYear SchoolYear @relation(fields: [schoolYearId], references: [id], onDelete: Cascade)
+
+  previousStatus SchoolYearStatus
+  newStatus SchoolYearStatus
+
+  remarks String? @db.Text
+  changedById String?
+  changedBy User? @relation(fields: [changedById], references: [id], onDelete: SetNull)
+
+  changedAt DateTime @default(now())
+}
+
+enum RoomType {
+  CLASSROOM
+  FACULTY_ROOM
+  GYMNASIUM
+  COMPUTER_LABORATORY
+  SCIENCE_LABORATORY
+}
+
+enum RoomStatus {
+  OPEN
+  CLOSED
+  MAINTENANCE
+}
+
+model Room {
+  id String @id @default(uuid())
+  type RoomType @default(CLASSROOM)
+  capacity Int @default(0)
+  status RoomStatus @default(OPEN)
+
+  createdById String?
+  createdBy User? @relation(fields: [createdById], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  roomStatusHistories RoomStatusHistory[]
+  sections Section[]
+}
+
+model RoomStatusHistory {
+  id String @id @default(uuid())
+
+  roomId String
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  
+  previousStatus RoomType
+  newStatus RoomType
+
+  remarks String? @db.Text
+
+  changedById String?
+  changedBy User? @relation(fields: [changedById], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+}
+
+model Section {
+  id String @id @default(uuid())
+
+  roomId String
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  schoolYearId String
+  schoolYear SchoolYear @relation(fields: [schoolYearId], references: [id], onDelete: Cascade)
+  adviserId String?
+  adviser User? @relation(fields: [adviserId], references: [id], onDelete: SetNull)
+  
+  name String @db.VarChar(100)
+  /*
+    Numbers of students that is enrolled in the section, the maximum is the Room.capacity
+
+    if Section.capacity exceeds the Room.capacity, it means that the section is 
+    over-enrolled and may require additional resources or adjustments to 
+    accommodate the students.
+
+    Insertion to this will be round-robin
+  */
+  capacity Int @default(0) 
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sectionStudents SectionStudent[]
+
+  sectionTeacherSubstitutes SectionTeacherSubstitute[]
+}
+
+model SectionStudent {
+  id String @id @default(uuid())
+
+  sectionId String
+  section Section @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  studentId String?
+  student User? @relation(fields: [studentId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+
+  sectionStudentAttendances SectionStudentAttendance[]
+}
+
+model SectionTeacherSubstitute {
+  id String @id @default(uuid())
+
+  sectionId String
+  section Section @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  teacherId String?
+  teacher User? @relation(fields: [teacherId], references: [id], onDelete: SetNull)
+
+  startDate DateTime @db.Date
+  endDate DateTime @db.Date
+
+  reason String? @db.Text
+
+  createdAt DateTime @default(now())
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  EXCUSED
+}
+
+model SectionStudentAttendance {
+  id String @id @default(uuid())
+
+  sectionStudentId String?
+  sectionStudent SectionStudent? @relation(fields: [sectionStudentId], references: [id], onDelete: SetNull)
+
+  date DateTime @db.Date
+
+  status AttendanceStatus @default(PRESENT)
+  remarks String? @db.Text
+  
+  recordedById String?
+  recordedBy User? @relation(fields: [recordedById], references: [id], onDelete: SetNull)
+
+  created_at DateTime @default(now())
+}
