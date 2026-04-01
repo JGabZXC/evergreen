@@ -1,11 +1,4 @@
-import {Role} from "../../generated/prisma/enums";
-
-export interface UserResponse {
-    id: string;
-    accountNumber: number,
-    email: string;
-    role: Role;
-}
+import {UserResponse} from "./UserResponse";
 
 export interface AuthResponse {
     access_token: string;

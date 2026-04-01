@@ -47,7 +47,7 @@ export class User extends BaseTimestamps {
     return this.role === Role.REGISTRAR;
   }
 
-  public isAdminOrRegistrar(): boolean{
+  public isAdminOrRegistrar(): boolean {
     return this.isAdmin() || this.isRegistrar();
   }
 }

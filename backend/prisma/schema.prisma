@@ -105,6 +105,7 @@ model TeacherAcademicBackground {
   completedAt DateTime
 
   type TeacherDetailsType @default(MASTERS)
+  isApproved Boolean @default(false)
   approvedAt DateTime? @db.Date
   approvedById String?
   approvedBy User? @relation(fields: [approvedById], references: [id], onDelete: SetNull)
@@ -122,6 +123,7 @@ model Specialization {
   name String @db.VarChar(100)
   description String? @db.Text
 
+  isApproved Boolean @default(false)
   approvedAt DateTime? @db.Date
   approvedById String?
   approvedBy User? @relation(fields: [approvedById], references: [id], onDelete: SetNull)

@@ -18,11 +18,6 @@ export interface UserCredentials {
   isActive: boolean;
 }
 
-export interface CreateUserInput {
-  user: User;
-  passwordHash: string;
-}
-
 export interface IUserRepository {
   getAll(
     filter: GetAllUserFilter,

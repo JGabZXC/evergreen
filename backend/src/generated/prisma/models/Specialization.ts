@@ -29,6 +29,7 @@ export type SpecializationMinAggregateOutputType = {
   userProfileId: string | null
   name: string | null
   description: string | null
+  isApproved: boolean | null
   approvedAt: Date | null
   approvedById: string | null
   createdAt: Date | null
@@ -40,6 +41,7 @@ export type SpecializationMaxAggregateOutputType = {
   userProfileId: string | null
   name: string | null
   description: string | null
+  isApproved: boolean | null
   approvedAt: Date | null
   approvedById: string | null
   createdAt: Date | null
@@ -51,6 +53,7 @@ export type SpecializationCountAggregateOutputType = {
   userProfileId: number
   name: number
   description: number
+  isApproved: number
   approvedAt: number
   approvedById: number
   createdAt: number
@@ -64,6 +67,7 @@ export type SpecializationMinAggregateInputType = {
   userProfileId?: true
   name?: true
   description?: true
+  isApproved?: true
   approvedAt?: true
   approvedById?: true
   createdAt?: true
@@ -75,6 +79,7 @@ export type SpecializationMaxAggregateInputType = {
   userProfileId?: true
   name?: true
   description?: true
+  isApproved?: true
   approvedAt?: true
   approvedById?: true
   createdAt?: true
@@ -86,6 +91,7 @@ export type SpecializationCountAggregateInputType = {
   userProfileId?: true
   name?: true
   description?: true
+  isApproved?: true
   approvedAt?: true
   approvedById?: true
   createdAt?: true
@@ -170,6 +176,7 @@ export type SpecializationGroupByOutputType = {
   userProfileId: string
   name: string
   description: string | null
+  isApproved: boolean
   approvedAt: Date | null
   approvedById: string | null
   createdAt: Date
@@ -202,6 +209,7 @@ export type SpecializationWhereInput = {
   userProfileId?: Prisma.StringFilter<"Specialization"> | string
   name?: Prisma.StringFilter<"Specialization"> | string
   description?: Prisma.StringNullableFilter<"Specialization"> | string | null
+  isApproved?: Prisma.BoolFilter<"Specialization"> | boolean
   approvedAt?: Prisma.DateTimeNullableFilter<"Specialization"> | Date | string | null
   approvedById?: Prisma.StringNullableFilter<"Specialization"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Specialization"> | Date | string
@@ -215,6 +223,7 @@ export type SpecializationOrderByWithRelationInput = {
   userProfileId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  isApproved?: Prisma.SortOrder
   approvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   approvedById?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -232,6 +241,7 @@ export type SpecializationWhereUniqueInput = Prisma.AtLeast<{
   userProfileId?: Prisma.StringFilter<"Specialization"> | string
   name?: Prisma.StringFilter<"Specialization"> | string
   description?: Prisma.StringNullableFilter<"Specialization"> | string | null
+  isApproved?: Prisma.BoolFilter<"Specialization"> | boolean
   approvedAt?: Prisma.DateTimeNullableFilter<"Specialization"> | Date | string | null
   approvedById?: Prisma.StringNullableFilter<"Specialization"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Specialization"> | Date | string
@@ -245,6 +255,7 @@ export type SpecializationOrderByWithAggregationInput = {
   userProfileId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  isApproved?: Prisma.SortOrder
   approvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   approvedById?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -262,6 +273,7 @@ export type SpecializationScalarWhereWithAggregatesInput = {
   userProfileId?: Prisma.StringWithAggregatesFilter<"Specialization"> | string
   name?: Prisma.StringWithAggregatesFilter<"Specialization"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"Specialization"> | string | null
+  isApproved?: Prisma.BoolWithAggregatesFilter<"Specialization"> | boolean
   approvedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Specialization"> | Date | string | null
   approvedById?: Prisma.StringNullableWithAggregatesFilter<"Specialization"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Specialization"> | Date | string
@@ -272,6 +284,7 @@ export type SpecializationCreateInput = {
   id?: string
   name: string
   description?: string | null
+  isApproved?: boolean
   approvedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -284,6 +297,7 @@ export type SpecializationUncheckedCreateInput = {
   userProfileId: string
   name: string
   description?: string | null
+  isApproved?: boolean
   approvedAt?: Date | string | null
   approvedById?: string | null
   createdAt?: Date | string
@@ -294,6 +308,7 @@ export type SpecializationUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -306,6 +321,7 @@ export type SpecializationUncheckedUpdateInput = {
   userProfileId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -317,6 +333,7 @@ export type SpecializationCreateManyInput = {
   userProfileId: string
   name: string
   description?: string | null
+  isApproved?: boolean
   approvedAt?: Date | string | null
   approvedById?: string | null
   createdAt?: Date | string
@@ -327,6 +344,7 @@ export type SpecializationUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -337,6 +355,7 @@ export type SpecializationUncheckedUpdateManyInput = {
   userProfileId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -363,6 +382,7 @@ export type SpecializationCountOrderByAggregateInput = {
   userProfileId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  isApproved?: Prisma.SortOrder
   approvedAt?: Prisma.SortOrder
   approvedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -374,6 +394,7 @@ export type SpecializationMaxOrderByAggregateInput = {
   userProfileId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  isApproved?: Prisma.SortOrder
   approvedAt?: Prisma.SortOrder
   approvedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -385,6 +406,7 @@ export type SpecializationMinOrderByAggregateInput = {
   userProfileId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  isApproved?: Prisma.SortOrder
   approvedAt?: Prisma.SortOrder
   approvedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -479,6 +501,7 @@ export type SpecializationCreateWithoutApprovedByInput = {
   id?: string
   name: string
   description?: string | null
+  isApproved?: boolean
   approvedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -490,6 +513,7 @@ export type SpecializationUncheckedCreateWithoutApprovedByInput = {
   userProfileId: string
   name: string
   description?: string | null
+  isApproved?: boolean
   approvedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -529,6 +553,7 @@ export type SpecializationScalarWhereInput = {
   userProfileId?: Prisma.StringFilter<"Specialization"> | string
   name?: Prisma.StringFilter<"Specialization"> | string
   description?: Prisma.StringNullableFilter<"Specialization"> | string | null
+  isApproved?: Prisma.BoolFilter<"Specialization"> | boolean
   approvedAt?: Prisma.DateTimeNullableFilter<"Specialization"> | Date | string | null
   approvedById?: Prisma.StringNullableFilter<"Specialization"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Specialization"> | Date | string
@@ -539,6 +564,7 @@ export type SpecializationCreateWithoutUserProfileInput = {
   id?: string
   name: string
   description?: string | null
+  isApproved?: boolean
   approvedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -549,6 +575,7 @@ export type SpecializationUncheckedCreateWithoutUserProfileInput = {
   id?: string
   name: string
   description?: string | null
+  isApproved?: boolean
   approvedAt?: Date | string | null
   approvedById?: string | null
   createdAt?: Date | string
@@ -586,6 +613,7 @@ export type SpecializationCreateManyApprovedByInput = {
   userProfileId: string
   name: string
   description?: string | null
+  isApproved?: boolean
   approvedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -595,6 +623,7 @@ export type SpecializationUpdateWithoutApprovedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -606,6 +635,7 @@ export type SpecializationUncheckedUpdateWithoutApprovedByInput = {
   userProfileId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -616,6 +646,7 @@ export type SpecializationUncheckedUpdateManyWithoutApprovedByInput = {
   userProfileId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -625,6 +656,7 @@ export type SpecializationCreateManyUserProfileInput = {
   id?: string
   name: string
   description?: string | null
+  isApproved?: boolean
   approvedAt?: Date | string | null
   approvedById?: string | null
   createdAt?: Date | string
@@ -635,6 +667,7 @@ export type SpecializationUpdateWithoutUserProfileInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -645,6 +678,7 @@ export type SpecializationUncheckedUpdateWithoutUserProfileInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -655,6 +689,7 @@ export type SpecializationUncheckedUpdateManyWithoutUserProfileInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -668,6 +703,7 @@ export type SpecializationSelect<ExtArgs extends runtime.Types.Extensions.Intern
   userProfileId?: boolean
   name?: boolean
   description?: boolean
+  isApproved?: boolean
   approvedAt?: boolean
   approvedById?: boolean
   createdAt?: boolean
@@ -681,6 +717,7 @@ export type SpecializationSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   userProfileId?: boolean
   name?: boolean
   description?: boolean
+  isApproved?: boolean
   approvedAt?: boolean
   approvedById?: boolean
   createdAt?: boolean
@@ -694,6 +731,7 @@ export type SpecializationSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   userProfileId?: boolean
   name?: boolean
   description?: boolean
+  isApproved?: boolean
   approvedAt?: boolean
   approvedById?: boolean
   createdAt?: boolean
@@ -707,13 +745,14 @@ export type SpecializationSelectScalar = {
   userProfileId?: boolean
   name?: boolean
   description?: boolean
+  isApproved?: boolean
   approvedAt?: boolean
   approvedById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type SpecializationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userProfileId" | "name" | "description" | "approvedAt" | "approvedById" | "createdAt" | "updatedAt", ExtArgs["result"]["specialization"]>
+export type SpecializationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userProfileId" | "name" | "description" | "isApproved" | "approvedAt" | "approvedById" | "createdAt" | "updatedAt", ExtArgs["result"]["specialization"]>
 export type SpecializationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   userProfile?: boolean | Prisma.UserProfileDefaultArgs<ExtArgs>
   approvedBy?: boolean | Prisma.Specialization$approvedByArgs<ExtArgs>
@@ -738,6 +777,7 @@ export type $SpecializationPayload<ExtArgs extends runtime.Types.Extensions.Inte
     userProfileId: string
     name: string
     description: string | null
+    isApproved: boolean
     approvedAt: Date | null
     approvedById: string | null
     createdAt: Date
@@ -1171,6 +1211,7 @@ export interface SpecializationFieldRefs {
   readonly userProfileId: Prisma.FieldRef<"Specialization", 'String'>
   readonly name: Prisma.FieldRef<"Specialization", 'String'>
   readonly description: Prisma.FieldRef<"Specialization", 'String'>
+  readonly isApproved: Prisma.FieldRef<"Specialization", 'Boolean'>
   readonly approvedAt: Prisma.FieldRef<"Specialization", 'DateTime'>
   readonly approvedById: Prisma.FieldRef<"Specialization", 'String'>
   readonly createdAt: Prisma.FieldRef<"Specialization", 'DateTime'>

@@ -4,7 +4,8 @@ import dotenv from "dotenv";
 import morgan from "morgan";
 import cors from "cors";
 import { errorHandler } from "./interfaces/http/middleware/errorHandler";
-import authRoutes from "./interfaces/http/routes/authRoutes";
+import authRoutes from "./interfaces/http/routes/AuthRoutes";
+import teacherAcademicBackgroundRoutes from "./interfaces/http/routes/TeacherAcademicBackgroundRoutes";
 import { HttpStatus } from "./domain/enums/HttpStatus";
 
 dotenv.config({
@@ -25,6 +26,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use("/api/auth", authRoutes);
+app.use("/api/teacher-academic-backgrounds", teacherAcademicBackgroundRoutes);
 
 app.use(errorHandler);
 

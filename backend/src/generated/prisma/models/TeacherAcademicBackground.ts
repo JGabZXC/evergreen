@@ -31,6 +31,7 @@ export type TeacherAcademicBackgroundMinAggregateOutputType = {
   institution: string | null
   completedAt: Date | null
   type: $Enums.TeacherDetailsType | null
+  isApproved: boolean | null
   approvedAt: Date | null
   approvedById: string | null
   createdAt: Date | null
@@ -44,6 +45,7 @@ export type TeacherAcademicBackgroundMaxAggregateOutputType = {
   institution: string | null
   completedAt: Date | null
   type: $Enums.TeacherDetailsType | null
+  isApproved: boolean | null
   approvedAt: Date | null
   approvedById: string | null
   createdAt: Date | null
@@ -57,6 +59,7 @@ export type TeacherAcademicBackgroundCountAggregateOutputType = {
   institution: number
   completedAt: number
   type: number
+  isApproved: number
   approvedAt: number
   approvedById: number
   createdAt: number
@@ -72,6 +75,7 @@ export type TeacherAcademicBackgroundMinAggregateInputType = {
   institution?: true
   completedAt?: true
   type?: true
+  isApproved?: true
   approvedAt?: true
   approvedById?: true
   createdAt?: true
@@ -85,6 +89,7 @@ export type TeacherAcademicBackgroundMaxAggregateInputType = {
   institution?: true
   completedAt?: true
   type?: true
+  isApproved?: true
   approvedAt?: true
   approvedById?: true
   createdAt?: true
@@ -98,6 +103,7 @@ export type TeacherAcademicBackgroundCountAggregateInputType = {
   institution?: true
   completedAt?: true
   type?: true
+  isApproved?: true
   approvedAt?: true
   approvedById?: true
   createdAt?: true
@@ -184,6 +190,7 @@ export type TeacherAcademicBackgroundGroupByOutputType = {
   institution: string
   completedAt: Date
   type: $Enums.TeacherDetailsType
+  isApproved: boolean
   approvedAt: Date | null
   approvedById: string | null
   createdAt: Date
@@ -218,6 +225,7 @@ export type TeacherAcademicBackgroundWhereInput = {
   institution?: Prisma.StringFilter<"TeacherAcademicBackground"> | string
   completedAt?: Prisma.DateTimeFilter<"TeacherAcademicBackground"> | Date | string
   type?: Prisma.EnumTeacherDetailsTypeFilter<"TeacherAcademicBackground"> | $Enums.TeacherDetailsType
+  isApproved?: Prisma.BoolFilter<"TeacherAcademicBackground"> | boolean
   approvedAt?: Prisma.DateTimeNullableFilter<"TeacherAcademicBackground"> | Date | string | null
   approvedById?: Prisma.StringNullableFilter<"TeacherAcademicBackground"> | string | null
   createdAt?: Prisma.DateTimeFilter<"TeacherAcademicBackground"> | Date | string
@@ -233,6 +241,7 @@ export type TeacherAcademicBackgroundOrderByWithRelationInput = {
   institution?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
   type?: Prisma.SortOrder
+  isApproved?: Prisma.SortOrder
   approvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   approvedById?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -251,6 +260,7 @@ export type TeacherAcademicBackgroundWhereUniqueInput = Prisma.AtLeast<{
   institution?: Prisma.StringFilter<"TeacherAcademicBackground"> | string
   completedAt?: Prisma.DateTimeFilter<"TeacherAcademicBackground"> | Date | string
   type?: Prisma.EnumTeacherDetailsTypeFilter<"TeacherAcademicBackground"> | $Enums.TeacherDetailsType
+  isApproved?: Prisma.BoolFilter<"TeacherAcademicBackground"> | boolean
   approvedAt?: Prisma.DateTimeNullableFilter<"TeacherAcademicBackground"> | Date | string | null
   approvedById?: Prisma.StringNullableFilter<"TeacherAcademicBackground"> | string | null
   createdAt?: Prisma.DateTimeFilter<"TeacherAcademicBackground"> | Date | string
@@ -266,6 +276,7 @@ export type TeacherAcademicBackgroundOrderByWithAggregationInput = {
   institution?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
   type?: Prisma.SortOrder
+  isApproved?: Prisma.SortOrder
   approvedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   approvedById?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -285,6 +296,7 @@ export type TeacherAcademicBackgroundScalarWhereWithAggregatesInput = {
   institution?: Prisma.StringWithAggregatesFilter<"TeacherAcademicBackground"> | string
   completedAt?: Prisma.DateTimeWithAggregatesFilter<"TeacherAcademicBackground"> | Date | string
   type?: Prisma.EnumTeacherDetailsTypeWithAggregatesFilter<"TeacherAcademicBackground"> | $Enums.TeacherDetailsType
+  isApproved?: Prisma.BoolWithAggregatesFilter<"TeacherAcademicBackground"> | boolean
   approvedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"TeacherAcademicBackground"> | Date | string | null
   approvedById?: Prisma.StringNullableWithAggregatesFilter<"TeacherAcademicBackground"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"TeacherAcademicBackground"> | Date | string
@@ -297,6 +309,7 @@ export type TeacherAcademicBackgroundCreateInput = {
   institution: string
   completedAt: Date | string
   type?: $Enums.TeacherDetailsType
+  isApproved?: boolean
   approvedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -311,6 +324,7 @@ export type TeacherAcademicBackgroundUncheckedCreateInput = {
   institution: string
   completedAt: Date | string
   type?: $Enums.TeacherDetailsType
+  isApproved?: boolean
   approvedAt?: Date | string | null
   approvedById?: string | null
   createdAt?: Date | string
@@ -323,6 +337,7 @@ export type TeacherAcademicBackgroundUpdateInput = {
   institution?: Prisma.StringFieldUpdateOperationsInput | string
   completedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   type?: Prisma.EnumTeacherDetailsTypeFieldUpdateOperationsInput | $Enums.TeacherDetailsType
+  isApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -337,6 +352,7 @@ export type TeacherAcademicBackgroundUncheckedUpdateInput = {
   institution?: Prisma.StringFieldUpdateOperationsInput | string
   completedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   type?: Prisma.EnumTeacherDetailsTypeFieldUpdateOperationsInput | $Enums.TeacherDetailsType
+  isApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -350,6 +366,7 @@ export type TeacherAcademicBackgroundCreateManyInput = {
   institution: string
   completedAt: Date | string
   type?: $Enums.TeacherDetailsType
+  isApproved?: boolean
   approvedAt?: Date | string | null
   approvedById?: string | null
   createdAt?: Date | string
@@ -362,6 +379,7 @@ export type TeacherAcademicBackgroundUpdateManyMutationInput = {
   institution?: Prisma.StringFieldUpdateOperationsInput | string
   completedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   type?: Prisma.EnumTeacherDetailsTypeFieldUpdateOperationsInput | $Enums.TeacherDetailsType
+  isApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -374,6 +392,7 @@ export type TeacherAcademicBackgroundUncheckedUpdateManyInput = {
   institution?: Prisma.StringFieldUpdateOperationsInput | string
   completedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   type?: Prisma.EnumTeacherDetailsTypeFieldUpdateOperationsInput | $Enums.TeacherDetailsType
+  isApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -397,6 +416,7 @@ export type TeacherAcademicBackgroundCountOrderByAggregateInput = {
   institution?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
   type?: Prisma.SortOrder
+  isApproved?: Prisma.SortOrder
   approvedAt?: Prisma.SortOrder
   approvedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -410,6 +430,7 @@ export type TeacherAcademicBackgroundMaxOrderByAggregateInput = {
   institution?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
   type?: Prisma.SortOrder
+  isApproved?: Prisma.SortOrder
   approvedAt?: Prisma.SortOrder
   approvedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -423,6 +444,7 @@ export type TeacherAcademicBackgroundMinOrderByAggregateInput = {
   institution?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
   type?: Prisma.SortOrder
+  isApproved?: Prisma.SortOrder
   approvedAt?: Prisma.SortOrder
   approvedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -527,6 +549,7 @@ export type TeacherAcademicBackgroundCreateWithoutApprovedByInput = {
   institution: string
   completedAt: Date | string
   type?: $Enums.TeacherDetailsType
+  isApproved?: boolean
   approvedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -540,6 +563,7 @@ export type TeacherAcademicBackgroundUncheckedCreateWithoutApprovedByInput = {
   institution: string
   completedAt: Date | string
   type?: $Enums.TeacherDetailsType
+  isApproved?: boolean
   approvedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -581,6 +605,7 @@ export type TeacherAcademicBackgroundScalarWhereInput = {
   institution?: Prisma.StringFilter<"TeacherAcademicBackground"> | string
   completedAt?: Prisma.DateTimeFilter<"TeacherAcademicBackground"> | Date | string
   type?: Prisma.EnumTeacherDetailsTypeFilter<"TeacherAcademicBackground"> | $Enums.TeacherDetailsType
+  isApproved?: Prisma.BoolFilter<"TeacherAcademicBackground"> | boolean
   approvedAt?: Prisma.DateTimeNullableFilter<"TeacherAcademicBackground"> | Date | string | null
   approvedById?: Prisma.StringNullableFilter<"TeacherAcademicBackground"> | string | null
   createdAt?: Prisma.DateTimeFilter<"TeacherAcademicBackground"> | Date | string
@@ -593,6 +618,7 @@ export type TeacherAcademicBackgroundCreateWithoutUserProfileInput = {
   institution: string
   completedAt: Date | string
   type?: $Enums.TeacherDetailsType
+  isApproved?: boolean
   approvedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -605,6 +631,7 @@ export type TeacherAcademicBackgroundUncheckedCreateWithoutUserProfileInput = {
   institution: string
   completedAt: Date | string
   type?: $Enums.TeacherDetailsType
+  isApproved?: boolean
   approvedAt?: Date | string | null
   approvedById?: string | null
   createdAt?: Date | string
@@ -644,6 +671,7 @@ export type TeacherAcademicBackgroundCreateManyApprovedByInput = {
   institution: string
   completedAt: Date | string
   type?: $Enums.TeacherDetailsType
+  isApproved?: boolean
   approvedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -655,6 +683,7 @@ export type TeacherAcademicBackgroundUpdateWithoutApprovedByInput = {
   institution?: Prisma.StringFieldUpdateOperationsInput | string
   completedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   type?: Prisma.EnumTeacherDetailsTypeFieldUpdateOperationsInput | $Enums.TeacherDetailsType
+  isApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -668,6 +697,7 @@ export type TeacherAcademicBackgroundUncheckedUpdateWithoutApprovedByInput = {
   institution?: Prisma.StringFieldUpdateOperationsInput | string
   completedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   type?: Prisma.EnumTeacherDetailsTypeFieldUpdateOperationsInput | $Enums.TeacherDetailsType
+  isApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -680,6 +710,7 @@ export type TeacherAcademicBackgroundUncheckedUpdateManyWithoutApprovedByInput =
   institution?: Prisma.StringFieldUpdateOperationsInput | string
   completedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   type?: Prisma.EnumTeacherDetailsTypeFieldUpdateOperationsInput | $Enums.TeacherDetailsType
+  isApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -691,6 +722,7 @@ export type TeacherAcademicBackgroundCreateManyUserProfileInput = {
   institution: string
   completedAt: Date | string
   type?: $Enums.TeacherDetailsType
+  isApproved?: boolean
   approvedAt?: Date | string | null
   approvedById?: string | null
   createdAt?: Date | string
@@ -703,6 +735,7 @@ export type TeacherAcademicBackgroundUpdateWithoutUserProfileInput = {
   institution?: Prisma.StringFieldUpdateOperationsInput | string
   completedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   type?: Prisma.EnumTeacherDetailsTypeFieldUpdateOperationsInput | $Enums.TeacherDetailsType
+  isApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -715,6 +748,7 @@ export type TeacherAcademicBackgroundUncheckedUpdateWithoutUserProfileInput = {
   institution?: Prisma.StringFieldUpdateOperationsInput | string
   completedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   type?: Prisma.EnumTeacherDetailsTypeFieldUpdateOperationsInput | $Enums.TeacherDetailsType
+  isApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -727,6 +761,7 @@ export type TeacherAcademicBackgroundUncheckedUpdateManyWithoutUserProfileInput 
   institution?: Prisma.StringFieldUpdateOperationsInput | string
   completedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   type?: Prisma.EnumTeacherDetailsTypeFieldUpdateOperationsInput | $Enums.TeacherDetailsType
+  isApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -742,6 +777,7 @@ export type TeacherAcademicBackgroundSelect<ExtArgs extends runtime.Types.Extens
   institution?: boolean
   completedAt?: boolean
   type?: boolean
+  isApproved?: boolean
   approvedAt?: boolean
   approvedById?: boolean
   createdAt?: boolean
@@ -757,6 +793,7 @@ export type TeacherAcademicBackgroundSelectCreateManyAndReturn<ExtArgs extends r
   institution?: boolean
   completedAt?: boolean
   type?: boolean
+  isApproved?: boolean
   approvedAt?: boolean
   approvedById?: boolean
   createdAt?: boolean
@@ -772,6 +809,7 @@ export type TeacherAcademicBackgroundSelectUpdateManyAndReturn<ExtArgs extends r
   institution?: boolean
   completedAt?: boolean
   type?: boolean
+  isApproved?: boolean
   approvedAt?: boolean
   approvedById?: boolean
   createdAt?: boolean
@@ -787,13 +825,14 @@ export type TeacherAcademicBackgroundSelectScalar = {
   institution?: boolean
   completedAt?: boolean
   type?: boolean
+  isApproved?: boolean
   approvedAt?: boolean
   approvedById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type TeacherAcademicBackgroundOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userProfileId" | "degree" | "institution" | "completedAt" | "type" | "approvedAt" | "approvedById" | "createdAt" | "updatedAt", ExtArgs["result"]["teacherAcademicBackground"]>
+export type TeacherAcademicBackgroundOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userProfileId" | "degree" | "institution" | "completedAt" | "type" | "isApproved" | "approvedAt" | "approvedById" | "createdAt" | "updatedAt", ExtArgs["result"]["teacherAcademicBackground"]>
 export type TeacherAcademicBackgroundInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   userProfile?: boolean | Prisma.UserProfileDefaultArgs<ExtArgs>
   approvedBy?: boolean | Prisma.TeacherAcademicBackground$approvedByArgs<ExtArgs>
@@ -820,6 +859,7 @@ export type $TeacherAcademicBackgroundPayload<ExtArgs extends runtime.Types.Exte
     institution: string
     completedAt: Date
     type: $Enums.TeacherDetailsType
+    isApproved: boolean
     approvedAt: Date | null
     approvedById: string | null
     createdAt: Date
@@ -1255,6 +1295,7 @@ export interface TeacherAcademicBackgroundFieldRefs {
   readonly institution: Prisma.FieldRef<"TeacherAcademicBackground", 'String'>
   readonly completedAt: Prisma.FieldRef<"TeacherAcademicBackground", 'DateTime'>
   readonly type: Prisma.FieldRef<"TeacherAcademicBackground", 'TeacherDetailsType'>
+  readonly isApproved: Prisma.FieldRef<"TeacherAcademicBackground", 'Boolean'>
   readonly approvedAt: Prisma.FieldRef<"TeacherAcademicBackground", 'DateTime'>
   readonly approvedById: Prisma.FieldRef<"TeacherAcademicBackground", 'String'>
   readonly createdAt: Prisma.FieldRef<"TeacherAcademicBackground", 'DateTime'>
