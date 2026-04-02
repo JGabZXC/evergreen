@@ -1,7 +1,8 @@
 import { User } from "../../domain/entities/User";
-import {User as PrismaUser} from "../../generated/prisma/client"
+import { User as PrismaUser} from "../../generated/prisma/client"
 import {UserResponse} from "../../application/dto/UserResponse";
 import {UserAdminResponse} from "../../application/dto/UserAdminResponse";
+import {UserTokenPayload} from "../../application/dto/UserTokenPayload";
 
 export class UserMapper {
   static toDomain(raw: PrismaUser) {
@@ -21,6 +22,13 @@ export class UserMapper {
       id: domainUser.id,
       accountNumber: domainUser.accountNumber,
       email: domainUser.email,
+      role: domainUser.role,
+    }
+  }
+
+  static toTokenPayload(domainUser: User): UserTokenPayload {
+    return {
+      id: domainUser.id,
       role: domainUser.role,
     }
   }

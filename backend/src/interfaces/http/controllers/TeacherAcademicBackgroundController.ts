@@ -53,20 +53,21 @@ export class TeacherAcademicBackgroundController {
             filter.userId = user.id
         }
 
-        if (req.query.type) {
-            filter.type = req.query.type as TeacherDetailsType
+        const query = req.query;
+        if (query.type) {
+            filter.type = query.type as TeacherDetailsType;
         }
 
-        if (req.query.isApproved) {
-           filter.isApproved = String(req.query.isApproved).toLowerCase() === "true"
+        if (query.isApproved) {
+           filter.isApproved = String(query.isApproved).toLowerCase() === "true";
         }
 
-        if (req.query.approvedBy) {
-            filter.approvedBy = String(req.query.approvedBy);
+        if (query.approvedBy) {
+            filter.approvedBy = String(query.approvedBy);
         }
 
-        const page = Number(req.query.page) || 1;
-        let limit = Number(req.query.limit) || 10;
+        const page = Number(query.page) || 1;
+        let limit = Number(query.limit) || 10;
         if (page < 1 || limit < 1 || !Number.isInteger(page) || !Number.isInteger(limit)) {
             throw new BadRequestError("Pagination parameters must be positive integers.");
         }
@@ -86,12 +87,12 @@ export class TeacherAcademicBackgroundController {
         return res.status(200).json(result);
     }
 
-    public async createTeacherAcademicBackground(req: AuthenticatedRequest, res: Response) {
+    public async createTeacherAcademicBackground(req: AuthenticatedRequest<TeacherAcademicBackgroundRequest>, res: Response) {
         /*
         * This route is for Role.TEACHER only!
         */
 
-        const data = req.body as TeacherAcademicBackgroundRequest;
+        const data = req.body;
 
         const request: CreateTeacherAcademicBackgroundRequest = {
             data,

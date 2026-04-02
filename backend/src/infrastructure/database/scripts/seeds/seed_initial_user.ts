@@ -1,20 +1,12 @@
-import {AuthService} from "../../../../application/services/AuthService";
-import {TokenService} from "../../../../application/services/TokenService";
-import {PrismaUserRepository} from "../../../repositories/PrismaUserRepository";
+import { PasswordService } from "../../../../application/services/PasswordService";
 import prisma from "../../prisma/db";
 import {Role} from "../../../../generated/prisma/enums";
 
 
 
 async function main() {
-    const tokenService = new TokenService(
-        process.env.JWT_SECRET as string,
-        1000 * 60 * 10,
-        1000 * 60 * 60
-    );
-    const userRepository = new PrismaUserRepository();
-    const authService = new AuthService(tokenService, userRepository);
-    const hashedPassword = await authService.hashPassword("adminPassword123")
+    const passwordService = new PasswordService(Number(process.env.PASSWORD_SALT_ROUNDS) || 12);
+    const hashedPassword = await passwordService.hash("adminPassword123");
 
     const rawUser = await prisma.user.upsert({
         where: {email: "admin@gmail.com"},

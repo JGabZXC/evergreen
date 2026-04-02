@@ -2,35 +2,37 @@ import {Response} from "express";
 import {IAuthService} from "../../domain/interfaces/IAuthService";
 import {IUserRepository} from "../../domain/interfaces/IUserRepository";
 import {ITokenService} from "../../domain/interfaces/ITokenService";
-import bcrypt from "bcrypt"
+import {IPasswordService} from "../../domain/interfaces/IPasswordService";
 import {BadRequestError, NotFoundError} from "../../interfaces/http/middleware/HttpErrors";
 import {UserMapper} from "../../infrastructure/mapper/UserMapper";
 import {AuthResponse} from "../dto/AuthResponse";
 import {UserCreateRequest} from "../dto/UserCreateRequest";
 import {User} from "../../domain/entities/User";
-import {Prisma} from "../../generated/prisma/client";
+import {Prisma, Role} from "../../generated/prisma/client";
 
 export class AuthService implements IAuthService {
-    private readonly SALT_ROUNDS = 12
     constructor(
         private readonly tokenService: ITokenService,
-        private readonly userRepository: IUserRepository
+        private readonly passwordService: IPasswordService,
+        private readonly userRepository: IUserRepository,
     ) {}
 
     public async login(identifier: string, password: string): Promise<AuthResponse> {
         const rawUser = await this.userRepository.findRawByAccountNumberOrEmail(identifier)
         if (!rawUser) throw new NotFoundError("User not found");
 
-        if(await this.isCorrectPassword(rawUser.password, password)) throw new BadRequestError("Invalid credentials")
+        if(!(await this.passwordService.compare(password, rawUser.password))) throw new BadRequestError("Invalid credentials")
 
-        const normalizedUser = UserMapper.toDomain(rawUser).toObjectSimple()
-        const access_token = this.tokenService.generateAccessTokens(normalizedUser)
-        const refresh_token = this.tokenService.generateRefreshTokens(normalizedUser)
+        const domainUser = UserMapper.toDomain(rawUser);
+        const userResponse = UserMapper.toResponse(domainUser)
+        const userTokenPayload = UserMapper.toTokenPayload(domainUser)
+        const access_token = this.tokenService.generateAccessTokens(userTokenPayload)
+        const refresh_token = this.tokenService.generateRefreshTokens(userTokenPayload)
 
         return {
             access_token,
             refresh_token,
-            user: normalizedUser,
+            user: userResponse,
         };
     }
 
@@ -41,7 +43,14 @@ export class AuthService implements IAuthService {
 
     public async create(data: UserCreateRequest, creatorId: string): Promise<User | undefined> {
         try {
-            return await this.userRepository.create(data, creatorId);
+            const dataWitHashedPassword = {
+                ...data,
+                user: {
+                    ...data.user,
+                    password: await this.passwordService.hash(data.user.password),
+                },
+            }
+            return await this.userRepository.create(dataWitHashedPassword, creatorId);
         } catch(err) {
             if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
                 throw new BadRequestError("User already exists");
@@ -58,23 +67,16 @@ export class AuthService implements IAuthService {
         const user = await this.userRepository.findById(payload.id);
         if(!user) throw new NotFoundError("User not found")
 
-        const normalizedUser = user.toObjectSimple();
-        const newAccessToken = this.tokenService.generateAccessTokens(normalizedUser);
-        const newRefreshToken = this.tokenService.generateRefreshTokens(normalizedUser);
+        const responseUser = UserMapper.toResponse(user)
+        const newAccessToken = this.tokenService.generateAccessTokens({id: responseUser.id, role: responseUser.role as Role});
+        const newRefreshToken = this.tokenService.generateRefreshTokens({id: responseUser.id, role: responseUser.role as Role});
 
 
         return {
             refresh_token: newRefreshToken,
             access_token: newAccessToken,
-            user: normalizedUser,
+            user: responseUser,
         }
     }
 
-    public async hashPassword(password: string): Promise<string> {
-        return await bcrypt.hash(password, this.SALT_ROUNDS);
-    }
-
-    private async isCorrectPassword(hashedPassword: string, currentPassword: string): Promise<boolean> {
-        return await bcrypt.compare(hashedPassword, currentPassword);
-    }
 }

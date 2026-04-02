@@ -1,4 +1,4 @@
-import {AuthPayload} from "../types/AuthPayload";
+import {AuthPayload} from "../../application/dto/AuthPayload";
 import {UserTokenPayload} from "../../application/dto/UserTokenPayload";
 
 export interface ITokenService {

@@ -26,9 +26,9 @@ export class PrismaUserRepository implements IUserRepository {
       whereFilter.OR!.push({accountNumber: Number(identifier)})
     }
 
-    return await prisma.user.findFirst({
-      where: whereFilter
-    })
+    return prisma.user.findFirst({
+      where: whereFilter,
+    });
   }
 
   async getAll(

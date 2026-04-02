@@ -14,11 +14,16 @@ services:
       - backend
     env_file:
       - ./frontend/.env
+    networks:
+      - frontend_network
   backend:
     build:
       context: ./backend
       target: development
     container_name: evergreen_backend
+    networks:
+      - backend_network
+      - frontend_network
     ports:
       - "3000:3000"
     volumes:
@@ -27,58 +32,31 @@ services:
     env_file:
       - ./backend/.env
     depends_on:
-      - mongo
-  mongo:
-    image: mongo:7.0
-    container_name: evergreen_mongo
+      - postgres
+  postgres:
+    image: postgres:16-alpine
+    container_name: evergreen_postgres
     ports:
-      - "27018:27017"
-    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017"]
+      - "5432:5432"
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: rootpassword
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: rootpassword
+      POSTGRES_DB: evergreen_db
     volumes:
-      - mongo-data:/data/db
-      - ./backend/mongo-keyfile:/tmp/mongo-keyfile-source:ro
-    entrypoint: >
-      bash -c "
-      cp /tmp/mongo-keyfile-source /etc/mongo-keyfile && 
-      chmod 400 /etc/mongo-keyfile && 
-      chown 999:999 /etc/mongo-keyfile && 
-      docker-entrypoint.sh mongod --replSet rs0 --bind_ip_all --keyFile /etc/mongo-keyfile
-      "
+      - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      test: ["CMD-SHELL", "pg_isready -U root -d evergreen_db || exit 1"]
       interval: 5s
       timeout: 5s
       retries: 5
-      start_period: 5s
+    networks:
+      - backend_network
 
-  mongo-init:
-    image: mongo:7.0
-    container_name: evergreen_mongo_init
-    restart: "no"
-    depends_on:
-      mongo:
-        condition: service_healthy
-    command: >
-      bash -c "
-      echo 'Waiting for Mongo to come online...';
-      sleep 2;
-      mongosh --host mongo:27017 -u ${MONGO_ROOT_USER:-root} -p ${MONGO_ROOT_PASSWORD:-rootpassword} --authenticationDatabase admin --eval '
-        try {
-          var status = rs.status();
-          if (status.ok === 1) {
-            print(\"Replica Set is already active.\");
-          } else {
-            print(\"Replica Set needs init. initializing...\");
-            rs.initiate({ _id: \"rs0\", members: [{ _id: 0, host: \"mongo:27017\" }] });
-          }
-        } catch (e) {
-          print(\"Error catching status. Initializing fresh...\");
-          rs.initiate({ _id: \"rs0\", members: [{ _id: 0, host: \"mongo:27017\" }] });
-        }
-      '"
+networks:
+  frontend_network:
+    driver: bridge
+  backend_network:
+    driver: bridge
 
 volumes:
-  mongo-data:
+  postgres-data:
