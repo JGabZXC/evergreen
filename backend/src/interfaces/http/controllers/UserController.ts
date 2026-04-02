@@ -40,7 +40,7 @@ export class UserController {
       password: body.password,
       confirmPassword: body.confirmPassword,
       userId: body.userId,
-    } as UpdatePasswordRequestWithUserId);
+    });
 
     return res.status(HttpStatus.OK).json({ user: result });
   }

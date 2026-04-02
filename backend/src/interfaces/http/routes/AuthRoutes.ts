@@ -11,7 +11,12 @@ import { AuthGuard } from "../middleware/authGuard";
 import { Permissions } from "../middleware/Permissions";
 import { Role } from "../../../generated/prisma/enums";
 import { validateBody } from "../middleware/validateRequest";
-import { loginSchema, userCreateSchema } from "../../../application/schemas/authSchemas";
+import {
+  loginSchema,
+  updatePasswordAdminSchema,
+  updatePasswordSchema,
+  userCreateSchema
+} from "../../../application/schemas/authSchemas";
 
 const router = Router();
 
@@ -52,10 +57,10 @@ router
   );
 router
   .route("/change-password")
-  .post(authGuard.middleware, userController.changePassword);
+  .post(validateBody(updatePasswordSchema), authGuard.middleware, userController.changePassword);
 router
   .route("/set-password")
-  .post(authGuard.middleware, Permissions.isAdmin, userController.setPassword);
+  .post(validateBody(updatePasswordAdminSchema), authGuard.middleware, Permissions.isAdmin, userController.setPassword);
 router.route("/refresh-token").post(authController.refreshToken);
 
 export default router;
