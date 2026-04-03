@@ -1,4 +1,4 @@
-import {IUserRepository} from "../../domain/interfaces/IUserRepository";
+import { IUserRepository } from "../../domain/interfaces/IUserRepository";
 import { User } from "../../domain/entities/User";
 import { NotFoundError } from "../../interfaces/http/middleware/HttpErrors";
 import prisma from "../database/prisma/db";
@@ -10,25 +10,23 @@ import {
   GetAllUserFilter,
   UserCredentials,
 } from "../../domain/interfaces/IUserRepository";
-import {UserCreateRequest} from "../../application/dto/UserCreateRequest";
+import { UserCreateRequest } from "../../application/dto/UserCreateRequest";
 
 export class PrismaUserRepository implements IUserRepository {
-  async findRawByAccountNumberOrEmail(identifier:string): Promise<PrismaUser | null> {
-    const isNumber = /'\d+$/.test(identifier);
+  async findRawByAccountNumberOrEmail(
+    identifier: string,
+  ): Promise<PrismaUser | null> {
+    const isNumberIdentifier = /^\d+$/.test(identifier);
 
     const whereFilter: Prisma.UserWhereInput = {
-      OR: [
-        {email: identifier},
-      ]
+      OR: [{ email: identifier }],
+    };
+
+    if (isNumberIdentifier) {
+      whereFilter.OR!.push({ accountNumber: Number(identifier) });
     }
 
-    if (isNumber) {
-      whereFilter.OR!.push({accountNumber: Number(identifier)})
-    }
-
-    return prisma.user.findFirst({
-      where: whereFilter,
-    });
+    return prisma.user.findFirst({ where: whereFilter });
   }
 
   async getAll(
@@ -75,8 +73,22 @@ export class PrismaUserRepository implements IUserRepository {
     };
   }
 
-  async findById(id: string): Promise<User | null> {
-    const rawUser = await prisma.user.findUnique({ where: { id } });
+  async findById(id: string, nested: boolean = false): Promise<User | null> {
+    // Include the userProfile and its reverse relations so the mapper can build a full domain object
+    const include = {
+      userProfile: {
+          include: {
+            userAddress: true,
+            teacherAcademicBackground: { include: { approvedBy: true } },
+            specializations: { include: { approvedBy: true } },
+          },
+      },
+    };
+
+    const rawUser = await prisma.user.findUnique({
+      where: { id },
+      ...(nested ? {include} : {})
+    });
     if (!rawUser) return null;
     return UserMapper.toDomain(rawUser);
   }
@@ -120,7 +132,7 @@ export class PrismaUserRepository implements IUserRepository {
         role: data.user.role,
 
         insertedBy: {
-          connect: {id: creatorId},
+          connect: { id: creatorId },
         },
 
         userProfile: {
@@ -137,12 +149,12 @@ export class PrismaUserRepository implements IUserRepository {
                 barangay: data.userAddress.barangay,
                 municipality: data.userAddress.municipality,
                 province: data.userAddress.province,
-                region: data.userAddress.region
-              }
-            }
-          }
-        }
-      }
+                region: data.userAddress.region,
+              },
+            },
+          },
+        },
+      },
     });
 
     return UserMapper.toDomain(rawUser);

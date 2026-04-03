@@ -1,6 +1,7 @@
 import {TeacherDetailsType} from "../../generated/prisma/enums";
 import {BaseTimestamps} from "../common/BaseTimestamps";
 import {User} from "./User";
+import {UserProfile} from "./UserProfile";
 
 
 export class TeacherAcademicBackground extends BaseTimestamps {
@@ -18,10 +19,9 @@ export class TeacherAcademicBackground extends BaseTimestamps {
         public readonly updatedAt: Date,
 
         // NESTED PROPERTIES
+        public readonly userProfile: UserProfile | null,
         public readonly approvedBy: User | null,
     ) {
         super(id, createdAt, updatedAt);
     }
-
-
 }

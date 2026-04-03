@@ -12,6 +12,6 @@ export class CreateUserUseCase implements ICreateUserUseCase {
       request.creatorId,
     );
 
-    return UserMapper.toResponse(domainUser);
+    return UserMapper.toResponseShallow(domainUser);
   }
 }

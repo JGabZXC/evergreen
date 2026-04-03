@@ -19,4 +19,5 @@ export interface ITeacherAcademicBackgroundRepository {
     findAllByUserId(userId: string, page: number, limit: number): Promise<PaginatedResult<TeacherAcademicBackground>>;
     create(data: TeacherAcademicBackgroundRequest, userProfileId: string): Promise<TeacherAcademicBackground>;
     update(data: Partial<TeacherAcademicBackgroundRequest>, teacherAcademicBackgroundId: string): Promise<boolean>;
+    findById(teacherAcademicBackgroundId: string): Promise<TeacherAcademicBackground>;
 }

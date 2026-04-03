@@ -6,6 +6,7 @@ import cors from "cors";
 import { errorHandler } from "./interfaces/http/middleware/errorHandler";
 import authRoutes from "./interfaces/http/routes/AuthRoutes";
 import teacherAcademicBackgroundRoutes from "./interfaces/http/routes/TeacherAcademicBackgroundRoutes";
+import specializationRoutes from "./interfaces/http/routes/SpecializationRoutes";
 import { HttpStatus } from "./domain/enums/HttpStatus";
 
 dotenv.config({
@@ -27,6 +28,7 @@ app.use(cookieParser());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/teacher-academic-backgrounds", teacherAcademicBackgroundRoutes);
+app.use("/api/specializations", specializationRoutes);
 
 app.use(errorHandler);
 

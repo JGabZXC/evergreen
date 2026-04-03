@@ -1,5 +1,6 @@
 import { Role } from "../../generated/prisma/enums";
 import { BaseTimestamps } from "../common/BaseTimestamps";
+import {UserProfile} from "./UserProfile";
 
 export class User extends BaseTimestamps {
   constructor(
@@ -10,6 +11,8 @@ export class User extends BaseTimestamps {
     public readonly isActive: boolean,
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
+
+    public readonly userProfile?: UserProfile | null,
   ) {
     super(id, createdAt, updatedAt);
   }

@@ -34,6 +34,11 @@ const authService = new AuthService(
   passwordService,
   userRepository,
 );
+
+userRepository.findById("4e41cb5a-ae7a-4bcd-893b-8cf2b5525997").then((user) => {
+  console.log(user)
+})
+
 const createUserUseCase = new CreateUserUseCase(userRepository);
 const updateUserPasswordUseCase = new UpdateUserPasswordUseCase(
   userRepository,

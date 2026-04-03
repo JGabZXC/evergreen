@@ -34,6 +34,6 @@ export class UpdateUserPasswordUseCase implements IUpdateUserPasswordUseCase {
     const updated = await this.userRepository.findById(userId);
     if (!updated) throw new NotFoundError("User not found after update");
 
-    return UserMapper.toResponse(updated);
+    return UserMapper.toResponseShallow(updated);
   }
 }

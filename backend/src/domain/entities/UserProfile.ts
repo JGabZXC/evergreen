@@ -16,9 +16,9 @@ export class UserProfile extends BaseTimestamps {
         public readonly updatedAt: Date,
 
         // NESTED PROPERTIES
-        public readonly userAddress: UserAddress | null,
-        public readonly teacherAcademicBackground: TeacherAcademicBackground[] | null,
-        public readonly specialization: Specialization[] | null,
+        public readonly userAddress?: UserAddress | null,
+        public readonly teacherAcademicBackground?: TeacherAcademicBackground[] | null,
+        public readonly specialization?: Specialization[] | null,
     ) {
         super(id, createdAt, updatedAt)
     }

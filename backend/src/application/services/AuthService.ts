@@ -24,7 +24,7 @@ export class AuthService implements IAuthService {
         if(!(await this.passwordService.compare(password, rawUser.password))) throw new BadRequestError("Invalid credentials")
 
         const domainUser = UserMapper.toDomain(rawUser);
-        const userResponse = UserMapper.toResponse(domainUser)
+        const userResponse = UserMapper.toResponseShallow(domainUser)
         const userTokenPayload = UserMapper.toTokenPayload(domainUser)
         const access_token = this.tokenService.generateAccessTokens(userTokenPayload)
         const refresh_token = this.tokenService.generateRefreshTokens(userTokenPayload)
@@ -67,7 +67,7 @@ export class AuthService implements IAuthService {
         const user = await this.userRepository.findById(payload.id);
         if(!user) throw new NotFoundError("User not found")
 
-        const responseUser = UserMapper.toResponse(user)
+        const responseUser = UserMapper.toResponseShallow(user)
         const newAccessToken = this.tokenService.generateAccessTokens({id: responseUser.id, role: responseUser.role as Role});
         const newRefreshToken = this.tokenService.generateRefreshTokens({id: responseUser.id, role: responseUser.role as Role});
 

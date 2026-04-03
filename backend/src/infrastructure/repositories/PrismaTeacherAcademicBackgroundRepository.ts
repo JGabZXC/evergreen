@@ -3,7 +3,7 @@ import { PaginatedResult } from "../../domain/common/Pagination";
 import { TeacherAcademicBackground } from "../../domain/entities/TeacherAcademicBackground";
 import {
     GetAllTeacherAcademicBackgroundFilter,
-    ITeacherAcademicBackgroundRepository
+    ITeacherAcademicBackgroundRepository,
 } from "../../domain/interfaces/ITeacherAcademicBackgroundRepository";
 import {Prisma, TeacherDetailsType} from "../../generated/prisma/client";
 import prisma from "../database/prisma/db";
@@ -31,9 +31,7 @@ export class PrismaTeacherAcademicBackgroundRepository implements ITeacherAcadem
         }
 
 
-        if (filter.approvedBy === "all") {
-            where.approvedById = null;
-        } else if(filter.approvedBy) {
+        if (filter.approvedBy && filter.approvedBy !== "all") {
             where.approvedById = filter.approvedBy;
         }
 
@@ -100,6 +98,22 @@ export class PrismaTeacherAcademicBackgroundRepository implements ITeacherAcadem
 
            throw error;
        }
+    }
+
+    async findById(teacherAcademicBackgroundId: string): Promise<TeacherAcademicBackground> {
+        const raw = await prisma.teacherAcademicBackground.findUnique({
+            where: { id: teacherAcademicBackgroundId },
+            include: {
+                userProfile: { include: { user: true } },
+                approvedBy: true,
+            }
+        });
+
+        if (!raw) {
+            throw new NotFoundError(`TeacherAcademicBackground with id ${teacherAcademicBackgroundId} not found`);
+        }
+
+        return TeacherAcademicBackgroundMapper.toDomain(raw);
     }
 
 }

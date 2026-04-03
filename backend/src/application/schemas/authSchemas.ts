@@ -36,10 +36,7 @@ export const userCreateSchema = z.object({
     middleName: trimString.optional(),
     lastName: requiredString("Last name"),
     dateOfBirth: z.coerce
-        .date({
-          error: "Invalid date of birth format",
-          message: "Date of birth is required"
-        })
+        .date({ error: "Invalid date of birth format" })
         .refine((d) => d < new Date(), {
           message: "Date of birth cannot be in the future",
           path: ["dateOfBirth"]

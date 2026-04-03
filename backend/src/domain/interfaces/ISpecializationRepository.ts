@@ -1,12 +1,12 @@
 import {PaginatedResult} from "../common/Pagination";
 import {Specialization} from "../entities/Specialization";
-import {SpecializationRequest} from "../../application/dto/SpecializationRequest";
+import {SpecializationCreateRequest} from "../../application/dto/SpecializationCreateRequest";
 
 export interface GetAllSpecializationFilter {
     userId?: string;
     name?: string;
     isApproved?: boolean;
-    approvedBy?: string;
+    approvedById?: string;
 }
 
 export interface ISpecializationRepository {
@@ -15,8 +15,7 @@ export interface ISpecializationRepository {
         page: number,
         limit: number,
     ): Promise<PaginatedResult<Specialization>>;
-    findByUserId(userId: string): Promise<PaginatedResult<Specialization>>;
-    create(data: SpecializationRequest): Promise<Specialization>;
-    update(data: Partial<SpecializationRequest>): Promise<Specialization>;
-
+    findAllByUserId(userId: string, page: number, limit: number): Promise<PaginatedResult<Specialization>>;
+    create(data: SpecializationCreateRequest, userProfileId: string): Promise<Specialization>;
+    update(data: Partial<SpecializationCreateRequest>, id: string): Promise<Specialization>;
 }

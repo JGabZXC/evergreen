@@ -71,9 +71,6 @@ export class AuthController {
       message: "Logged out",
     });
   }
-
-  // Validation is handled by request middleware (Zod). Keep controller thin.
-
   private setCookie(
     res: Response,
     accessToken: string,
