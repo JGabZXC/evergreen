@@ -35,11 +35,7 @@ const authService = new AuthService(
   userRepository,
 );
 
-userRepository.findById("4e41cb5a-ae7a-4bcd-893b-8cf2b5525997").then((user) => {
-  console.log(user)
-})
-
-const createUserUseCase = new CreateUserUseCase(userRepository);
+const createUserUseCase = new CreateUserUseCase(userRepository, passwordService);
 const updateUserPasswordUseCase = new UpdateUserPasswordUseCase(
   userRepository,
   passwordService,
@@ -62,7 +58,7 @@ router
   );
 router
   .route("/change-password")
-  .post(validateBody(updatePasswordSchema), authGuard.middleware, userController.changePassword);
+  .post(authGuard.middleware, validateBody(updatePasswordSchema), userController.changePassword);
 router
   .route("/set-password")
   .post(authGuard.middleware, validateBody(updatePasswordAdminSchema), Permissions.isAdmin, userController.setPassword);
