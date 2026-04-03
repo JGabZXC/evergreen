@@ -14,27 +14,6 @@ export class User extends BaseTimestamps {
     super(id, createdAt, updatedAt);
   }
 
-  public toObject() {
-    return {
-      id: this.id,
-      accountNumber: this.accountNumber,
-      email: this.email,
-      role: this.role,
-      isActive: this.isActive,
-      createdAt: this.createdAt,
-      updatedAt: this.updatedAt,
-    }
-  }
-
-  public toObjectSimple() {
-    return {
-      id: this.id,
-      accountNumber: this.accountNumber,
-      email: this.email,
-      role: this.role,
-    }
-  }
-
   public canAccessAdminPanel(): boolean {
     return this.role === Role.ADMIN || this.role === Role.PRINCIPAL;
   }

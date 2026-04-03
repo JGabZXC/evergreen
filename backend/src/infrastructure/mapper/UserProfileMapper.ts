@@ -7,7 +7,8 @@ import {SpecializationMapper} from "./SpecializationMapper";
 interface WithReverseRelation extends PrismaUserProfile {
     userAddress: PrismaUserAddress | null,
     teacherAcademicBackground: (PrismaTeacherAcademicBackground & { approvedBy: PrismaUser | null })[] | null,
-    specialization: PrismaSpecialization[] | null,
+    specialization: (PrismaSpecialization & {
+        approvedBy: PrismaUser | null})[] | null,
 }
 
 export class UserProfileMapper {
@@ -37,6 +38,8 @@ export class UserProfileMapper {
             lastName: domain.lastName,
             dateOfBirth: domain.dateOfBirth,
             contactNumber: domain.contactNumber,
+
+            // REVERSE RELATION
             userAddress: domain.userAddress ? UserAddressMapper.toResponse(domain.userAddress) : null,
             teacherAcademicBackground: domain.teacherAcademicBackground ? domain.teacherAcademicBackground.map((background) => TeacherAcademicBackgroundMapper.toResponse(background)) : null,
             specialization: domain.specialization ? domain.specialization.map((specialization) => SpecializationMapper.toResponse(specialization)) : null,

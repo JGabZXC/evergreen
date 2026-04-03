@@ -1,9 +1,14 @@
-import {Specialization as PrismaSpecialization} from "../../generated/prisma/client";
+import {Specialization as PrismaSpecialization, User as PrismaUser} from "../../generated/prisma/client";
 import {Specialization} from "../../domain/entities/Specialization";
 import {SpecializationResponse} from "../../application/dto/SpecializationResponse";
+import {UserMapper} from "./UserMapper";
+
+interface WithRelation extends PrismaSpecialization {
+    approvedBy: PrismaUser | null,
+}
 
 export class SpecializationMapper {
-    static toDomain(raw: PrismaSpecialization) {
+    static toDomain(raw: WithRelation) {
         return new Specialization(
             raw.id,
             raw.userProfileId,
@@ -13,7 +18,10 @@ export class SpecializationMapper {
             raw.approvedAt,
             raw.approvedById,
             raw.createdAt,
-            raw.updatedAt
+            raw.updatedAt,
+
+            // NESTED PROPERTIES
+            raw.approvedBy ? UserMapper.toDomain(raw.approvedBy) : null,
         )
     }
 
@@ -25,6 +33,9 @@ export class SpecializationMapper {
             approvedAt: domain.approvedAt?.toISOString() || null,
             approvedById: domain.approvedById,
             createdAt: domain.createdAt.toISOString(),
+
+            // NESTED PROPERTIES
+            approvedBy: domain.approvedBy ? UserMapper.toResponse(domain.approvedBy) : null,
         }
     }
 }

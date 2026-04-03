@@ -1,4 +1,5 @@
 import {BaseTimestamps} from "../common/BaseTimestamps";
+import {User} from "./User";
 
 export class Specialization extends BaseTimestamps{
     constructor(
@@ -12,6 +13,8 @@ export class Specialization extends BaseTimestamps{
         public readonly createdAt: Date,
         public readonly updatedAt: Date,
 
+        // NESTED PROPERTIES
+        public readonly approvedBy: User | null,
     ) {
         super(id, createdAt, updatedAt)
     }
