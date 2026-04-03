@@ -9,6 +9,8 @@ import {
 import { TokenService } from "../../../application/services/TokenService";
 import { AuthGuard } from "../middleware/authGuard";
 import {Permissions} from "../middleware/Permissions";
+import {validateBody} from "../middleware/validateRequest";
+import {teacherAcademicBackgroundCreateSchema} from "../../../application/schemas/teacherAcademicBackgroundSchemas";
 
 const router = Router();
 
@@ -29,7 +31,7 @@ const authGuard = new AuthGuard(tokenService, userRepository);
 // Public: list all teacher academic backgrounds (requires auth)
 router.route("/")
     .get(authGuard.middleware, controller.getAllTeacherAcademicBackground)
-    .post(authGuard.middleware, Permissions.isTeacher, controller.createTeacherAcademicBackground);
+    .post(authGuard.middleware, validateBody(teacherAcademicBackgroundCreateSchema), Permissions.isTeacher, controller.createTeacherAcademicBackground);
 
 // List backgrounds for a specific user
 router.get("/users/:userId", authGuard.middleware, controller.getAllTeacherAcademicBackground);

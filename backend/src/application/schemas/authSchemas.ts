@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { Role } from "../../generated/prisma/enums";
+import { trimString, requiredString } from "./commonSchemas";
 
 const passwordBase = z.string()
     .min(10, "Password must be at least 10 characters")
@@ -13,9 +14,6 @@ const passwordMatchSchema = z.object({
   message: "Passwords do not match",
   path: ["confirmPassword"],
 });
-
-const trimString = z.string().trim();
-const requiredString = (name: string) => trimString.min(1, `${name} is required`);
 
 export const loginSchema = z.object({
   identifier: trimString.min(1, "Email or Account Number is required")

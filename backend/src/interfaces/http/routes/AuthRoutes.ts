@@ -51,8 +51,8 @@ router
   .route("/create")
   .post(
     authGuard.middleware,
-    Permissions.requireRole(Role.ADMIN, Role.REGISTRAR),
     validateBody(userCreateSchema),
+    Permissions.requireRole(Role.ADMIN, Role.REGISTRAR),
     authController.create,
   );
 router
@@ -60,7 +60,7 @@ router
   .post(validateBody(updatePasswordSchema), authGuard.middleware, userController.changePassword);
 router
   .route("/set-password")
-  .post(validateBody(updatePasswordAdminSchema), authGuard.middleware, Permissions.isAdmin, userController.setPassword);
+  .post(authGuard.middleware, validateBody(updatePasswordAdminSchema), Permissions.isAdmin, userController.setPassword);
 router.route("/refresh-token").post(authController.refreshToken);
 
 export default router;
