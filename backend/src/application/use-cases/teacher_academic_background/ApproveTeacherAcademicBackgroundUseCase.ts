@@ -14,7 +14,10 @@ export class ApproveTeacherAcademicBackgroundUseCase implements IApproveTeacherA
         const data = {
             approvedAt: new Date().toISOString(),
             isApproved: true,
-            approvedBy: request.approverId
+            // Prisma expects the foreign key scalar field `approvedById` when updating
+            // the relation by id. Passing `approvedBy` (relation object) as a string
+            // causes a runtime error. Use the scalar FK here.
+            approvedById: request.approverId
         }
 
         return await this.teacherAcademicBackgroundRepository.update(data, request.teacherAcademicBackgroundId);

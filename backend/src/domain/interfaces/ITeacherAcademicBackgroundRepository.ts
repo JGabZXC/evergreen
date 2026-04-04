@@ -18,6 +18,6 @@ export interface ITeacherAcademicBackgroundRepository {
     ): Promise<PaginatedResult<TeacherAcademicBackground>>;
     findAllByUserId(userId: string, page: number, limit: number): Promise<PaginatedResult<TeacherAcademicBackground>>;
     create(data: TeacherAcademicBackgroundRequest, userProfileId: string): Promise<TeacherAcademicBackground>;
-    update(data: Partial<TeacherAcademicBackgroundRequest & { isApproved: boolean, approvedAt: string }>, teacherAcademicBackgroundId: string): Promise<boolean>;
+    update(data: Partial<TeacherAcademicBackgroundRequest & { isApproved?: boolean, approvedAt?: string, approvedById?: string }>, teacherAcademicBackgroundId: string): Promise<boolean>;
     findById(teacherAcademicBackgroundId: string): Promise<TeacherAcademicBackground>;
 }

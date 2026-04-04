@@ -101,13 +101,19 @@ export class TeacherAcademicBackgroundController {
         */
 
         const data = req.body;
+        // Resolve the authenticated user's profile id. The repository.create
+        // expects a userProfileId (not the user's id) to satisfy the FK constraint.
+        const domainUser = await this.userRepository.findById(req.user!.id, true);
+        if (!domainUser) throw new NotFoundError("Authenticated user not found");
+        const userProfileId = domainUser.userProfile?.id;
+        if (!userProfileId) throw new BadRequestError("User profile not found for authenticated user");
 
         const request: CreateTeacherAcademicBackgroundRequest = {
             data,
-            creatorId: req.user!.id
-        }
+            creatorId: userProfileId,
+        };
 
-        const response = await this.createUserUseCase.execute(request)
+        const response = await this.createUserUseCase.execute(request);
         return res.status(200).json({
             data: response,
         });
