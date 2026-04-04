@@ -1,1 +1,1 @@
-export {type TeacherAcademicBackgroundRequest} from "../schemas/teacherAcademicBackgroundSchemas"
+export {type TeacherAcademicBackgroundRequest} from "../schemas/teacherAcademicBackgroundSchemas";

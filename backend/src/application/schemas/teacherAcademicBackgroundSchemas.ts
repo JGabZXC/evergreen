@@ -16,6 +16,10 @@ export const teacherAcademicBackgroundCreateSchema = z.object({
     type: z.enum(TeacherDetailsType)
 });
 
+export const teacherAcademicBackgroundParamsSchema = z.object({
+    id: z.uuid("Invalid teacher academic background ID"),
+});
+
 // Update schema: allow partial updates of any of the create fields
 export const teacherAcademicBackgroundUpdateSchema = teacherAcademicBackgroundCreateSchema.partial();
 

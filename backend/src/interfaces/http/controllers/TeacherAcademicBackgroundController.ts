@@ -1,6 +1,7 @@
 import {Response} from "express";
 import {IUserRepository} from "../../../domain/interfaces/IUserRepository";
 import {ITeacherAcademicBackgroundRepository} from '../../../domain/interfaces/ITeacherAcademicBackgroundRepository';
+import {IApproveTeacherAcademicBackgroundUseCase} from '../../../application/use-cases/teacher_academic_background/IApproveTeacherAcademicBackgroundUseCase';
 import {AuthenticatedRequest} from "../middleware/authGuard";
 import {IUseCase} from "../../../domain/common/IUseCase";
 import {
@@ -26,11 +27,13 @@ export class TeacherAcademicBackgroundController {
         private readonly getAllTeacherUseCase: IUseCase<GetAllTeacherAcademicBackgroundRepositoryRequest, PaginatedResult<TeacherAcademicBackgroundNestedResponse>>,
         private readonly createUserUseCase: IUseCase<CreateTeacherAcademicBackgroundRequest, TeacherAcademicBackgroundResponse>,
         private readonly updateTeacherAcademicBackgroundUseCase: IUseCase<UpdateTeacherAcademicBackgroundRequest, boolean>,
+        private readonly approveTeacherAcademicBackgroundUseCase: IApproveTeacherAcademicBackgroundUseCase,
         private readonly teacherRepository: ITeacherAcademicBackgroundRepository,
     ) {
         this.getAllTeacherAcademicBackground = this.getAllTeacherAcademicBackground.bind(this);
         this.createTeacherAcademicBackground = this.createTeacherAcademicBackground.bind(this);
         this.updateTeacherAcademicBackground = this.updateTeacherAcademicBackground.bind(this);
+        this.approveTeacherAcademicBackground = this.approveTeacherAcademicBackground.bind(this);
     }
 
     public async getAllTeacherAcademicBackground(req: AuthenticatedRequest, res: Response) {
@@ -128,14 +131,35 @@ export class TeacherAcademicBackgroundController {
 
         const data = req.body;
 
-        if (!this.updateTeacherAcademicBackgroundUseCase) {
-            throw new BadRequestError("Update use-case not configured");
-        }
-
         const result = await this.updateTeacherAcademicBackgroundUseCase.execute({id, data});
 
         return res.status(200).json({
             success: result,
         });
+    }
+
+    public async approveTeacherAcademicBackground(req: AuthenticatedRequest, res: Response) {
+        // `id` is validated by the `validateParams` middleware attached to the route.
+        // If the id is missing/invalid the middleware will throw a BadRequestError
+        // and this controller will not be invoked. We only trust the presence
+        // of a valid `id` here and proceed with business-level checks.
+        const id = String(req.params.id);
+
+        const approver = await this.userRepository.findById(req.user!.id);
+        if (!approver) throw new NotFoundError("Authenticated user not found");
+
+        const teacherRecord = await this.teacherRepository.findById(id);
+        if (!teacherRecord) throw new NotFoundError("Teacher academic background not found");
+
+        if (teacherRecord.isApproved) {
+            throw new BadRequestError("Teacher academic background is already approved");
+        }
+
+        const result = await this.approveTeacherAcademicBackgroundUseCase.execute({
+            teacherAcademicBackgroundId: id,
+            approverId: req.user!.id,
+        });
+
+        return res.status(200).json({ success: result });
     }
 }
