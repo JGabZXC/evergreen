@@ -312,18 +312,18 @@ export type SpecializationUpdateInput = {
   approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userProfile?: Prisma.UserProfileUpdateOneRequiredWithoutSpecializationsNestedInput
-  approvedBy?: Prisma.UserUpdateOneWithoutSpecializationsNestedInput
+  userProfile?: Prisma.UserProfileUpdateOneRequiredWithoutSpecializationsNestedInput | undefined
+    approvedBy?: Prisma.UserUpdateOneWithoutSpecializationsNestedInput | undefined
 }
 
 export type SpecializationUncheckedUpdateInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  userProfileId?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+    id?: Prisma.StringFieldUpdateOperationsInput | string
+    userProfileId?: Prisma.StringFieldUpdateOperationsInput | string | undefined
+    name?: Prisma.StringFieldUpdateOperationsInput | string
+    description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+    isApproved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+    approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    approvedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null | undefined
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }

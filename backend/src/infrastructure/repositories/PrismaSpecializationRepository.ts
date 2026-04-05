@@ -79,26 +79,17 @@ export class PrismaSpecializationRepository
   }
 
   async update(
-    data: Partial<SpecializationCreateRequest>,
-    id: string,
-  ): Promise<Specialization> {
-    const updateData: Prisma.SpecializationUpdateInput = {};
+    data: Prisma.SpecializationUpdateInput,
+    specializationId: string,
+  ): Promise<boolean> {
 
-    if (data.name !== undefined) {
-      updateData.name = data.name;
-    }
-
-    if (data.description !== undefined) {
-      updateData.description = data.description;
-    }
-
-    const rawSpecialization = await prisma.specialization.update({
+    await prisma.specialization.update({
       where: {
-        id,
+        id: specializationId
       },
-      data: updateData,
+      data,
     });
 
-    return SpecializationMapper.toDomain(rawSpecialization);
+    return true;
   }
 }

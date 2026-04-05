@@ -3,8 +3,6 @@ import {
   UpdateSpecializationRequest,
 } from "./IUpdateSpecializationUseCase";
 import { ISpecializationRepository } from "../../../domain/interfaces/ISpecializationRepository";
-import { SpecializationResponse } from "../../dto/SpecializationResponse";
-import { SpecializationMapper } from "../../../infrastructure/mapper/SpecializationMapper";
 
 export class UpdateSpecializationUseCase
   implements IUpdateSpecializationUseCase
@@ -15,12 +13,20 @@ export class UpdateSpecializationUseCase
 
   async execute(
     request: UpdateSpecializationRequest,
-  ): Promise<SpecializationResponse> {
-    const domainSpecialization = await this.specializationRepository.update(
-      request.data,
-      request.id,
-    );
+  ): Promise<boolean> {
+    const newData: Record<string, string> = {};
 
-    return SpecializationMapper.toResponseShallow(domainSpecialization);
+    if (request.data.name) {
+      newData.name = request.data.name;
+    }
+
+    if (request.data.description) {
+      newData.description= request.data.description;
+    }
+
+    return await this.specializationRepository.update(
+        newData,
+        request.id,
+    );
   }
 }

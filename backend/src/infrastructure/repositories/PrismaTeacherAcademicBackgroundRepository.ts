@@ -79,13 +79,11 @@ export class PrismaTeacherAcademicBackgroundRepository implements ITeacherAcadem
 
         return TeacherAcademicBackgroundMapper.toDomain(rawTeacherAcademicBackground);
     }
-    async update(data: Partial<TeacherAcademicBackgroundRequest>, teacherAcademicBackgroundId: string): Promise<boolean> {
+    async update(data: Partial<TeacherAcademicBackgroundRequest & {isApproved: boolean, approvedAt: Date, approvedById: string}>, teacherAcademicBackgroundId: string): Promise<boolean> {
        try {
            await prisma.teacherAcademicBackground.update({
                where: {id: teacherAcademicBackgroundId},
-               data: {
-                   ...data,
-               }
+               data,
            });
 
            return true;

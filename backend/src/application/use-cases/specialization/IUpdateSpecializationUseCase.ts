@@ -1,6 +1,5 @@
 import { IUseCase } from "../../../domain/common/IUseCase";
 import { SpecializationCreateRequest } from "../../dto/SpecializationCreateRequest";
-import { SpecializationResponse } from "../../dto/SpecializationResponse";
 
 export interface UpdateSpecializationRequest {
   data: Partial<SpecializationCreateRequest>;
@@ -9,6 +8,6 @@ export interface UpdateSpecializationRequest {
 
 export type IUpdateSpecializationUseCase = IUseCase<
   UpdateSpecializationRequest,
-  SpecializationResponse
+  boolean
 >;
 

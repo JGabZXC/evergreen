@@ -16,7 +16,7 @@ export class SpecializationController {
     private readonly userRepository: IUserRepository,
     private readonly getAllSpecializationUseCase: IUseCase<GetAllSpecializationRepositoryRequest, PaginatedResult<SpecializationResponse>>,
     private readonly createSpecializationUseCase: IUseCase<CreateSpecializationRequest, SpecializationResponse>,
-    private readonly updateSpecializationUseCase: IUseCase<UpdateSpecializationRequest, SpecializationResponse>,
+    private readonly updateSpecializationUseCase: IUseCase<UpdateSpecializationRequest, boolean>,
   ) {
     this.getAllSpecializations = this.getAllSpecializations.bind(this);
     this.createSpecialization = this.createSpecialization.bind(this);
