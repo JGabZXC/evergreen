@@ -8,19 +8,28 @@ import { UpdateSpecializationRequest } from "../../../application/use-cases/spec
 import { SpecializationCreateRequest } from "../../../application/schemas/specializationSchemas";
 import { PaginatedResult } from "../../../domain/common/Pagination";
 import { SpecializationResponse } from "../../../application/dto/SpecializationResponse";
-import { GetAllSpecializationFilter } from '../../../domain/interfaces/ISpecializationRepository';
+import {
+  GetAllSpecializationFilter,
+  ISpecializationRepository
+} from '../../../domain/interfaces/ISpecializationRepository';
 import { BadRequestError, NotFoundError } from "../middleware/HttpErrors";
+import {
+  ApproveSpecializationRequest
+} from "../../../application/use-cases/specialization/IApproveSpecializationUseCase";
 
 export class SpecializationController {
   constructor(
     private readonly userRepository: IUserRepository,
+    private readonly specializationRepo: ISpecializationRepository,
     private readonly getAllSpecializationUseCase: IUseCase<GetAllSpecializationRepositoryRequest, PaginatedResult<SpecializationResponse>>,
     private readonly createSpecializationUseCase: IUseCase<CreateSpecializationRequest, SpecializationResponse>,
     private readonly updateSpecializationUseCase: IUseCase<UpdateSpecializationRequest, boolean>,
+    private readonly approveSpecializationUseCase: IUseCase<ApproveSpecializationRequest, boolean>
   ) {
     this.getAllSpecializations = this.getAllSpecializations.bind(this);
     this.createSpecialization = this.createSpecialization.bind(this);
     this.updateSpecialization = this.updateSpecialization.bind(this);
+    this.approveSpecialization = this.approveSpecialization.bind(this);
   }
 
   public async getAllSpecializations(req: AuthenticatedRequest, res: Response) {
@@ -88,5 +97,15 @@ export class SpecializationController {
     const response = await this.updateSpecializationUseCase.execute(request);
 
     return res.status(200).json({ data: response });
+  }
+
+  public async approveSpecialization(req: AuthenticatedRequest, res: Response) {
+    const specializationId = String(req.params.id);
+
+    if(!(await this.specializationRepo.findById(specializationId))) throw new NotFoundError("Specialization not found");
+
+    const result = await this.approveSpecializationUseCase.execute({specializationId, approverId: req.user!.id});
+
+    return res.status(200).json({ data: result });
   }
 }

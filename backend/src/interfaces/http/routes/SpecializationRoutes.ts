@@ -11,7 +11,13 @@ import { TokenService } from "../../../application/services/TokenService";
 import { AuthGuard } from "../middleware/authGuard";
 import { Permissions } from "../middleware/Permissions";
 import { validateBody } from "../middleware/validateRequest";
-import { specializationCreateSchema, specializationUpdateSchema } from "../../../application/schemas/specializationSchemas";
+import {
+  specializationCreateSchema,
+  specializationUpdateParamsSchema,
+  specializationUpdateSchema
+} from "../../../application/schemas/specializationSchemas";
+import {validateParams} from "../middleware/validateParams";
+import {ApproveSpecializationUseCase} from "../../../application/use-cases/specialization/ApproveSpecializationUseCase";
 
 const router = Router();
 
@@ -25,10 +31,11 @@ const userRepository = new PrismaUserRepository();
 const specializationRepo = new PrismaSpecializationRepository();
 
 const getAllUseCase = new GetAllSpecializationUseCase(specializationRepo);
-const createUseCase = new CreateSpecializationUseCase(specializationRepo);
+const createUseCase = new CreateSpecializationUseCase(specializationRepo, userRepository);
 const updateUseCase = new UpdateSpecializationUseCase(specializationRepo);
+const approveUseCase = new ApproveSpecializationUseCase(specializationRepo);
 
-const controller = new SpecializationController(userRepository, getAllUseCase, createUseCase, updateUseCase);
+const controller = new SpecializationController(userRepository, specializationRepo, getAllUseCase, createUseCase, updateUseCase, approveUseCase);
 const authGuard = new AuthGuard(tokenService, userRepository);
 
 router
@@ -36,7 +43,8 @@ router
   .get(authGuard.middleware, controller.getAllSpecializations)
   .post(authGuard.middleware, validateBody(specializationCreateSchema), Permissions.isTeacher, controller.createSpecialization);
 
-router.patch("/:id", authGuard.middleware, validateBody(specializationUpdateSchema), controller.updateSpecialization);
+router.patch("/:id", authGuard.middleware, validateParams(specializationUpdateParamsSchema),validateBody(specializationUpdateSchema), controller.updateSpecialization);
+router.patch("/:id/approval", validateParams(specializationUpdateParamsSchema), authGuard.middleware, controller.approveSpecialization);
 
 router.get("/users/:userId", authGuard.middleware, controller.getAllSpecializations);
 

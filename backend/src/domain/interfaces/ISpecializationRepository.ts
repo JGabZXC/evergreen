@@ -16,6 +16,7 @@ export interface ISpecializationRepository {
         page: number,
         limit: number,
     ): Promise<PaginatedResult<Specialization>>;
+    findById(id: string): Promise<Specialization | null>;
     findAllByUserId(userId: string, page: number, limit: number): Promise<PaginatedResult<Specialization>>;
     create(data: SpecializationCreateRequest, userProfileId: string): Promise<Specialization>;
     update(data: Prisma.SpecializationUpdateInput, id: string): Promise<boolean>;

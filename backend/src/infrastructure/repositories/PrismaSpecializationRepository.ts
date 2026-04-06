@@ -6,6 +6,7 @@ import {
 import { SpecializationCreateRequest } from "../../application/dto/SpecializationCreateRequest";
 import { PaginatedResult } from "../../domain/common/Pagination";
 import prisma from "../database/prisma/db";
+import { NotFoundError } from "../../interfaces/http/middleware/HttpErrors";
 import { SpecializationMapper } from "../mapper/SpecializationMapper";
 import { Specialization } from "../../domain/entities/Specialization";
 
@@ -55,6 +56,16 @@ export class PrismaSpecializationRepository
     };
   }
 
+  async findById(id: string): Promise<Specialization | null> {
+    const rawSpecialization = await prisma.specialization.findUnique({
+      where: { id }
+    });
+
+    if(!rawSpecialization) return null;
+
+    return SpecializationMapper.toDomain(rawSpecialization);
+  }
+
   async findAllByUserId(
     userId: string,
     page: number,
@@ -82,14 +93,18 @@ export class PrismaSpecializationRepository
     data: Prisma.SpecializationUpdateInput,
     specializationId: string,
   ): Promise<boolean> {
+    try {
+      await prisma.specialization.update({
+        where: { id: specializationId },
+        data,
+      });
 
-    await prisma.specialization.update({
-      where: {
-        id: specializationId
-      },
-      data,
-    });
-
-    return true;
+      return true;
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
+        throw new NotFoundError(`Specialization with id ${specializationId} not found`);
+      }
+      throw error;
+    }
   }
 }

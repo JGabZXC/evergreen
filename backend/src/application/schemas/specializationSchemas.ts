@@ -8,5 +8,9 @@ export const specializationCreateSchema = z.object({
 
 export const specializationUpdateSchema = specializationCreateSchema.optional();
 
+export const specializationUpdateParamsSchema = z.object({
+  id: z.uuid("Invalid Specialization ID"),
+});
+
 export type SpecializationCreateRequest = z.infer<typeof specializationCreateSchema>;
 
