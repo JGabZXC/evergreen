@@ -41,6 +41,12 @@ export interface ISchoolYearRepository {
 
   findById(id: string, nested?: boolean): Promise<SchoolYear | null>;
 
+  findOverlapping(
+    startDate: Date,
+    endDate: Date,
+    excludeSchoolYearId?: string,
+  ): Promise<SchoolYear | null>;
+
   create(data: CreateSchoolYearRepositoryRequest): Promise<SchoolYear>;
 
   update(

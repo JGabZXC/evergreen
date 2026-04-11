@@ -34,6 +34,7 @@ describe("GetSchoolYearByIdUseCase", () => {
     const repository: ISchoolYearRepository = {
       getAll: vi.fn(),
       findById: vi.fn().mockResolvedValue(schoolYear),
+      findOverlapping: vi.fn(),
       create: vi.fn(),
       update: vi.fn(),
       delete: vi.fn(),
@@ -58,6 +59,7 @@ describe("GetSchoolYearByIdUseCase", () => {
     const repository: ISchoolYearRepository = {
       getAll: vi.fn(),
       findById: vi.fn().mockResolvedValue(null),
+      findOverlapping: vi.fn(),
       create: vi.fn(),
       update: vi.fn(),
       delete: vi.fn(),

@@ -43,6 +43,7 @@ export class SchoolYearMapper {
       endDate: domain.endDate.toISOString(),
       gracePeriod: domain.gracePeriod,
       status: domain.status,
+      createdById: domain.createdById,
       createdAt: domain.createdAt.toISOString(),
       updatedAt: domain.updatedAt.toISOString(),
     };

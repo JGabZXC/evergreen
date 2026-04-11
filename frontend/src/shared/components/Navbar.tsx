@@ -3,14 +3,13 @@ import logo from "../../assets/evergreen_logo.png";
 import { useLocation } from "react-router";
 import { Moon, Sun } from "lucide-react";
 import { useAuth, useLogout } from "../../features/auth";
-import {useTheme} from "../hooks/useTheme.ts";
+import { useTheme } from "../hooks/useTheme.ts";
 
 function Navbar() {
   const location = useLocation();
   const { user } = useAuth();
   const { logout } = useLogout();
-  const {toggleTheme, theme} = useTheme();
-
+  const { toggleTheme, theme } = useTheme();
 
   const isInLoginPage = location.pathname === "/login";
 
@@ -18,11 +17,7 @@ function Navbar() {
     <nav className="navbar bg-base-100/80 backdrop-blur-md shadow-lg sticky top-0 z-50 flex justify-between dark:bg-white/10">
       <div className="navbar-start">
         <Link to="/" className="flex gap-2 items-center normal-case text-xl">
-          <img
-            src={logo}
-            alt="Evergreen Academy Logo"
-            className="h-8 w-8"
-          />
+          <img src={logo} alt="Evergreen Academy Logo" className="h-8 w-8" />
           Evergreen Academy
         </Link>
       </div>
@@ -43,12 +38,12 @@ function Navbar() {
           <div className="flex items-center gap-2">
             {user ? (
               <>
-                  <Link to="/dashboard" className="btn btn-ghost">
-                      Dashboard
-                  </Link>
-                  <button onClick={logout} className="btn btn-primary">
-                      Logout
-                  </button>
+                <Link to="/dashboard" className="btn btn-ghost">
+                  Dashboard
+                </Link>
+                <button onClick={logout} className="btn btn-primary">
+                  Logout
+                </button>
               </>
             ) : (
               <Link to="/login" className="btn btn-primary">

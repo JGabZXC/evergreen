@@ -22,6 +22,7 @@ describe("UpdateSchoolYearUseCase", () => {
     const repository: ISchoolYearRepository = {
       getAll: vi.fn(),
       findById: vi.fn().mockResolvedValue(schoolYear),
+      findOverlapping: vi.fn().mockResolvedValue(null),
       create: vi.fn(),
       update: vi.fn().mockResolvedValue(true),
       delete: vi.fn(),
@@ -40,11 +41,13 @@ describe("UpdateSchoolYearUseCase", () => {
     });
 
     expect(result).toBe(true);
+    expect(repository.findOverlapping).toHaveBeenCalledWith(
+      schoolYear.startDate,
+      schoolYear.endDate,
+      schoolYear.id,
+    );
     expect(repository.update).toHaveBeenCalledWith(
       {
-        startDate: undefined,
-        endDate: undefined,
-        gracePeriod: undefined,
         status: SchoolYearStatus.ONGOING,
       },
       schoolYear.id,
@@ -75,6 +78,7 @@ describe("UpdateSchoolYearUseCase", () => {
     const repository: ISchoolYearRepository = {
       getAll: vi.fn(),
       findById: vi.fn().mockResolvedValue(schoolYear),
+      findOverlapping: vi.fn().mockResolvedValue(null),
       create: vi.fn(),
       update: vi.fn().mockResolvedValue(true),
       delete: vi.fn(),
@@ -112,6 +116,7 @@ describe("UpdateSchoolYearUseCase", () => {
     const repository: ISchoolYearRepository = {
       getAll: vi.fn(),
       findById: vi.fn().mockResolvedValue(schoolYear),
+      findOverlapping: vi.fn(),
       create: vi.fn(),
       update: vi.fn(),
       delete: vi.fn(),
@@ -129,5 +134,100 @@ describe("UpdateSchoolYearUseCase", () => {
         },
       }),
     ).rejects.toThrow("No valid fields provided for update");
+  });
+
+  it("throws when update date range overlaps another school year", async () => {
+    const schoolYear = new SchoolYear(
+      "de305d54-75b4-431b-adb2-eb6b9e546014",
+      new Date("2026-06-01T00:00:00.000Z"),
+      new Date("2027-03-31T00:00:00.000Z"),
+      5,
+      SchoolYearStatus.ONGOING,
+      null,
+      new Date("2026-04-01T00:00:00.000Z"),
+      new Date("2026-04-01T00:00:00.000Z"),
+      null,
+      null,
+    );
+
+    const conflictingSchoolYear = new SchoolYear(
+      "de305d54-75b4-431b-adb2-eb6b9e546099",
+      new Date("2026-08-25T00:00:00.000Z"),
+      new Date("2027-03-31T00:00:00.000Z"),
+      5,
+      SchoolYearStatus.UPCOMING,
+      null,
+      new Date("2026-04-01T00:00:00.000Z"),
+      new Date("2026-04-01T00:00:00.000Z"),
+      null,
+      null,
+    );
+
+    const repository: ISchoolYearRepository = {
+      getAll: vi.fn(),
+      findById: vi.fn().mockResolvedValue(schoolYear),
+      findOverlapping: vi.fn().mockResolvedValue(conflictingSchoolYear),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+      createStatusHistory: vi.fn(),
+    };
+
+    const useCase = new UpdateSchoolYearUseCase(repository);
+
+    await expect(
+      useCase.execute({
+        id: schoolYear.id,
+        updaterId: "de305d54-75b4-431b-adb2-eb6b9e546001",
+        data: {
+          startDate: new Date("2026-09-25T00:00:00.000Z"),
+          endDate: new Date("2027-02-01T00:00:00.000Z"),
+        },
+      }),
+    ).rejects.toThrow(
+      "School year date range overlaps with an existing school year",
+    );
+
+    expect(repository.update).not.toHaveBeenCalled();
+  });
+
+  it("throws when partial update makes effective dates invalid", async () => {
+    const schoolYear = new SchoolYear(
+      "de305d54-75b4-431b-adb2-eb6b9e546014",
+      new Date("2026-06-01T00:00:00.000Z"),
+      new Date("2027-03-31T00:00:00.000Z"),
+      5,
+      SchoolYearStatus.ONGOING,
+      null,
+      new Date("2026-04-01T00:00:00.000Z"),
+      new Date("2026-04-01T00:00:00.000Z"),
+      null,
+      null,
+    );
+
+    const repository: ISchoolYearRepository = {
+      getAll: vi.fn(),
+      findById: vi.fn().mockResolvedValue(schoolYear),
+      findOverlapping: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+      createStatusHistory: vi.fn(),
+    };
+
+    const useCase = new UpdateSchoolYearUseCase(repository);
+
+    await expect(
+      useCase.execute({
+        id: schoolYear.id,
+        updaterId: "de305d54-75b4-431b-adb2-eb6b9e546001",
+        data: {
+          startDate: new Date("2027-04-01T00:00:00.000Z"),
+        },
+      }),
+    ).rejects.toThrow("End date must be after start date");
+
+    expect(repository.findOverlapping).not.toHaveBeenCalled();
+    expect(repository.update).not.toHaveBeenCalled();
   });
 });

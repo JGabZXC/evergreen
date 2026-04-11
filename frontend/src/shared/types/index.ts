@@ -1,5 +1,5 @@
 // --- Enums ---
-import type {User} from "../../features/auth";
+import type { User } from "../../features/auth";
 
 export enum GradeLevel {
   Grade1 = "G-1",
@@ -75,7 +75,7 @@ export interface CreateSectionPayload {
   designatedRoom?: string;
 }
 
-export type UpdateSectionPayload = Partial<CreateSectionPayload>
+export type UpdateSectionPayload = Partial<CreateSectionPayload>;
 
 export interface TimeSlot {
   _id: string;

@@ -12,7 +12,10 @@ import { SchoolYearStatusHistory } from "../../domain/entities/SchoolYearStatusH
 import prisma from "../database/prisma/db";
 import { SchoolYearMapper } from "../mapper/SchoolYearMapper";
 import { SchoolYearStatusMapper } from "../mapper/SchoolYearStatusMapper";
-import { NotFoundError } from "../../interfaces/http/middleware/HttpErrors";
+import {
+  ConflictError,
+  NotFoundError,
+} from "../../interfaces/http/middleware/HttpErrors";
 
 export class PrismaSchoolYearRepository implements ISchoolYearRepository {
   async getAll(
@@ -74,7 +77,10 @@ export class PrismaSchoolYearRepository implements ISchoolYearRepository {
     };
   }
 
-  async findById(id: string, nested: boolean = false): Promise<SchoolYear | null> {
+  async findById(
+    id: string,
+    nested: boolean = false,
+  ): Promise<SchoolYear | null> {
     const include = {
       createdBy: true,
       schoolYearStatusHistory: {
@@ -97,18 +103,64 @@ export class PrismaSchoolYearRepository implements ISchoolYearRepository {
     return SchoolYearMapper.toDomain(rawSchoolYear);
   }
 
-  async create(data: CreateSchoolYearRepositoryRequest): Promise<SchoolYear> {
-    const rawSchoolYear = await prisma.schoolYear.create({
-      data: {
-        startDate: data.startDate,
-        endDate: data.endDate,
-        gracePeriod: data.gracePeriod,
-        status: data.status,
-        createdById: data.createdById,
+  async findOverlapping(
+    startDate: Date,
+    endDate: Date,
+    excludeSchoolYearId?: string,
+  ): Promise<SchoolYear | null> {
+    const rawSchoolYear = await prisma.schoolYear.findFirst({
+      where: {
+        startDate: {
+          lte: endDate,
+        },
+        endDate: {
+          gte: startDate,
+        },
+        ...(excludeSchoolYearId
+          ? {
+              id: {
+                not: excludeSchoolYearId,
+              },
+            }
+          : {}),
+      },
+      orderBy: {
+        startDate: "asc",
       },
     });
 
+    if (!rawSchoolYear) {
+      return null;
+    }
+
     return SchoolYearMapper.toDomain(rawSchoolYear);
+  }
+
+  async create(data: CreateSchoolYearRepositoryRequest): Promise<SchoolYear> {
+    try {
+      const rawSchoolYear = await prisma.schoolYear.create({
+        data: {
+          startDate: data.startDate,
+          endDate: data.endDate,
+          gracePeriod: data.gracePeriod,
+          status: data.status,
+          createdById: data.createdById,
+        },
+      });
+
+      return SchoolYearMapper.toDomain(rawSchoolYear);
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2002"
+      ) {
+        throw new ConflictError(
+          "School year with the same start and end date already exists",
+        );
+      }
+
+      throw error;
+    }
   }
 
   async update(
@@ -145,7 +197,18 @@ export class PrismaSchoolYearRepository implements ISchoolYearRepository {
         error instanceof Prisma.PrismaClientKnownRequestError &&
         error.code === "P2025"
       ) {
-        throw new NotFoundError(`School year with id ${schoolYearId} not found`);
+        throw new NotFoundError(
+          `School year with id ${schoolYearId} not found`,
+        );
+      }
+
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2002"
+      ) {
+        throw new ConflictError(
+          "School year with the same start and end date already exists",
+        );
       }
 
       throw error;
@@ -164,7 +227,9 @@ export class PrismaSchoolYearRepository implements ISchoolYearRepository {
         error instanceof Prisma.PrismaClientKnownRequestError &&
         error.code === "P2025"
       ) {
-        throw new NotFoundError(`School year with id ${schoolYearId} not found`);
+        throw new NotFoundError(
+          `School year with id ${schoolYearId} not found`,
+        );
       }
 
       throw error;

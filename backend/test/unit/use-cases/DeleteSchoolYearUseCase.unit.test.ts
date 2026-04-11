@@ -7,6 +7,7 @@ describe("DeleteSchoolYearUseCase", () => {
     const repository: ISchoolYearRepository = {
       getAll: vi.fn(),
       findById: vi.fn(),
+      findOverlapping: vi.fn(),
       create: vi.fn(),
       update: vi.fn(),
       delete: vi.fn().mockResolvedValue(true),

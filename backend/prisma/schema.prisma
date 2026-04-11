@@ -157,6 +157,8 @@ model SchoolYear {
 
   schoolYearStatusHistory SchoolYearStatusHistory[]
   sections Section[]
+
+  @@unique([startDate, endDate])
 }
 
 model SchoolYearStatusHistory {

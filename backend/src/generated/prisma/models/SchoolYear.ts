@@ -261,6 +261,7 @@ export type SchoolYearOrderByWithRelationInput = {
 
 export type SchoolYearWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  startDate_endDate?: Prisma.SchoolYearStartDateEndDateCompoundUniqueInput
   AND?: Prisma.SchoolYearWhereInput | Prisma.SchoolYearWhereInput[]
   OR?: Prisma.SchoolYearWhereInput[]
   NOT?: Prisma.SchoolYearWhereInput | Prisma.SchoolYearWhereInput[]
@@ -274,7 +275,7 @@ export type SchoolYearWhereUniqueInput = Prisma.AtLeast<{
   createdBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   schoolYearStatusHistory?: Prisma.SchoolYearStatusHistoryListRelationFilter
   sections?: Prisma.SectionListRelationFilter
-}, "id">
+}, "id" | "startDate_endDate">
 
 export type SchoolYearOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -398,6 +399,11 @@ export type SchoolYearListRelationFilter = {
 
 export type SchoolYearOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type SchoolYearStartDateEndDateCompoundUniqueInput = {
+  startDate: Date | string
+  endDate: Date | string
 }
 
 export type SchoolYearCountOrderByAggregateInput = {
