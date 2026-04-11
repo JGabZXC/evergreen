@@ -1,7 +1,10 @@
 import {Response} from "express";
 import {IUserRepository} from "../../../domain/interfaces/IUserRepository";
 import {ITeacherAcademicBackgroundRepository} from '../../../domain/interfaces/ITeacherAcademicBackgroundRepository';
-import {IApproveTeacherAcademicBackgroundUseCase} from '../../../application/use-cases/teacher_academic_background/IApproveTeacherAcademicBackgroundUseCase';
+import {
+    ApproveTeacherAcademicBackgroundRequest,
+    IApproveTeacherAcademicBackgroundUseCase
+} from '../../../application/use-cases/teacher_academic_background/IApproveTeacherAcademicBackgroundUseCase';
 import {AuthenticatedRequest} from "../middleware/authGuard";
 import {IUseCase} from "../../../domain/common/IUseCase";
 import {
@@ -20,6 +23,9 @@ import {UpdateTeacherAcademicBackgroundRequest} from "../../../application/use-c
 import {
     CreateTeacherAcademicBackgroundRequest
 } from "../../../application/use-cases/teacher_academic_background/ICreateTeacherAcademicBackgroundUseCase";
+import {
+    ApproveSpecializationRequest
+} from "../../../application/use-cases/specialization/IApproveSpecializationUseCase";
 
 export class TeacherAcademicBackgroundController {
     constructor(
@@ -27,7 +33,7 @@ export class TeacherAcademicBackgroundController {
         private readonly getAllTeacherUseCase: IUseCase<GetAllTeacherAcademicBackgroundRepositoryRequest, PaginatedResult<TeacherAcademicBackgroundNestedResponse>>,
         private readonly createUserUseCase: IUseCase<CreateTeacherAcademicBackgroundRequest, TeacherAcademicBackgroundResponse>,
         private readonly updateTeacherAcademicBackgroundUseCase: IUseCase<UpdateTeacherAcademicBackgroundRequest, boolean>,
-        private readonly approveTeacherAcademicBackgroundUseCase: IApproveTeacherAcademicBackgroundUseCase,
+        private readonly approveTeacherAcademicBackgroundUseCase: IUseCase<ApproveTeacherAcademicBackgroundRequest, boolean>,
         private readonly teacherRepository: ITeacherAcademicBackgroundRepository,
     ) {
         this.getAllTeacherAcademicBackground = this.getAllTeacherAcademicBackground.bind(this);
