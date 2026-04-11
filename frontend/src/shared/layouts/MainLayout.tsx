@@ -1,6 +1,6 @@
 import { Outlet } from "react-router";
 import Navbar from "../components/Navbar";
-import { AxiosInterceptor } from "../../features/auth/components/AxiosInterceptor";
+import { AxiosInterceptor } from "../../features/auth";
 
 export default function MainLayout() {
   return (

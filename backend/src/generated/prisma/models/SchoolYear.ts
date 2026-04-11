@@ -20,15 +20,27 @@ export type SchoolYearModel = runtime.Types.Result.DefaultSelection<Prisma.$Scho
 
 export type AggregateSchoolYear = {
   _count: SchoolYearCountAggregateOutputType | null
+  _avg: SchoolYearAvgAggregateOutputType | null
+  _sum: SchoolYearSumAggregateOutputType | null
   _min: SchoolYearMinAggregateOutputType | null
   _max: SchoolYearMaxAggregateOutputType | null
+}
+
+export type SchoolYearAvgAggregateOutputType = {
+  gracePeriod: number | null
+}
+
+export type SchoolYearSumAggregateOutputType = {
+  gracePeriod: number | null
 }
 
 export type SchoolYearMinAggregateOutputType = {
   id: string | null
   startDate: Date | null
   endDate: Date | null
+  gracePeriod: number | null
   status: $Enums.SchoolYearStatus | null
+  createdById: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -37,7 +49,9 @@ export type SchoolYearMaxAggregateOutputType = {
   id: string | null
   startDate: Date | null
   endDate: Date | null
+  gracePeriod: number | null
   status: $Enums.SchoolYearStatus | null
+  createdById: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -46,18 +60,30 @@ export type SchoolYearCountAggregateOutputType = {
   id: number
   startDate: number
   endDate: number
+  gracePeriod: number
   status: number
+  createdById: number
   createdAt: number
   updatedAt: number
   _all: number
 }
 
 
+export type SchoolYearAvgAggregateInputType = {
+  gracePeriod?: true
+}
+
+export type SchoolYearSumAggregateInputType = {
+  gracePeriod?: true
+}
+
 export type SchoolYearMinAggregateInputType = {
   id?: true
   startDate?: true
   endDate?: true
+  gracePeriod?: true
   status?: true
+  createdById?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -66,7 +92,9 @@ export type SchoolYearMaxAggregateInputType = {
   id?: true
   startDate?: true
   endDate?: true
+  gracePeriod?: true
   status?: true
+  createdById?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -75,7 +103,9 @@ export type SchoolYearCountAggregateInputType = {
   id?: true
   startDate?: true
   endDate?: true
+  gracePeriod?: true
   status?: true
+  createdById?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -119,6 +149,18 @@ export type SchoolYearAggregateArgs<ExtArgs extends runtime.Types.Extensions.Int
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: SchoolYearAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: SchoolYearSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: SchoolYearMinAggregateInputType
@@ -149,6 +191,8 @@ export type SchoolYearGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   _count?: SchoolYearCountAggregateInputType | true
+  _avg?: SchoolYearAvgAggregateInputType
+  _sum?: SchoolYearSumAggregateInputType
   _min?: SchoolYearMinAggregateInputType
   _max?: SchoolYearMaxAggregateInputType
 }
@@ -157,10 +201,14 @@ export type SchoolYearGroupByOutputType = {
   id: string
   startDate: Date
   endDate: Date
+  gracePeriod: number
   status: $Enums.SchoolYearStatus
+  createdById: string | null
   createdAt: Date
   updatedAt: Date
   _count: SchoolYearCountAggregateOutputType | null
+  _avg: SchoolYearAvgAggregateOutputType | null
+  _sum: SchoolYearSumAggregateOutputType | null
   _min: SchoolYearMinAggregateOutputType | null
   _max: SchoolYearMaxAggregateOutputType | null
 }
@@ -187,9 +235,12 @@ export type SchoolYearWhereInput = {
   id?: Prisma.StringFilter<"SchoolYear"> | string
   startDate?: Prisma.DateTimeFilter<"SchoolYear"> | Date | string
   endDate?: Prisma.DateTimeFilter<"SchoolYear"> | Date | string
+  gracePeriod?: Prisma.IntFilter<"SchoolYear"> | number
   status?: Prisma.EnumSchoolYearStatusFilter<"SchoolYear"> | $Enums.SchoolYearStatus
+  createdById?: Prisma.StringNullableFilter<"SchoolYear"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SchoolYear"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SchoolYear"> | Date | string
+  createdBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   schoolYearStatusHistory?: Prisma.SchoolYearStatusHistoryListRelationFilter
   sections?: Prisma.SectionListRelationFilter
 }
@@ -198,9 +249,12 @@ export type SchoolYearOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
+  gracePeriod?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  createdById?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  createdBy?: Prisma.UserOrderByWithRelationInput
   schoolYearStatusHistory?: Prisma.SchoolYearStatusHistoryOrderByRelationAggregateInput
   sections?: Prisma.SectionOrderByRelationAggregateInput
 }
@@ -212,9 +266,12 @@ export type SchoolYearWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.SchoolYearWhereInput | Prisma.SchoolYearWhereInput[]
   startDate?: Prisma.DateTimeFilter<"SchoolYear"> | Date | string
   endDate?: Prisma.DateTimeFilter<"SchoolYear"> | Date | string
+  gracePeriod?: Prisma.IntFilter<"SchoolYear"> | number
   status?: Prisma.EnumSchoolYearStatusFilter<"SchoolYear"> | $Enums.SchoolYearStatus
+  createdById?: Prisma.StringNullableFilter<"SchoolYear"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SchoolYear"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SchoolYear"> | Date | string
+  createdBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   schoolYearStatusHistory?: Prisma.SchoolYearStatusHistoryListRelationFilter
   sections?: Prisma.SectionListRelationFilter
 }, "id">
@@ -223,12 +280,16 @@ export type SchoolYearOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
+  gracePeriod?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  createdById?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.SchoolYearCountOrderByAggregateInput
+  _avg?: Prisma.SchoolYearAvgOrderByAggregateInput
   _max?: Prisma.SchoolYearMaxOrderByAggregateInput
   _min?: Prisma.SchoolYearMinOrderByAggregateInput
+  _sum?: Prisma.SchoolYearSumOrderByAggregateInput
 }
 
 export type SchoolYearScalarWhereWithAggregatesInput = {
@@ -238,7 +299,9 @@ export type SchoolYearScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"SchoolYear"> | string
   startDate?: Prisma.DateTimeWithAggregatesFilter<"SchoolYear"> | Date | string
   endDate?: Prisma.DateTimeWithAggregatesFilter<"SchoolYear"> | Date | string
+  gracePeriod?: Prisma.IntWithAggregatesFilter<"SchoolYear"> | number
   status?: Prisma.EnumSchoolYearStatusWithAggregatesFilter<"SchoolYear"> | $Enums.SchoolYearStatus
+  createdById?: Prisma.StringNullableWithAggregatesFilter<"SchoolYear"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"SchoolYear"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SchoolYear"> | Date | string
 }
@@ -247,9 +310,11 @@ export type SchoolYearCreateInput = {
   id?: string
   startDate: Date | string
   endDate: Date | string
+  gracePeriod?: number
   status?: $Enums.SchoolYearStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  createdBy?: Prisma.UserCreateNestedOneWithoutSchoolYearsInput
   schoolYearStatusHistory?: Prisma.SchoolYearStatusHistoryCreateNestedManyWithoutSchoolYearInput
   sections?: Prisma.SectionCreateNestedManyWithoutSchoolYearInput
 }
@@ -258,7 +323,9 @@ export type SchoolYearUncheckedCreateInput = {
   id?: string
   startDate: Date | string
   endDate: Date | string
+  gracePeriod?: number
   status?: $Enums.SchoolYearStatus
+  createdById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   schoolYearStatusHistory?: Prisma.SchoolYearStatusHistoryUncheckedCreateNestedManyWithoutSchoolYearInput
@@ -269,9 +336,11 @@ export type SchoolYearUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  gracePeriod?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumSchoolYearStatusFieldUpdateOperationsInput | $Enums.SchoolYearStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdBy?: Prisma.UserUpdateOneWithoutSchoolYearsNestedInput
   schoolYearStatusHistory?: Prisma.SchoolYearStatusHistoryUpdateManyWithoutSchoolYearNestedInput
   sections?: Prisma.SectionUpdateManyWithoutSchoolYearNestedInput
 }
@@ -280,7 +349,9 @@ export type SchoolYearUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  gracePeriod?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumSchoolYearStatusFieldUpdateOperationsInput | $Enums.SchoolYearStatus
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   schoolYearStatusHistory?: Prisma.SchoolYearStatusHistoryUncheckedUpdateManyWithoutSchoolYearNestedInput
@@ -291,7 +362,9 @@ export type SchoolYearCreateManyInput = {
   id?: string
   startDate: Date | string
   endDate: Date | string
+  gracePeriod?: number
   status?: $Enums.SchoolYearStatus
+  createdById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -300,6 +373,7 @@ export type SchoolYearUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  gracePeriod?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumSchoolYearStatusFieldUpdateOperationsInput | $Enums.SchoolYearStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -309,25 +383,45 @@ export type SchoolYearUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  gracePeriod?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumSchoolYearStatusFieldUpdateOperationsInput | $Enums.SchoolYearStatus
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type SchoolYearListRelationFilter = {
+  every?: Prisma.SchoolYearWhereInput
+  some?: Prisma.SchoolYearWhereInput
+  none?: Prisma.SchoolYearWhereInput
+}
+
+export type SchoolYearOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type SchoolYearCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
+  gracePeriod?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type SchoolYearAvgOrderByAggregateInput = {
+  gracePeriod?: Prisma.SortOrder
 }
 
 export type SchoolYearMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
+  gracePeriod?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -336,14 +430,62 @@ export type SchoolYearMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
+  gracePeriod?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type SchoolYearSumOrderByAggregateInput = {
+  gracePeriod?: Prisma.SortOrder
 }
 
 export type SchoolYearScalarRelationFilter = {
   is?: Prisma.SchoolYearWhereInput
   isNot?: Prisma.SchoolYearWhereInput
+}
+
+export type SchoolYearCreateNestedManyWithoutCreatedByInput = {
+  create?: Prisma.XOR<Prisma.SchoolYearCreateWithoutCreatedByInput, Prisma.SchoolYearUncheckedCreateWithoutCreatedByInput> | Prisma.SchoolYearCreateWithoutCreatedByInput[] | Prisma.SchoolYearUncheckedCreateWithoutCreatedByInput[]
+  connectOrCreate?: Prisma.SchoolYearCreateOrConnectWithoutCreatedByInput | Prisma.SchoolYearCreateOrConnectWithoutCreatedByInput[]
+  createMany?: Prisma.SchoolYearCreateManyCreatedByInputEnvelope
+  connect?: Prisma.SchoolYearWhereUniqueInput | Prisma.SchoolYearWhereUniqueInput[]
+}
+
+export type SchoolYearUncheckedCreateNestedManyWithoutCreatedByInput = {
+  create?: Prisma.XOR<Prisma.SchoolYearCreateWithoutCreatedByInput, Prisma.SchoolYearUncheckedCreateWithoutCreatedByInput> | Prisma.SchoolYearCreateWithoutCreatedByInput[] | Prisma.SchoolYearUncheckedCreateWithoutCreatedByInput[]
+  connectOrCreate?: Prisma.SchoolYearCreateOrConnectWithoutCreatedByInput | Prisma.SchoolYearCreateOrConnectWithoutCreatedByInput[]
+  createMany?: Prisma.SchoolYearCreateManyCreatedByInputEnvelope
+  connect?: Prisma.SchoolYearWhereUniqueInput | Prisma.SchoolYearWhereUniqueInput[]
+}
+
+export type SchoolYearUpdateManyWithoutCreatedByNestedInput = {
+  create?: Prisma.XOR<Prisma.SchoolYearCreateWithoutCreatedByInput, Prisma.SchoolYearUncheckedCreateWithoutCreatedByInput> | Prisma.SchoolYearCreateWithoutCreatedByInput[] | Prisma.SchoolYearUncheckedCreateWithoutCreatedByInput[]
+  connectOrCreate?: Prisma.SchoolYearCreateOrConnectWithoutCreatedByInput | Prisma.SchoolYearCreateOrConnectWithoutCreatedByInput[]
+  upsert?: Prisma.SchoolYearUpsertWithWhereUniqueWithoutCreatedByInput | Prisma.SchoolYearUpsertWithWhereUniqueWithoutCreatedByInput[]
+  createMany?: Prisma.SchoolYearCreateManyCreatedByInputEnvelope
+  set?: Prisma.SchoolYearWhereUniqueInput | Prisma.SchoolYearWhereUniqueInput[]
+  disconnect?: Prisma.SchoolYearWhereUniqueInput | Prisma.SchoolYearWhereUniqueInput[]
+  delete?: Prisma.SchoolYearWhereUniqueInput | Prisma.SchoolYearWhereUniqueInput[]
+  connect?: Prisma.SchoolYearWhereUniqueInput | Prisma.SchoolYearWhereUniqueInput[]
+  update?: Prisma.SchoolYearUpdateWithWhereUniqueWithoutCreatedByInput | Prisma.SchoolYearUpdateWithWhereUniqueWithoutCreatedByInput[]
+  updateMany?: Prisma.SchoolYearUpdateManyWithWhereWithoutCreatedByInput | Prisma.SchoolYearUpdateManyWithWhereWithoutCreatedByInput[]
+  deleteMany?: Prisma.SchoolYearScalarWhereInput | Prisma.SchoolYearScalarWhereInput[]
+}
+
+export type SchoolYearUncheckedUpdateManyWithoutCreatedByNestedInput = {
+  create?: Prisma.XOR<Prisma.SchoolYearCreateWithoutCreatedByInput, Prisma.SchoolYearUncheckedCreateWithoutCreatedByInput> | Prisma.SchoolYearCreateWithoutCreatedByInput[] | Prisma.SchoolYearUncheckedCreateWithoutCreatedByInput[]
+  connectOrCreate?: Prisma.SchoolYearCreateOrConnectWithoutCreatedByInput | Prisma.SchoolYearCreateOrConnectWithoutCreatedByInput[]
+  upsert?: Prisma.SchoolYearUpsertWithWhereUniqueWithoutCreatedByInput | Prisma.SchoolYearUpsertWithWhereUniqueWithoutCreatedByInput[]
+  createMany?: Prisma.SchoolYearCreateManyCreatedByInputEnvelope
+  set?: Prisma.SchoolYearWhereUniqueInput | Prisma.SchoolYearWhereUniqueInput[]
+  disconnect?: Prisma.SchoolYearWhereUniqueInput | Prisma.SchoolYearWhereUniqueInput[]
+  delete?: Prisma.SchoolYearWhereUniqueInput | Prisma.SchoolYearWhereUniqueInput[]
+  connect?: Prisma.SchoolYearWhereUniqueInput | Prisma.SchoolYearWhereUniqueInput[]
+  update?: Prisma.SchoolYearUpdateWithWhereUniqueWithoutCreatedByInput | Prisma.SchoolYearUpdateWithWhereUniqueWithoutCreatedByInput[]
+  updateMany?: Prisma.SchoolYearUpdateManyWithWhereWithoutCreatedByInput | Prisma.SchoolYearUpdateManyWithWhereWithoutCreatedByInput[]
+  deleteMany?: Prisma.SchoolYearScalarWhereInput | Prisma.SchoolYearScalarWhereInput[]
 }
 
 export type EnumSchoolYearStatusFieldUpdateOperationsInput = {
@@ -378,13 +520,79 @@ export type SchoolYearUpdateOneRequiredWithoutSectionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.SchoolYearUpdateToOneWithWhereWithoutSectionsInput, Prisma.SchoolYearUpdateWithoutSectionsInput>, Prisma.SchoolYearUncheckedUpdateWithoutSectionsInput>
 }
 
+export type SchoolYearCreateWithoutCreatedByInput = {
+  id?: string
+  startDate: Date | string
+  endDate: Date | string
+  gracePeriod?: number
+  status?: $Enums.SchoolYearStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  schoolYearStatusHistory?: Prisma.SchoolYearStatusHistoryCreateNestedManyWithoutSchoolYearInput
+  sections?: Prisma.SectionCreateNestedManyWithoutSchoolYearInput
+}
+
+export type SchoolYearUncheckedCreateWithoutCreatedByInput = {
+  id?: string
+  startDate: Date | string
+  endDate: Date | string
+  gracePeriod?: number
+  status?: $Enums.SchoolYearStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  schoolYearStatusHistory?: Prisma.SchoolYearStatusHistoryUncheckedCreateNestedManyWithoutSchoolYearInput
+  sections?: Prisma.SectionUncheckedCreateNestedManyWithoutSchoolYearInput
+}
+
+export type SchoolYearCreateOrConnectWithoutCreatedByInput = {
+  where: Prisma.SchoolYearWhereUniqueInput
+  create: Prisma.XOR<Prisma.SchoolYearCreateWithoutCreatedByInput, Prisma.SchoolYearUncheckedCreateWithoutCreatedByInput>
+}
+
+export type SchoolYearCreateManyCreatedByInputEnvelope = {
+  data: Prisma.SchoolYearCreateManyCreatedByInput | Prisma.SchoolYearCreateManyCreatedByInput[]
+  skipDuplicates?: boolean
+}
+
+export type SchoolYearUpsertWithWhereUniqueWithoutCreatedByInput = {
+  where: Prisma.SchoolYearWhereUniqueInput
+  update: Prisma.XOR<Prisma.SchoolYearUpdateWithoutCreatedByInput, Prisma.SchoolYearUncheckedUpdateWithoutCreatedByInput>
+  create: Prisma.XOR<Prisma.SchoolYearCreateWithoutCreatedByInput, Prisma.SchoolYearUncheckedCreateWithoutCreatedByInput>
+}
+
+export type SchoolYearUpdateWithWhereUniqueWithoutCreatedByInput = {
+  where: Prisma.SchoolYearWhereUniqueInput
+  data: Prisma.XOR<Prisma.SchoolYearUpdateWithoutCreatedByInput, Prisma.SchoolYearUncheckedUpdateWithoutCreatedByInput>
+}
+
+export type SchoolYearUpdateManyWithWhereWithoutCreatedByInput = {
+  where: Prisma.SchoolYearScalarWhereInput
+  data: Prisma.XOR<Prisma.SchoolYearUpdateManyMutationInput, Prisma.SchoolYearUncheckedUpdateManyWithoutCreatedByInput>
+}
+
+export type SchoolYearScalarWhereInput = {
+  AND?: Prisma.SchoolYearScalarWhereInput | Prisma.SchoolYearScalarWhereInput[]
+  OR?: Prisma.SchoolYearScalarWhereInput[]
+  NOT?: Prisma.SchoolYearScalarWhereInput | Prisma.SchoolYearScalarWhereInput[]
+  id?: Prisma.StringFilter<"SchoolYear"> | string
+  startDate?: Prisma.DateTimeFilter<"SchoolYear"> | Date | string
+  endDate?: Prisma.DateTimeFilter<"SchoolYear"> | Date | string
+  gracePeriod?: Prisma.IntFilter<"SchoolYear"> | number
+  status?: Prisma.EnumSchoolYearStatusFilter<"SchoolYear"> | $Enums.SchoolYearStatus
+  createdById?: Prisma.StringNullableFilter<"SchoolYear"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"SchoolYear"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"SchoolYear"> | Date | string
+}
+
 export type SchoolYearCreateWithoutSchoolYearStatusHistoryInput = {
   id?: string
   startDate: Date | string
   endDate: Date | string
+  gracePeriod?: number
   status?: $Enums.SchoolYearStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  createdBy?: Prisma.UserCreateNestedOneWithoutSchoolYearsInput
   sections?: Prisma.SectionCreateNestedManyWithoutSchoolYearInput
 }
 
@@ -392,7 +600,9 @@ export type SchoolYearUncheckedCreateWithoutSchoolYearStatusHistoryInput = {
   id?: string
   startDate: Date | string
   endDate: Date | string
+  gracePeriod?: number
   status?: $Enums.SchoolYearStatus
+  createdById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   sections?: Prisma.SectionUncheckedCreateNestedManyWithoutSchoolYearInput
@@ -418,9 +628,11 @@ export type SchoolYearUpdateWithoutSchoolYearStatusHistoryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  gracePeriod?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumSchoolYearStatusFieldUpdateOperationsInput | $Enums.SchoolYearStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdBy?: Prisma.UserUpdateOneWithoutSchoolYearsNestedInput
   sections?: Prisma.SectionUpdateManyWithoutSchoolYearNestedInput
 }
 
@@ -428,7 +640,9 @@ export type SchoolYearUncheckedUpdateWithoutSchoolYearStatusHistoryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  gracePeriod?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumSchoolYearStatusFieldUpdateOperationsInput | $Enums.SchoolYearStatus
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sections?: Prisma.SectionUncheckedUpdateManyWithoutSchoolYearNestedInput
@@ -438,9 +652,11 @@ export type SchoolYearCreateWithoutSectionsInput = {
   id?: string
   startDate: Date | string
   endDate: Date | string
+  gracePeriod?: number
   status?: $Enums.SchoolYearStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  createdBy?: Prisma.UserCreateNestedOneWithoutSchoolYearsInput
   schoolYearStatusHistory?: Prisma.SchoolYearStatusHistoryCreateNestedManyWithoutSchoolYearInput
 }
 
@@ -448,7 +664,9 @@ export type SchoolYearUncheckedCreateWithoutSectionsInput = {
   id?: string
   startDate: Date | string
   endDate: Date | string
+  gracePeriod?: number
   status?: $Enums.SchoolYearStatus
+  createdById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   schoolYearStatusHistory?: Prisma.SchoolYearStatusHistoryUncheckedCreateNestedManyWithoutSchoolYearInput
@@ -474,9 +692,11 @@ export type SchoolYearUpdateWithoutSectionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  gracePeriod?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumSchoolYearStatusFieldUpdateOperationsInput | $Enums.SchoolYearStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdBy?: Prisma.UserUpdateOneWithoutSchoolYearsNestedInput
   schoolYearStatusHistory?: Prisma.SchoolYearStatusHistoryUpdateManyWithoutSchoolYearNestedInput
 }
 
@@ -484,10 +704,56 @@ export type SchoolYearUncheckedUpdateWithoutSectionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  gracePeriod?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.EnumSchoolYearStatusFieldUpdateOperationsInput | $Enums.SchoolYearStatus
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  schoolYearStatusHistory?: Prisma.SchoolYearStatusHistoryUncheckedUpdateManyWithoutSchoolYearNestedInput
+}
+
+export type SchoolYearCreateManyCreatedByInput = {
+  id?: string
+  startDate: Date | string
+  endDate: Date | string
+  gracePeriod?: number
+  status?: $Enums.SchoolYearStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type SchoolYearUpdateWithoutCreatedByInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  gracePeriod?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.EnumSchoolYearStatusFieldUpdateOperationsInput | $Enums.SchoolYearStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  schoolYearStatusHistory?: Prisma.SchoolYearStatusHistoryUpdateManyWithoutSchoolYearNestedInput
+  sections?: Prisma.SectionUpdateManyWithoutSchoolYearNestedInput
+}
+
+export type SchoolYearUncheckedUpdateWithoutCreatedByInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  gracePeriod?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.EnumSchoolYearStatusFieldUpdateOperationsInput | $Enums.SchoolYearStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   schoolYearStatusHistory?: Prisma.SchoolYearStatusHistoryUncheckedUpdateManyWithoutSchoolYearNestedInput
+  sections?: Prisma.SectionUncheckedUpdateManyWithoutSchoolYearNestedInput
+}
+
+export type SchoolYearUncheckedUpdateManyWithoutCreatedByInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  gracePeriod?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.EnumSchoolYearStatusFieldUpdateOperationsInput | $Enums.SchoolYearStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -534,9 +800,12 @@ export type SchoolYearSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   id?: boolean
   startDate?: boolean
   endDate?: boolean
+  gracePeriod?: boolean
   status?: boolean
+  createdById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  createdBy?: boolean | Prisma.SchoolYear$createdByArgs<ExtArgs>
   schoolYearStatusHistory?: boolean | Prisma.SchoolYear$schoolYearStatusHistoryArgs<ExtArgs>
   sections?: boolean | Prisma.SchoolYear$sectionsArgs<ExtArgs>
   _count?: boolean | Prisma.SchoolYearCountOutputTypeDefaultArgs<ExtArgs>
@@ -546,41 +815,55 @@ export type SchoolYearSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   id?: boolean
   startDate?: boolean
   endDate?: boolean
+  gracePeriod?: boolean
   status?: boolean
+  createdById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  createdBy?: boolean | Prisma.SchoolYear$createdByArgs<ExtArgs>
 }, ExtArgs["result"]["schoolYear"]>
 
 export type SchoolYearSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   startDate?: boolean
   endDate?: boolean
+  gracePeriod?: boolean
   status?: boolean
+  createdById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  createdBy?: boolean | Prisma.SchoolYear$createdByArgs<ExtArgs>
 }, ExtArgs["result"]["schoolYear"]>
 
 export type SchoolYearSelectScalar = {
   id?: boolean
   startDate?: boolean
   endDate?: boolean
+  gracePeriod?: boolean
   status?: boolean
+  createdById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type SchoolYearOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "startDate" | "endDate" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["schoolYear"]>
+export type SchoolYearOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "startDate" | "endDate" | "gracePeriod" | "status" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["schoolYear"]>
 export type SchoolYearInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  createdBy?: boolean | Prisma.SchoolYear$createdByArgs<ExtArgs>
   schoolYearStatusHistory?: boolean | Prisma.SchoolYear$schoolYearStatusHistoryArgs<ExtArgs>
   sections?: boolean | Prisma.SchoolYear$sectionsArgs<ExtArgs>
   _count?: boolean | Prisma.SchoolYearCountOutputTypeDefaultArgs<ExtArgs>
 }
-export type SchoolYearIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
-export type SchoolYearIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type SchoolYearIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  createdBy?: boolean | Prisma.SchoolYear$createdByArgs<ExtArgs>
+}
+export type SchoolYearIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  createdBy?: boolean | Prisma.SchoolYear$createdByArgs<ExtArgs>
+}
 
 export type $SchoolYearPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "SchoolYear"
   objects: {
+    createdBy: Prisma.$UserPayload<ExtArgs> | null
     schoolYearStatusHistory: Prisma.$SchoolYearStatusHistoryPayload<ExtArgs>[]
     sections: Prisma.$SectionPayload<ExtArgs>[]
   }
@@ -588,7 +871,9 @@ export type $SchoolYearPayload<ExtArgs extends runtime.Types.Extensions.Internal
     id: string
     startDate: Date
     endDate: Date
+    gracePeriod: number
     status: $Enums.SchoolYearStatus
+    createdById: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["schoolYear"]>
@@ -985,6 +1270,7 @@ readonly fields: SchoolYearFieldRefs;
  */
 export interface Prisma__SchoolYearClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  createdBy<T extends Prisma.SchoolYear$createdByArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SchoolYear$createdByArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   schoolYearStatusHistory<T extends Prisma.SchoolYear$schoolYearStatusHistoryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SchoolYear$schoolYearStatusHistoryArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SchoolYearStatusHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   sections<T extends Prisma.SchoolYear$sectionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SchoolYear$sectionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -1019,7 +1305,9 @@ export interface SchoolYearFieldRefs {
   readonly id: Prisma.FieldRef<"SchoolYear", 'String'>
   readonly startDate: Prisma.FieldRef<"SchoolYear", 'DateTime'>
   readonly endDate: Prisma.FieldRef<"SchoolYear", 'DateTime'>
+  readonly gracePeriod: Prisma.FieldRef<"SchoolYear", 'Int'>
   readonly status: Prisma.FieldRef<"SchoolYear", 'SchoolYearStatus'>
+  readonly createdById: Prisma.FieldRef<"SchoolYear", 'String'>
   readonly createdAt: Prisma.FieldRef<"SchoolYear", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"SchoolYear", 'DateTime'>
 }
@@ -1276,6 +1564,10 @@ export type SchoolYearCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Exte
    */
   data: Prisma.SchoolYearCreateManyInput | Prisma.SchoolYearCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SchoolYearIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1346,6 +1638,10 @@ export type SchoolYearUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Exte
    * Limit how many SchoolYears to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SchoolYearIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1412,6 +1708,25 @@ export type SchoolYearDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.In
    * Limit how many SchoolYears to delete.
    */
   limit?: number
+}
+
+/**
+ * SchoolYear.createdBy
+ */
+export type SchoolYear$createdByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
 }
 
 /**

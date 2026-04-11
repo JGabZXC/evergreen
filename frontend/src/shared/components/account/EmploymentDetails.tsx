@@ -1,6 +1,6 @@
 import { CircleQuestionMark } from "lucide-react";
 import type { UserProfile } from "../../hooks/useMyProfile";
-import { StaffRole } from "../../../features/auth/types/auth.types";
+import { StaffRole } from "../../../features/auth";
 
 interface EmploymentDetailsProps {
     profile: UserProfile;

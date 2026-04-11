@@ -1,8 +1,7 @@
 import {Outlet, NavLink} from "react-router";
 import {LayoutDashboard, Users, User, LogOut, Calendar, GraduationCap} from "lucide-react";
 
-import {useAuth} from "../../features/auth/hooks/useAuth";
-import {useLogout} from "../../features/auth/hooks/useLogout.ts";
+import {useAuth, useLogout} from "../../features/auth";
 
 export default function TeacherLayout() {
     const {user} = useAuth();

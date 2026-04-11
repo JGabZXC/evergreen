@@ -2,7 +2,7 @@
 
 import {Link} from "react-router";
 import logo from "../../assets/evergreen_logo.png";
-import {useLogout} from "../../features/auth/hooks/useLogout.ts";
+import {useLogout} from "../../features/auth";
 import {Menu, Moon, Sun} from "lucide-react";
 import {useTheme} from "../hooks/useTheme.ts";
 import {useState} from "react";

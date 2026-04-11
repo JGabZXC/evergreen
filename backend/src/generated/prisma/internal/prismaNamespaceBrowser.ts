@@ -163,7 +163,9 @@ export const SchoolYearScalarFieldEnum = {
   id: 'id',
   startDate: 'startDate',
   endDate: 'endDate',
+  gracePeriod: 'gracePeriod',
   status: 'status',
+  createdById: 'createdById',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

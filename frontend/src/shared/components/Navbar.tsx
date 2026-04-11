@@ -2,8 +2,7 @@ import { Link } from "react-router";
 import logo from "../../assets/evergreen_logo.png";
 import { useLocation } from "react-router";
 import { Moon, Sun } from "lucide-react";
-import { useAuth } from "../../features/auth/hooks/useAuth";
-import { useLogout } from "../../features/auth/hooks/useLogout";
+import { useAuth, useLogout } from "../../features/auth";
 import {useTheme} from "../hooks/useTheme.ts";
 
 function Navbar() {

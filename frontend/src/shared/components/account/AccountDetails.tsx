@@ -1,4 +1,4 @@
-import { StudentRole } from "../../../features/auth/types/auth.types";
+import { StudentRole } from "../../../features/auth";
 import type { UserProfile } from "../../hooks/useMyProfile";
 
 interface AccountDetailsProps {

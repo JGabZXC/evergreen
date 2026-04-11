@@ -1,5 +1,5 @@
 // --- Enums ---
-import type {User} from "../../features/auth/types/auth.types.ts";
+import type {User} from "../../features/auth";
 
 export enum GradeLevel {
   Grade1 = "G-1",

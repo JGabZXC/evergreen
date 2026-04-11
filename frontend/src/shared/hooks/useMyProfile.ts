@@ -2,7 +2,7 @@ import {useEffect, useState} from "react";
 import type {Student, Teacher} from "../types";
 import axios from "axios";
 import {getProfile} from "../services/userService.ts";
-import type {User} from "../../features/auth/types/auth.types.ts";
+import type {User} from "../../features/auth";
 
 export type UserProfile = User & {
     staff?: Teacher;

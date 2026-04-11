@@ -253,6 +253,7 @@ export type UserWhereInput = {
   userProfile?: Prisma.XOR<Prisma.UserProfileNullableScalarRelationFilter, Prisma.UserProfileWhereInput> | null
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundListRelationFilter
   specializations?: Prisma.SpecializationListRelationFilter
+  schoolYears?: Prisma.SchoolYearListRelationFilter
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryListRelationFilter
   rooms?: Prisma.RoomListRelationFilter
   roomStatusHistories?: Prisma.RoomStatusHistoryListRelationFilter
@@ -277,6 +278,7 @@ export type UserOrderByWithRelationInput = {
   userProfile?: Prisma.UserProfileOrderByWithRelationInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundOrderByRelationAggregateInput
   specializations?: Prisma.SpecializationOrderByRelationAggregateInput
+  schoolYears?: Prisma.SchoolYearOrderByRelationAggregateInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryOrderByRelationAggregateInput
   rooms?: Prisma.RoomOrderByRelationAggregateInput
   roomStatusHistories?: Prisma.RoomStatusHistoryOrderByRelationAggregateInput
@@ -304,6 +306,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   userProfile?: Prisma.XOR<Prisma.UserProfileNullableScalarRelationFilter, Prisma.UserProfileWhereInput> | null
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundListRelationFilter
   specializations?: Prisma.SpecializationListRelationFilter
+  schoolYears?: Prisma.SchoolYearListRelationFilter
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryListRelationFilter
   rooms?: Prisma.RoomListRelationFilter
   roomStatusHistories?: Prisma.RoomStatusHistoryListRelationFilter
@@ -359,6 +362,7 @@ export type UserCreateInput = {
   userProfile?: Prisma.UserProfileCreateNestedOneWithoutUserInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundCreateNestedManyWithoutApprovedByInput
   specializations?: Prisma.SpecializationCreateNestedManyWithoutApprovedByInput
+  schoolYears?: Prisma.SchoolYearCreateNestedManyWithoutCreatedByInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryCreateNestedManyWithoutChangedByInput
   rooms?: Prisma.RoomCreateNestedManyWithoutCreatedByInput
   roomStatusHistories?: Prisma.RoomStatusHistoryCreateNestedManyWithoutChangedByInput
@@ -382,6 +386,7 @@ export type UserUncheckedCreateInput = {
   userProfile?: Prisma.UserProfileUncheckedCreateNestedOneWithoutUserInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundUncheckedCreateNestedManyWithoutApprovedByInput
   specializations?: Prisma.SpecializationUncheckedCreateNestedManyWithoutApprovedByInput
+  schoolYears?: Prisma.SchoolYearUncheckedCreateNestedManyWithoutCreatedByInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
   rooms?: Prisma.RoomUncheckedCreateNestedManyWithoutCreatedByInput
   roomStatusHistories?: Prisma.RoomStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
@@ -404,6 +409,7 @@ export type UserUpdateInput = {
   userProfile?: Prisma.UserProfileUpdateOneWithoutUserNestedInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundUpdateManyWithoutApprovedByNestedInput
   specializations?: Prisma.SpecializationUpdateManyWithoutApprovedByNestedInput
+  schoolYears?: Prisma.SchoolYearUpdateManyWithoutCreatedByNestedInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryUpdateManyWithoutChangedByNestedInput
   rooms?: Prisma.RoomUpdateManyWithoutCreatedByNestedInput
   roomStatusHistories?: Prisma.RoomStatusHistoryUpdateManyWithoutChangedByNestedInput
@@ -427,6 +433,7 @@ export type UserUncheckedUpdateInput = {
   userProfile?: Prisma.UserProfileUncheckedUpdateOneWithoutUserNestedInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundUncheckedUpdateManyWithoutApprovedByNestedInput
   specializations?: Prisma.SpecializationUncheckedUpdateManyWithoutApprovedByNestedInput
+  schoolYears?: Prisma.SchoolYearUncheckedUpdateManyWithoutCreatedByNestedInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
   rooms?: Prisma.RoomUncheckedUpdateManyWithoutCreatedByNestedInput
   roomStatusHistories?: Prisma.RoomStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
@@ -666,6 +673,22 @@ export type UserUpdateOneWithoutSpecializationsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSpecializationsInput, Prisma.UserUpdateWithoutSpecializationsInput>, Prisma.UserUncheckedUpdateWithoutSpecializationsInput>
 }
 
+export type UserCreateNestedOneWithoutSchoolYearsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSchoolYearsInput, Prisma.UserUncheckedCreateWithoutSchoolYearsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSchoolYearsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutSchoolYearsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSchoolYearsInput, Prisma.UserUncheckedCreateWithoutSchoolYearsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSchoolYearsInput
+  upsert?: Prisma.UserUpsertWithoutSchoolYearsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSchoolYearsInput, Prisma.UserUpdateWithoutSchoolYearsInput>, Prisma.UserUncheckedUpdateWithoutSchoolYearsInput>
+}
+
 export type UserCreateNestedOneWithoutChangedSchoolYearStatusesInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutChangedSchoolYearStatusesInput, Prisma.UserUncheckedCreateWithoutChangedSchoolYearStatusesInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutChangedSchoolYearStatusesInput
@@ -791,6 +814,7 @@ export type UserCreateWithoutCreatedUsersInput = {
   userProfile?: Prisma.UserProfileCreateNestedOneWithoutUserInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundCreateNestedManyWithoutApprovedByInput
   specializations?: Prisma.SpecializationCreateNestedManyWithoutApprovedByInput
+  schoolYears?: Prisma.SchoolYearCreateNestedManyWithoutCreatedByInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryCreateNestedManyWithoutChangedByInput
   rooms?: Prisma.RoomCreateNestedManyWithoutCreatedByInput
   roomStatusHistories?: Prisma.RoomStatusHistoryCreateNestedManyWithoutChangedByInput
@@ -813,6 +837,7 @@ export type UserUncheckedCreateWithoutCreatedUsersInput = {
   userProfile?: Prisma.UserProfileUncheckedCreateNestedOneWithoutUserInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundUncheckedCreateNestedManyWithoutApprovedByInput
   specializations?: Prisma.SpecializationUncheckedCreateNestedManyWithoutApprovedByInput
+  schoolYears?: Prisma.SchoolYearUncheckedCreateNestedManyWithoutCreatedByInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
   rooms?: Prisma.RoomUncheckedCreateNestedManyWithoutCreatedByInput
   roomStatusHistories?: Prisma.RoomStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
@@ -840,6 +865,7 @@ export type UserCreateWithoutInsertedByInput = {
   userProfile?: Prisma.UserProfileCreateNestedOneWithoutUserInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundCreateNestedManyWithoutApprovedByInput
   specializations?: Prisma.SpecializationCreateNestedManyWithoutApprovedByInput
+  schoolYears?: Prisma.SchoolYearCreateNestedManyWithoutCreatedByInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryCreateNestedManyWithoutChangedByInput
   rooms?: Prisma.RoomCreateNestedManyWithoutCreatedByInput
   roomStatusHistories?: Prisma.RoomStatusHistoryCreateNestedManyWithoutChangedByInput
@@ -862,6 +888,7 @@ export type UserUncheckedCreateWithoutInsertedByInput = {
   userProfile?: Prisma.UserProfileUncheckedCreateNestedOneWithoutUserInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundUncheckedCreateNestedManyWithoutApprovedByInput
   specializations?: Prisma.SpecializationUncheckedCreateNestedManyWithoutApprovedByInput
+  schoolYears?: Prisma.SchoolYearUncheckedCreateNestedManyWithoutCreatedByInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
   rooms?: Prisma.RoomUncheckedCreateNestedManyWithoutCreatedByInput
   roomStatusHistories?: Prisma.RoomStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
@@ -904,6 +931,7 @@ export type UserUpdateWithoutCreatedUsersInput = {
   userProfile?: Prisma.UserProfileUpdateOneWithoutUserNestedInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundUpdateManyWithoutApprovedByNestedInput
   specializations?: Prisma.SpecializationUpdateManyWithoutApprovedByNestedInput
+  schoolYears?: Prisma.SchoolYearUpdateManyWithoutCreatedByNestedInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryUpdateManyWithoutChangedByNestedInput
   rooms?: Prisma.RoomUpdateManyWithoutCreatedByNestedInput
   roomStatusHistories?: Prisma.RoomStatusHistoryUpdateManyWithoutChangedByNestedInput
@@ -926,6 +954,7 @@ export type UserUncheckedUpdateWithoutCreatedUsersInput = {
   userProfile?: Prisma.UserProfileUncheckedUpdateOneWithoutUserNestedInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundUncheckedUpdateManyWithoutApprovedByNestedInput
   specializations?: Prisma.SpecializationUncheckedUpdateManyWithoutApprovedByNestedInput
+  schoolYears?: Prisma.SchoolYearUncheckedUpdateManyWithoutCreatedByNestedInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
   rooms?: Prisma.RoomUncheckedUpdateManyWithoutCreatedByNestedInput
   roomStatusHistories?: Prisma.RoomStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
@@ -979,6 +1008,7 @@ export type UserCreateWithoutUserProfileInput = {
   createdUsers?: Prisma.UserCreateNestedManyWithoutInsertedByInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundCreateNestedManyWithoutApprovedByInput
   specializations?: Prisma.SpecializationCreateNestedManyWithoutApprovedByInput
+  schoolYears?: Prisma.SchoolYearCreateNestedManyWithoutCreatedByInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryCreateNestedManyWithoutChangedByInput
   rooms?: Prisma.RoomCreateNestedManyWithoutCreatedByInput
   roomStatusHistories?: Prisma.RoomStatusHistoryCreateNestedManyWithoutChangedByInput
@@ -1001,6 +1031,7 @@ export type UserUncheckedCreateWithoutUserProfileInput = {
   createdUsers?: Prisma.UserUncheckedCreateNestedManyWithoutInsertedByInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundUncheckedCreateNestedManyWithoutApprovedByInput
   specializations?: Prisma.SpecializationUncheckedCreateNestedManyWithoutApprovedByInput
+  schoolYears?: Prisma.SchoolYearUncheckedCreateNestedManyWithoutCreatedByInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
   rooms?: Prisma.RoomUncheckedCreateNestedManyWithoutCreatedByInput
   roomStatusHistories?: Prisma.RoomStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
@@ -1038,6 +1069,7 @@ export type UserUpdateWithoutUserProfileInput = {
   createdUsers?: Prisma.UserUpdateManyWithoutInsertedByNestedInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundUpdateManyWithoutApprovedByNestedInput
   specializations?: Prisma.SpecializationUpdateManyWithoutApprovedByNestedInput
+  schoolYears?: Prisma.SchoolYearUpdateManyWithoutCreatedByNestedInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryUpdateManyWithoutChangedByNestedInput
   rooms?: Prisma.RoomUpdateManyWithoutCreatedByNestedInput
   roomStatusHistories?: Prisma.RoomStatusHistoryUpdateManyWithoutChangedByNestedInput
@@ -1060,6 +1092,7 @@ export type UserUncheckedUpdateWithoutUserProfileInput = {
   createdUsers?: Prisma.UserUncheckedUpdateManyWithoutInsertedByNestedInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundUncheckedUpdateManyWithoutApprovedByNestedInput
   specializations?: Prisma.SpecializationUncheckedUpdateManyWithoutApprovedByNestedInput
+  schoolYears?: Prisma.SchoolYearUncheckedUpdateManyWithoutCreatedByNestedInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
   rooms?: Prisma.RoomUncheckedUpdateManyWithoutCreatedByNestedInput
   roomStatusHistories?: Prisma.RoomStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
@@ -1082,6 +1115,7 @@ export type UserCreateWithoutTeacherAcademicBackgroundsInput = {
   createdUsers?: Prisma.UserCreateNestedManyWithoutInsertedByInput
   userProfile?: Prisma.UserProfileCreateNestedOneWithoutUserInput
   specializations?: Prisma.SpecializationCreateNestedManyWithoutApprovedByInput
+  schoolYears?: Prisma.SchoolYearCreateNestedManyWithoutCreatedByInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryCreateNestedManyWithoutChangedByInput
   rooms?: Prisma.RoomCreateNestedManyWithoutCreatedByInput
   roomStatusHistories?: Prisma.RoomStatusHistoryCreateNestedManyWithoutChangedByInput
@@ -1104,6 +1138,7 @@ export type UserUncheckedCreateWithoutTeacherAcademicBackgroundsInput = {
   createdUsers?: Prisma.UserUncheckedCreateNestedManyWithoutInsertedByInput
   userProfile?: Prisma.UserProfileUncheckedCreateNestedOneWithoutUserInput
   specializations?: Prisma.SpecializationUncheckedCreateNestedManyWithoutApprovedByInput
+  schoolYears?: Prisma.SchoolYearUncheckedCreateNestedManyWithoutCreatedByInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
   rooms?: Prisma.RoomUncheckedCreateNestedManyWithoutCreatedByInput
   roomStatusHistories?: Prisma.RoomStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
@@ -1141,6 +1176,7 @@ export type UserUpdateWithoutTeacherAcademicBackgroundsInput = {
   createdUsers?: Prisma.UserUpdateManyWithoutInsertedByNestedInput
   userProfile?: Prisma.UserProfileUpdateOneWithoutUserNestedInput
   specializations?: Prisma.SpecializationUpdateManyWithoutApprovedByNestedInput
+  schoolYears?: Prisma.SchoolYearUpdateManyWithoutCreatedByNestedInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryUpdateManyWithoutChangedByNestedInput
   rooms?: Prisma.RoomUpdateManyWithoutCreatedByNestedInput
   roomStatusHistories?: Prisma.RoomStatusHistoryUpdateManyWithoutChangedByNestedInput
@@ -1163,6 +1199,7 @@ export type UserUncheckedUpdateWithoutTeacherAcademicBackgroundsInput = {
   createdUsers?: Prisma.UserUncheckedUpdateManyWithoutInsertedByNestedInput
   userProfile?: Prisma.UserProfileUncheckedUpdateOneWithoutUserNestedInput
   specializations?: Prisma.SpecializationUncheckedUpdateManyWithoutApprovedByNestedInput
+  schoolYears?: Prisma.SchoolYearUncheckedUpdateManyWithoutCreatedByNestedInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
   rooms?: Prisma.RoomUncheckedUpdateManyWithoutCreatedByNestedInput
   roomStatusHistories?: Prisma.RoomStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
@@ -1185,6 +1222,7 @@ export type UserCreateWithoutSpecializationsInput = {
   createdUsers?: Prisma.UserCreateNestedManyWithoutInsertedByInput
   userProfile?: Prisma.UserProfileCreateNestedOneWithoutUserInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundCreateNestedManyWithoutApprovedByInput
+  schoolYears?: Prisma.SchoolYearCreateNestedManyWithoutCreatedByInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryCreateNestedManyWithoutChangedByInput
   rooms?: Prisma.RoomCreateNestedManyWithoutCreatedByInput
   roomStatusHistories?: Prisma.RoomStatusHistoryCreateNestedManyWithoutChangedByInput
@@ -1207,6 +1245,7 @@ export type UserUncheckedCreateWithoutSpecializationsInput = {
   createdUsers?: Prisma.UserUncheckedCreateNestedManyWithoutInsertedByInput
   userProfile?: Prisma.UserProfileUncheckedCreateNestedOneWithoutUserInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundUncheckedCreateNestedManyWithoutApprovedByInput
+  schoolYears?: Prisma.SchoolYearUncheckedCreateNestedManyWithoutCreatedByInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
   rooms?: Prisma.RoomUncheckedCreateNestedManyWithoutCreatedByInput
   roomStatusHistories?: Prisma.RoomStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
@@ -1244,6 +1283,7 @@ export type UserUpdateWithoutSpecializationsInput = {
   createdUsers?: Prisma.UserUpdateManyWithoutInsertedByNestedInput
   userProfile?: Prisma.UserProfileUpdateOneWithoutUserNestedInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundUpdateManyWithoutApprovedByNestedInput
+  schoolYears?: Prisma.SchoolYearUpdateManyWithoutCreatedByNestedInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryUpdateManyWithoutChangedByNestedInput
   rooms?: Prisma.RoomUpdateManyWithoutCreatedByNestedInput
   roomStatusHistories?: Prisma.RoomStatusHistoryUpdateManyWithoutChangedByNestedInput
@@ -1266,6 +1306,114 @@ export type UserUncheckedUpdateWithoutSpecializationsInput = {
   createdUsers?: Prisma.UserUncheckedUpdateManyWithoutInsertedByNestedInput
   userProfile?: Prisma.UserProfileUncheckedUpdateOneWithoutUserNestedInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundUncheckedUpdateManyWithoutApprovedByNestedInput
+  schoolYears?: Prisma.SchoolYearUncheckedUpdateManyWithoutCreatedByNestedInput
+  changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
+  rooms?: Prisma.RoomUncheckedUpdateManyWithoutCreatedByNestedInput
+  roomStatusHistories?: Prisma.RoomStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
+  sections?: Prisma.SectionUncheckedUpdateManyWithoutAdviserNestedInput
+  sectionStudents?: Prisma.SectionStudentUncheckedUpdateManyWithoutStudentNestedInput
+  sectionTeacherSubstitutes?: Prisma.SectionTeacherSubstituteUncheckedUpdateManyWithoutTeacherNestedInput
+  sectionStudentAttendances?: Prisma.SectionStudentAttendanceUncheckedUpdateManyWithoutRecordedByNestedInput
+}
+
+export type UserCreateWithoutSchoolYearsInput = {
+  id?: string
+  accountNumber?: number
+  email: string
+  password: string
+  role?: $Enums.Role
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  insertedBy?: Prisma.UserCreateNestedOneWithoutCreatedUsersInput
+  createdUsers?: Prisma.UserCreateNestedManyWithoutInsertedByInput
+  userProfile?: Prisma.UserProfileCreateNestedOneWithoutUserInput
+  teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundCreateNestedManyWithoutApprovedByInput
+  specializations?: Prisma.SpecializationCreateNestedManyWithoutApprovedByInput
+  changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryCreateNestedManyWithoutChangedByInput
+  rooms?: Prisma.RoomCreateNestedManyWithoutCreatedByInput
+  roomStatusHistories?: Prisma.RoomStatusHistoryCreateNestedManyWithoutChangedByInput
+  sections?: Prisma.SectionCreateNestedManyWithoutAdviserInput
+  sectionStudents?: Prisma.SectionStudentCreateNestedManyWithoutStudentInput
+  sectionTeacherSubstitutes?: Prisma.SectionTeacherSubstituteCreateNestedManyWithoutTeacherInput
+  sectionStudentAttendances?: Prisma.SectionStudentAttendanceCreateNestedManyWithoutRecordedByInput
+}
+
+export type UserUncheckedCreateWithoutSchoolYearsInput = {
+  id?: string
+  accountNumber?: number
+  email: string
+  password: string
+  role?: $Enums.Role
+  insertedById?: string | null
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  createdUsers?: Prisma.UserUncheckedCreateNestedManyWithoutInsertedByInput
+  userProfile?: Prisma.UserProfileUncheckedCreateNestedOneWithoutUserInput
+  teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundUncheckedCreateNestedManyWithoutApprovedByInput
+  specializations?: Prisma.SpecializationUncheckedCreateNestedManyWithoutApprovedByInput
+  changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
+  rooms?: Prisma.RoomUncheckedCreateNestedManyWithoutCreatedByInput
+  roomStatusHistories?: Prisma.RoomStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
+  sections?: Prisma.SectionUncheckedCreateNestedManyWithoutAdviserInput
+  sectionStudents?: Prisma.SectionStudentUncheckedCreateNestedManyWithoutStudentInput
+  sectionTeacherSubstitutes?: Prisma.SectionTeacherSubstituteUncheckedCreateNestedManyWithoutTeacherInput
+  sectionStudentAttendances?: Prisma.SectionStudentAttendanceUncheckedCreateNestedManyWithoutRecordedByInput
+}
+
+export type UserCreateOrConnectWithoutSchoolYearsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutSchoolYearsInput, Prisma.UserUncheckedCreateWithoutSchoolYearsInput>
+}
+
+export type UserUpsertWithoutSchoolYearsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutSchoolYearsInput, Prisma.UserUncheckedUpdateWithoutSchoolYearsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutSchoolYearsInput, Prisma.UserUncheckedCreateWithoutSchoolYearsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutSchoolYearsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutSchoolYearsInput, Prisma.UserUncheckedUpdateWithoutSchoolYearsInput>
+}
+
+export type UserUpdateWithoutSchoolYearsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  insertedBy?: Prisma.UserUpdateOneWithoutCreatedUsersNestedInput
+  createdUsers?: Prisma.UserUpdateManyWithoutInsertedByNestedInput
+  userProfile?: Prisma.UserProfileUpdateOneWithoutUserNestedInput
+  teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundUpdateManyWithoutApprovedByNestedInput
+  specializations?: Prisma.SpecializationUpdateManyWithoutApprovedByNestedInput
+  changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryUpdateManyWithoutChangedByNestedInput
+  rooms?: Prisma.RoomUpdateManyWithoutCreatedByNestedInput
+  roomStatusHistories?: Prisma.RoomStatusHistoryUpdateManyWithoutChangedByNestedInput
+  sections?: Prisma.SectionUpdateManyWithoutAdviserNestedInput
+  sectionStudents?: Prisma.SectionStudentUpdateManyWithoutStudentNestedInput
+  sectionTeacherSubstitutes?: Prisma.SectionTeacherSubstituteUpdateManyWithoutTeacherNestedInput
+  sectionStudentAttendances?: Prisma.SectionStudentAttendanceUpdateManyWithoutRecordedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutSchoolYearsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  accountNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  insertedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdUsers?: Prisma.UserUncheckedUpdateManyWithoutInsertedByNestedInput
+  userProfile?: Prisma.UserProfileUncheckedUpdateOneWithoutUserNestedInput
+  teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundUncheckedUpdateManyWithoutApprovedByNestedInput
+  specializations?: Prisma.SpecializationUncheckedUpdateManyWithoutApprovedByNestedInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
   rooms?: Prisma.RoomUncheckedUpdateManyWithoutCreatedByNestedInput
   roomStatusHistories?: Prisma.RoomStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
@@ -1289,6 +1437,7 @@ export type UserCreateWithoutChangedSchoolYearStatusesInput = {
   userProfile?: Prisma.UserProfileCreateNestedOneWithoutUserInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundCreateNestedManyWithoutApprovedByInput
   specializations?: Prisma.SpecializationCreateNestedManyWithoutApprovedByInput
+  schoolYears?: Prisma.SchoolYearCreateNestedManyWithoutCreatedByInput
   rooms?: Prisma.RoomCreateNestedManyWithoutCreatedByInput
   roomStatusHistories?: Prisma.RoomStatusHistoryCreateNestedManyWithoutChangedByInput
   sections?: Prisma.SectionCreateNestedManyWithoutAdviserInput
@@ -1311,6 +1460,7 @@ export type UserUncheckedCreateWithoutChangedSchoolYearStatusesInput = {
   userProfile?: Prisma.UserProfileUncheckedCreateNestedOneWithoutUserInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundUncheckedCreateNestedManyWithoutApprovedByInput
   specializations?: Prisma.SpecializationUncheckedCreateNestedManyWithoutApprovedByInput
+  schoolYears?: Prisma.SchoolYearUncheckedCreateNestedManyWithoutCreatedByInput
   rooms?: Prisma.RoomUncheckedCreateNestedManyWithoutCreatedByInput
   roomStatusHistories?: Prisma.RoomStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
   sections?: Prisma.SectionUncheckedCreateNestedManyWithoutAdviserInput
@@ -1348,6 +1498,7 @@ export type UserUpdateWithoutChangedSchoolYearStatusesInput = {
   userProfile?: Prisma.UserProfileUpdateOneWithoutUserNestedInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundUpdateManyWithoutApprovedByNestedInput
   specializations?: Prisma.SpecializationUpdateManyWithoutApprovedByNestedInput
+  schoolYears?: Prisma.SchoolYearUpdateManyWithoutCreatedByNestedInput
   rooms?: Prisma.RoomUpdateManyWithoutCreatedByNestedInput
   roomStatusHistories?: Prisma.RoomStatusHistoryUpdateManyWithoutChangedByNestedInput
   sections?: Prisma.SectionUpdateManyWithoutAdviserNestedInput
@@ -1370,6 +1521,7 @@ export type UserUncheckedUpdateWithoutChangedSchoolYearStatusesInput = {
   userProfile?: Prisma.UserProfileUncheckedUpdateOneWithoutUserNestedInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundUncheckedUpdateManyWithoutApprovedByNestedInput
   specializations?: Prisma.SpecializationUncheckedUpdateManyWithoutApprovedByNestedInput
+  schoolYears?: Prisma.SchoolYearUncheckedUpdateManyWithoutCreatedByNestedInput
   rooms?: Prisma.RoomUncheckedUpdateManyWithoutCreatedByNestedInput
   roomStatusHistories?: Prisma.RoomStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
   sections?: Prisma.SectionUncheckedUpdateManyWithoutAdviserNestedInput
@@ -1392,6 +1544,7 @@ export type UserCreateWithoutRoomsInput = {
   userProfile?: Prisma.UserProfileCreateNestedOneWithoutUserInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundCreateNestedManyWithoutApprovedByInput
   specializations?: Prisma.SpecializationCreateNestedManyWithoutApprovedByInput
+  schoolYears?: Prisma.SchoolYearCreateNestedManyWithoutCreatedByInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryCreateNestedManyWithoutChangedByInput
   roomStatusHistories?: Prisma.RoomStatusHistoryCreateNestedManyWithoutChangedByInput
   sections?: Prisma.SectionCreateNestedManyWithoutAdviserInput
@@ -1414,6 +1567,7 @@ export type UserUncheckedCreateWithoutRoomsInput = {
   userProfile?: Prisma.UserProfileUncheckedCreateNestedOneWithoutUserInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundUncheckedCreateNestedManyWithoutApprovedByInput
   specializations?: Prisma.SpecializationUncheckedCreateNestedManyWithoutApprovedByInput
+  schoolYears?: Prisma.SchoolYearUncheckedCreateNestedManyWithoutCreatedByInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
   roomStatusHistories?: Prisma.RoomStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
   sections?: Prisma.SectionUncheckedCreateNestedManyWithoutAdviserInput
@@ -1451,6 +1605,7 @@ export type UserUpdateWithoutRoomsInput = {
   userProfile?: Prisma.UserProfileUpdateOneWithoutUserNestedInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundUpdateManyWithoutApprovedByNestedInput
   specializations?: Prisma.SpecializationUpdateManyWithoutApprovedByNestedInput
+  schoolYears?: Prisma.SchoolYearUpdateManyWithoutCreatedByNestedInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryUpdateManyWithoutChangedByNestedInput
   roomStatusHistories?: Prisma.RoomStatusHistoryUpdateManyWithoutChangedByNestedInput
   sections?: Prisma.SectionUpdateManyWithoutAdviserNestedInput
@@ -1473,6 +1628,7 @@ export type UserUncheckedUpdateWithoutRoomsInput = {
   userProfile?: Prisma.UserProfileUncheckedUpdateOneWithoutUserNestedInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundUncheckedUpdateManyWithoutApprovedByNestedInput
   specializations?: Prisma.SpecializationUncheckedUpdateManyWithoutApprovedByNestedInput
+  schoolYears?: Prisma.SchoolYearUncheckedUpdateManyWithoutCreatedByNestedInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
   roomStatusHistories?: Prisma.RoomStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
   sections?: Prisma.SectionUncheckedUpdateManyWithoutAdviserNestedInput
@@ -1495,6 +1651,7 @@ export type UserCreateWithoutRoomStatusHistoriesInput = {
   userProfile?: Prisma.UserProfileCreateNestedOneWithoutUserInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundCreateNestedManyWithoutApprovedByInput
   specializations?: Prisma.SpecializationCreateNestedManyWithoutApprovedByInput
+  schoolYears?: Prisma.SchoolYearCreateNestedManyWithoutCreatedByInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryCreateNestedManyWithoutChangedByInput
   rooms?: Prisma.RoomCreateNestedManyWithoutCreatedByInput
   sections?: Prisma.SectionCreateNestedManyWithoutAdviserInput
@@ -1517,6 +1674,7 @@ export type UserUncheckedCreateWithoutRoomStatusHistoriesInput = {
   userProfile?: Prisma.UserProfileUncheckedCreateNestedOneWithoutUserInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundUncheckedCreateNestedManyWithoutApprovedByInput
   specializations?: Prisma.SpecializationUncheckedCreateNestedManyWithoutApprovedByInput
+  schoolYears?: Prisma.SchoolYearUncheckedCreateNestedManyWithoutCreatedByInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
   rooms?: Prisma.RoomUncheckedCreateNestedManyWithoutCreatedByInput
   sections?: Prisma.SectionUncheckedCreateNestedManyWithoutAdviserInput
@@ -1554,6 +1712,7 @@ export type UserUpdateWithoutRoomStatusHistoriesInput = {
   userProfile?: Prisma.UserProfileUpdateOneWithoutUserNestedInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundUpdateManyWithoutApprovedByNestedInput
   specializations?: Prisma.SpecializationUpdateManyWithoutApprovedByNestedInput
+  schoolYears?: Prisma.SchoolYearUpdateManyWithoutCreatedByNestedInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryUpdateManyWithoutChangedByNestedInput
   rooms?: Prisma.RoomUpdateManyWithoutCreatedByNestedInput
   sections?: Prisma.SectionUpdateManyWithoutAdviserNestedInput
@@ -1576,6 +1735,7 @@ export type UserUncheckedUpdateWithoutRoomStatusHistoriesInput = {
   userProfile?: Prisma.UserProfileUncheckedUpdateOneWithoutUserNestedInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundUncheckedUpdateManyWithoutApprovedByNestedInput
   specializations?: Prisma.SpecializationUncheckedUpdateManyWithoutApprovedByNestedInput
+  schoolYears?: Prisma.SchoolYearUncheckedUpdateManyWithoutCreatedByNestedInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
   rooms?: Prisma.RoomUncheckedUpdateManyWithoutCreatedByNestedInput
   sections?: Prisma.SectionUncheckedUpdateManyWithoutAdviserNestedInput
@@ -1598,6 +1758,7 @@ export type UserCreateWithoutSectionsInput = {
   userProfile?: Prisma.UserProfileCreateNestedOneWithoutUserInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundCreateNestedManyWithoutApprovedByInput
   specializations?: Prisma.SpecializationCreateNestedManyWithoutApprovedByInput
+  schoolYears?: Prisma.SchoolYearCreateNestedManyWithoutCreatedByInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryCreateNestedManyWithoutChangedByInput
   rooms?: Prisma.RoomCreateNestedManyWithoutCreatedByInput
   roomStatusHistories?: Prisma.RoomStatusHistoryCreateNestedManyWithoutChangedByInput
@@ -1620,6 +1781,7 @@ export type UserUncheckedCreateWithoutSectionsInput = {
   userProfile?: Prisma.UserProfileUncheckedCreateNestedOneWithoutUserInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundUncheckedCreateNestedManyWithoutApprovedByInput
   specializations?: Prisma.SpecializationUncheckedCreateNestedManyWithoutApprovedByInput
+  schoolYears?: Prisma.SchoolYearUncheckedCreateNestedManyWithoutCreatedByInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
   rooms?: Prisma.RoomUncheckedCreateNestedManyWithoutCreatedByInput
   roomStatusHistories?: Prisma.RoomStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
@@ -1657,6 +1819,7 @@ export type UserUpdateWithoutSectionsInput = {
   userProfile?: Prisma.UserProfileUpdateOneWithoutUserNestedInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundUpdateManyWithoutApprovedByNestedInput
   specializations?: Prisma.SpecializationUpdateManyWithoutApprovedByNestedInput
+  schoolYears?: Prisma.SchoolYearUpdateManyWithoutCreatedByNestedInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryUpdateManyWithoutChangedByNestedInput
   rooms?: Prisma.RoomUpdateManyWithoutCreatedByNestedInput
   roomStatusHistories?: Prisma.RoomStatusHistoryUpdateManyWithoutChangedByNestedInput
@@ -1679,6 +1842,7 @@ export type UserUncheckedUpdateWithoutSectionsInput = {
   userProfile?: Prisma.UserProfileUncheckedUpdateOneWithoutUserNestedInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundUncheckedUpdateManyWithoutApprovedByNestedInput
   specializations?: Prisma.SpecializationUncheckedUpdateManyWithoutApprovedByNestedInput
+  schoolYears?: Prisma.SchoolYearUncheckedUpdateManyWithoutCreatedByNestedInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
   rooms?: Prisma.RoomUncheckedUpdateManyWithoutCreatedByNestedInput
   roomStatusHistories?: Prisma.RoomStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
@@ -1701,6 +1865,7 @@ export type UserCreateWithoutSectionStudentsInput = {
   userProfile?: Prisma.UserProfileCreateNestedOneWithoutUserInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundCreateNestedManyWithoutApprovedByInput
   specializations?: Prisma.SpecializationCreateNestedManyWithoutApprovedByInput
+  schoolYears?: Prisma.SchoolYearCreateNestedManyWithoutCreatedByInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryCreateNestedManyWithoutChangedByInput
   rooms?: Prisma.RoomCreateNestedManyWithoutCreatedByInput
   roomStatusHistories?: Prisma.RoomStatusHistoryCreateNestedManyWithoutChangedByInput
@@ -1723,6 +1888,7 @@ export type UserUncheckedCreateWithoutSectionStudentsInput = {
   userProfile?: Prisma.UserProfileUncheckedCreateNestedOneWithoutUserInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundUncheckedCreateNestedManyWithoutApprovedByInput
   specializations?: Prisma.SpecializationUncheckedCreateNestedManyWithoutApprovedByInput
+  schoolYears?: Prisma.SchoolYearUncheckedCreateNestedManyWithoutCreatedByInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
   rooms?: Prisma.RoomUncheckedCreateNestedManyWithoutCreatedByInput
   roomStatusHistories?: Prisma.RoomStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
@@ -1760,6 +1926,7 @@ export type UserUpdateWithoutSectionStudentsInput = {
   userProfile?: Prisma.UserProfileUpdateOneWithoutUserNestedInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundUpdateManyWithoutApprovedByNestedInput
   specializations?: Prisma.SpecializationUpdateManyWithoutApprovedByNestedInput
+  schoolYears?: Prisma.SchoolYearUpdateManyWithoutCreatedByNestedInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryUpdateManyWithoutChangedByNestedInput
   rooms?: Prisma.RoomUpdateManyWithoutCreatedByNestedInput
   roomStatusHistories?: Prisma.RoomStatusHistoryUpdateManyWithoutChangedByNestedInput
@@ -1782,6 +1949,7 @@ export type UserUncheckedUpdateWithoutSectionStudentsInput = {
   userProfile?: Prisma.UserProfileUncheckedUpdateOneWithoutUserNestedInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundUncheckedUpdateManyWithoutApprovedByNestedInput
   specializations?: Prisma.SpecializationUncheckedUpdateManyWithoutApprovedByNestedInput
+  schoolYears?: Prisma.SchoolYearUncheckedUpdateManyWithoutCreatedByNestedInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
   rooms?: Prisma.RoomUncheckedUpdateManyWithoutCreatedByNestedInput
   roomStatusHistories?: Prisma.RoomStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
@@ -1804,6 +1972,7 @@ export type UserCreateWithoutSectionTeacherSubstitutesInput = {
   userProfile?: Prisma.UserProfileCreateNestedOneWithoutUserInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundCreateNestedManyWithoutApprovedByInput
   specializations?: Prisma.SpecializationCreateNestedManyWithoutApprovedByInput
+  schoolYears?: Prisma.SchoolYearCreateNestedManyWithoutCreatedByInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryCreateNestedManyWithoutChangedByInput
   rooms?: Prisma.RoomCreateNestedManyWithoutCreatedByInput
   roomStatusHistories?: Prisma.RoomStatusHistoryCreateNestedManyWithoutChangedByInput
@@ -1826,6 +1995,7 @@ export type UserUncheckedCreateWithoutSectionTeacherSubstitutesInput = {
   userProfile?: Prisma.UserProfileUncheckedCreateNestedOneWithoutUserInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundUncheckedCreateNestedManyWithoutApprovedByInput
   specializations?: Prisma.SpecializationUncheckedCreateNestedManyWithoutApprovedByInput
+  schoolYears?: Prisma.SchoolYearUncheckedCreateNestedManyWithoutCreatedByInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
   rooms?: Prisma.RoomUncheckedCreateNestedManyWithoutCreatedByInput
   roomStatusHistories?: Prisma.RoomStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
@@ -1863,6 +2033,7 @@ export type UserUpdateWithoutSectionTeacherSubstitutesInput = {
   userProfile?: Prisma.UserProfileUpdateOneWithoutUserNestedInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundUpdateManyWithoutApprovedByNestedInput
   specializations?: Prisma.SpecializationUpdateManyWithoutApprovedByNestedInput
+  schoolYears?: Prisma.SchoolYearUpdateManyWithoutCreatedByNestedInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryUpdateManyWithoutChangedByNestedInput
   rooms?: Prisma.RoomUpdateManyWithoutCreatedByNestedInput
   roomStatusHistories?: Prisma.RoomStatusHistoryUpdateManyWithoutChangedByNestedInput
@@ -1885,6 +2056,7 @@ export type UserUncheckedUpdateWithoutSectionTeacherSubstitutesInput = {
   userProfile?: Prisma.UserProfileUncheckedUpdateOneWithoutUserNestedInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundUncheckedUpdateManyWithoutApprovedByNestedInput
   specializations?: Prisma.SpecializationUncheckedUpdateManyWithoutApprovedByNestedInput
+  schoolYears?: Prisma.SchoolYearUncheckedUpdateManyWithoutCreatedByNestedInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
   rooms?: Prisma.RoomUncheckedUpdateManyWithoutCreatedByNestedInput
   roomStatusHistories?: Prisma.RoomStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
@@ -1907,6 +2079,7 @@ export type UserCreateWithoutSectionStudentAttendancesInput = {
   userProfile?: Prisma.UserProfileCreateNestedOneWithoutUserInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundCreateNestedManyWithoutApprovedByInput
   specializations?: Prisma.SpecializationCreateNestedManyWithoutApprovedByInput
+  schoolYears?: Prisma.SchoolYearCreateNestedManyWithoutCreatedByInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryCreateNestedManyWithoutChangedByInput
   rooms?: Prisma.RoomCreateNestedManyWithoutCreatedByInput
   roomStatusHistories?: Prisma.RoomStatusHistoryCreateNestedManyWithoutChangedByInput
@@ -1929,6 +2102,7 @@ export type UserUncheckedCreateWithoutSectionStudentAttendancesInput = {
   userProfile?: Prisma.UserProfileUncheckedCreateNestedOneWithoutUserInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundUncheckedCreateNestedManyWithoutApprovedByInput
   specializations?: Prisma.SpecializationUncheckedCreateNestedManyWithoutApprovedByInput
+  schoolYears?: Prisma.SchoolYearUncheckedCreateNestedManyWithoutCreatedByInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
   rooms?: Prisma.RoomUncheckedCreateNestedManyWithoutCreatedByInput
   roomStatusHistories?: Prisma.RoomStatusHistoryUncheckedCreateNestedManyWithoutChangedByInput
@@ -1966,6 +2140,7 @@ export type UserUpdateWithoutSectionStudentAttendancesInput = {
   userProfile?: Prisma.UserProfileUpdateOneWithoutUserNestedInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundUpdateManyWithoutApprovedByNestedInput
   specializations?: Prisma.SpecializationUpdateManyWithoutApprovedByNestedInput
+  schoolYears?: Prisma.SchoolYearUpdateManyWithoutCreatedByNestedInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryUpdateManyWithoutChangedByNestedInput
   rooms?: Prisma.RoomUpdateManyWithoutCreatedByNestedInput
   roomStatusHistories?: Prisma.RoomStatusHistoryUpdateManyWithoutChangedByNestedInput
@@ -1988,6 +2163,7 @@ export type UserUncheckedUpdateWithoutSectionStudentAttendancesInput = {
   userProfile?: Prisma.UserProfileUncheckedUpdateOneWithoutUserNestedInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundUncheckedUpdateManyWithoutApprovedByNestedInput
   specializations?: Prisma.SpecializationUncheckedUpdateManyWithoutApprovedByNestedInput
+  schoolYears?: Prisma.SchoolYearUncheckedUpdateManyWithoutCreatedByNestedInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
   rooms?: Prisma.RoomUncheckedUpdateManyWithoutCreatedByNestedInput
   roomStatusHistories?: Prisma.RoomStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
@@ -2019,6 +2195,7 @@ export type UserUpdateWithoutInsertedByInput = {
   userProfile?: Prisma.UserProfileUpdateOneWithoutUserNestedInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundUpdateManyWithoutApprovedByNestedInput
   specializations?: Prisma.SpecializationUpdateManyWithoutApprovedByNestedInput
+  schoolYears?: Prisma.SchoolYearUpdateManyWithoutCreatedByNestedInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryUpdateManyWithoutChangedByNestedInput
   rooms?: Prisma.RoomUpdateManyWithoutCreatedByNestedInput
   roomStatusHistories?: Prisma.RoomStatusHistoryUpdateManyWithoutChangedByNestedInput
@@ -2041,6 +2218,7 @@ export type UserUncheckedUpdateWithoutInsertedByInput = {
   userProfile?: Prisma.UserProfileUncheckedUpdateOneWithoutUserNestedInput
   teacherAcademicBackgrounds?: Prisma.TeacherAcademicBackgroundUncheckedUpdateManyWithoutApprovedByNestedInput
   specializations?: Prisma.SpecializationUncheckedUpdateManyWithoutApprovedByNestedInput
+  schoolYears?: Prisma.SchoolYearUncheckedUpdateManyWithoutCreatedByNestedInput
   changedSchoolYearStatuses?: Prisma.SchoolYearStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
   rooms?: Prisma.RoomUncheckedUpdateManyWithoutCreatedByNestedInput
   roomStatusHistories?: Prisma.RoomStatusHistoryUncheckedUpdateManyWithoutChangedByNestedInput
@@ -2070,6 +2248,7 @@ export type UserCountOutputType = {
   createdUsers: number
   teacherAcademicBackgrounds: number
   specializations: number
+  schoolYears: number
   changedSchoolYearStatuses: number
   rooms: number
   roomStatusHistories: number
@@ -2083,6 +2262,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   createdUsers?: boolean | UserCountOutputTypeCountCreatedUsersArgs
   teacherAcademicBackgrounds?: boolean | UserCountOutputTypeCountTeacherAcademicBackgroundsArgs
   specializations?: boolean | UserCountOutputTypeCountSpecializationsArgs
+  schoolYears?: boolean | UserCountOutputTypeCountSchoolYearsArgs
   changedSchoolYearStatuses?: boolean | UserCountOutputTypeCountChangedSchoolYearStatusesArgs
   rooms?: boolean | UserCountOutputTypeCountRoomsArgs
   roomStatusHistories?: boolean | UserCountOutputTypeCountRoomStatusHistoriesArgs
@@ -2121,6 +2301,13 @@ export type UserCountOutputTypeCountTeacherAcademicBackgroundsArgs<ExtArgs exten
  */
 export type UserCountOutputTypeCountSpecializationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.SpecializationWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountSchoolYearsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SchoolYearWhereInput
 }
 
 /**
@@ -2188,6 +2375,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   userProfile?: boolean | Prisma.User$userProfileArgs<ExtArgs>
   teacherAcademicBackgrounds?: boolean | Prisma.User$teacherAcademicBackgroundsArgs<ExtArgs>
   specializations?: boolean | Prisma.User$specializationsArgs<ExtArgs>
+  schoolYears?: boolean | Prisma.User$schoolYearsArgs<ExtArgs>
   changedSchoolYearStatuses?: boolean | Prisma.User$changedSchoolYearStatusesArgs<ExtArgs>
   rooms?: boolean | Prisma.User$roomsArgs<ExtArgs>
   roomStatusHistories?: boolean | Prisma.User$roomStatusHistoriesArgs<ExtArgs>
@@ -2243,6 +2431,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   userProfile?: boolean | Prisma.User$userProfileArgs<ExtArgs>
   teacherAcademicBackgrounds?: boolean | Prisma.User$teacherAcademicBackgroundsArgs<ExtArgs>
   specializations?: boolean | Prisma.User$specializationsArgs<ExtArgs>
+  schoolYears?: boolean | Prisma.User$schoolYearsArgs<ExtArgs>
   changedSchoolYearStatuses?: boolean | Prisma.User$changedSchoolYearStatusesArgs<ExtArgs>
   rooms?: boolean | Prisma.User$roomsArgs<ExtArgs>
   roomStatusHistories?: boolean | Prisma.User$roomStatusHistoriesArgs<ExtArgs>
@@ -2267,6 +2456,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     userProfile: Prisma.$UserProfilePayload<ExtArgs> | null
     teacherAcademicBackgrounds: Prisma.$TeacherAcademicBackgroundPayload<ExtArgs>[]
     specializations: Prisma.$SpecializationPayload<ExtArgs>[]
+    schoolYears: Prisma.$SchoolYearPayload<ExtArgs>[]
     changedSchoolYearStatuses: Prisma.$SchoolYearStatusHistoryPayload<ExtArgs>[]
     rooms: Prisma.$RoomPayload<ExtArgs>[]
     roomStatusHistories: Prisma.$RoomStatusHistoryPayload<ExtArgs>[]
@@ -2684,6 +2874,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   userProfile<T extends Prisma.User$userProfileArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$userProfileArgs<ExtArgs>>): Prisma.Prisma__UserProfileClient<runtime.Types.Result.GetResult<Prisma.$UserProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   teacherAcademicBackgrounds<T extends Prisma.User$teacherAcademicBackgroundsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$teacherAcademicBackgroundsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TeacherAcademicBackgroundPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   specializations<T extends Prisma.User$specializationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$specializationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SpecializationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  schoolYears<T extends Prisma.User$schoolYearsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$schoolYearsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SchoolYearPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   changedSchoolYearStatuses<T extends Prisma.User$changedSchoolYearStatusesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$changedSchoolYearStatusesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SchoolYearStatusHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   rooms<T extends Prisma.User$roomsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$roomsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RoomPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   roomStatusHistories<T extends Prisma.User$roomStatusHistoriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$roomStatusHistoriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RoomStatusHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -3237,6 +3428,30 @@ export type User$specializationsArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.SpecializationScalarFieldEnum | Prisma.SpecializationScalarFieldEnum[]
+}
+
+/**
+ * User.schoolYears
+ */
+export type User$schoolYearsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SchoolYear
+   */
+  select?: Prisma.SchoolYearSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SchoolYear
+   */
+  omit?: Prisma.SchoolYearOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SchoolYearInclude<ExtArgs> | null
+  where?: Prisma.SchoolYearWhereInput
+  orderBy?: Prisma.SchoolYearOrderByWithRelationInput | Prisma.SchoolYearOrderByWithRelationInput[]
+  cursor?: Prisma.SchoolYearWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SchoolYearScalarFieldEnum | Prisma.SchoolYearScalarFieldEnum[]
 }
 
 /**

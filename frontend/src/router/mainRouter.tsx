@@ -1,15 +1,16 @@
 import { createBrowserRouter } from "react-router";
-import { dashboardRoutes } from "../features/dashboard/routes/routes";
 import MainLayout from "../shared/layouts/MainLayout";
-import HomePage from "../features/homepage/HomePage";
-import { authRoutes } from "../features/auth/routes/authRoutes";
-import ProgramsPage from "../features/programs/ProgramsPage";
-import NotFound404 from "../features/notfound404/NotFound404";
-import { PersistLogin } from "../features/auth/components/PersistLogin";
-import ProtectedRoute from "../features/auth/components/ProtectedRoute";
-
-import { AxiosInterceptor } from "../features/auth/components/AxiosInterceptor";
-import { StaffRole, StudentRole } from "../features/auth/types/auth.types";
+import {
+  authRoutes,
+  AxiosInterceptor,
+  PersistLogin,
+  ProtectedRoute,
+  StaffRole,
+  StudentRole,
+} from "../features/auth";
+import HomePage from "../pages/HomePage";
+import ProgramsPage from "../pages/ProgramsPage";
+import NotFound404 from "../pages/NotFound404";
 
 export const router = createBrowserRouter([
   {
@@ -29,7 +30,7 @@ export const router = createBrowserRouter([
         ],
       },
       {
-        path:"/dashboard",
+        path: "/dashboard",
         element: (
           <AxiosInterceptor>
             <ProtectedRoute
@@ -41,7 +42,12 @@ export const router = createBrowserRouter([
             />
           </AxiosInterceptor>
         ),
-        children: [...dashboardRoutes],
+        children: [
+          {
+            index: true,
+            element: <div>Dashboard Home</div>,
+          },
+        ],
       },
     ],
   },
