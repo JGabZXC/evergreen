@@ -193,6 +193,7 @@ enum RoomStatus {
 
 model Room {
   id String @id @default(uuid())
+  name String @db.VarChar(100)
   type RoomType @default(CLASSROOM)
   capacity Int @default(0)
   status RoomStatus @default(OPEN)
@@ -205,6 +206,8 @@ model Room {
 
   roomStatusHistories RoomStatusHistory[]
   sections Section[]
+
+  @@unique([name])
 }
 
 model RoomStatusHistory {

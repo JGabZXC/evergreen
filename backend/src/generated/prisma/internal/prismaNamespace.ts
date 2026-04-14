@@ -1523,6 +1523,7 @@ export type SchoolYearStatusHistoryScalarFieldEnum = (typeof SchoolYearStatusHis
 
 export const RoomScalarFieldEnum = {
   id: 'id',
+  name: 'name',
   type: 'type',
   capacity: 'capacity',
   status: 'status',

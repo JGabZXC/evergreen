@@ -16,4 +16,8 @@ export class ValidationUtils {
         const date = new Date(dateString);
         return !isNaN(date.getTime());
     }
+
+    static isValidNumber(number: string): boolean {
+        return number.trim() !== '' && !isNaN(Number(number));
+    }
 }

@@ -1,0 +1,1 @@
+export type {CreateRoomRequest, UpdateRoomRequest} from "../schemas/roomSchemas";
