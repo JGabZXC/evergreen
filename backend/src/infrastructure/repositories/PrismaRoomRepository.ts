@@ -2,7 +2,7 @@ import {Prisma} from "../../generated/prisma/client";
 import prisma from "../database/prisma/db";
 import {GetAllRoomFilter, IRoomRepository} from "../../domain/interfaces/IRoomRepository";
 import {CreateRoomRequest, UpdateRoomRequest} from "../../application/schemas/roomSchemas";
-import {ConflictError} from "../../interfaces/http/middleware/HttpErrors";
+import {ConflictError, NotFoundError} from "../../interfaces/http/middleware/HttpErrors";
 import {RoomMapper} from "../mapper/RoomMapper";
 import {Room} from "../../domain/entities/Room";
 import {PaginatedResult} from "../../domain/common/Pagination";
@@ -118,6 +118,11 @@ export class PrismaRoomRepository implements IRoomRepository {
             if(error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
                 throw new ConflictError("Room with this name is already in use");
             }
+
+            if(error instanceof Prisma.PrismaClientKnownRequestError && error.code == "P2025") {
+                throw new NotFoundError(`Room with id ${roomId} not found`);
+            }
+
             throw error;
         }
     }

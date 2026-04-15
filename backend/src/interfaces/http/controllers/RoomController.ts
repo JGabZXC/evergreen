@@ -3,7 +3,12 @@ import {IUseCase} from "../../../domain/common/IUseCase";
 import {CreateRoomUseCaseRequest} from "../../../application/use-cases/room/ICreateRoomUseCase";
 import {Room} from "../../../domain/entities/Room";
 import {AuthenticatedRequest} from "../middleware/authGuard";
-import {CreateRoomRequest, roomQuerySchema} from "../../../application/schemas/roomSchemas";
+import {
+    CreateRoomRequest,
+    roomQuerySchema,
+    roomUpdateParamsSchema,
+    UpdateRoomRequest
+} from "../../../application/schemas/roomSchemas";
 import {HttpStatus} from "../../../domain/enums/HttpStatus";
 import {RoomMapper} from "../../../infrastructure/mapper/RoomMapper";
 import {GetAllRoomFilter} from "../../../domain/interfaces/IRoomRepository";
@@ -12,15 +17,19 @@ import {GetAllRoomUseCaseRequest} from "../../../application/use-cases/room/IGet
 import {PaginatedResult} from "../../../domain/common/Pagination";
 import {GetRoomByIdUseCaseRequest} from "../../../application/use-cases/room/IGetRoomByIdUseCase";
 import {RoomResponse, RoomResponseNested} from "../../../application/dto/RoomResponse";
+import {UpdateRoomUseCaseRequest} from "../../../application/use-cases/room/IUpdateRoomUseCase";
 
 export class RoomController {
     constructor(
         private readonly getAllRoomUseCase: IUseCase<GetAllRoomUseCaseRequest, PaginatedResult<RoomResponse | RoomResponseNested>>,
         private readonly getRoomByIdUseCase: IUseCase<GetRoomByIdUseCaseRequest, RoomResponse | RoomResponseNested>,
-        private readonly createRoomUseCase: IUseCase<CreateRoomUseCaseRequest, Room>
+        private readonly createRoomUseCase: IUseCase<CreateRoomUseCaseRequest, Room>,
+        private readonly updateRoomUseCase: IUseCase<UpdateRoomUseCaseRequest, boolean>
     ) {
-        this.createRoom = this.createRoom.bind(this);
         this.getAllRooms = this.getAllRooms.bind(this);
+        this.getRoomById = this.getRoomById.bind(this);
+        this.createRoom = this.createRoom.bind(this);
+        this.updateRoom = this.updateRoom.bind(this);
     }
 
     public async getAllRooms(req: AuthenticatedRequest, res: Response) {
@@ -89,6 +98,19 @@ export class RoomController {
 
         return res.status(HttpStatus.CREATED).json({
             data: RoomMapper.toResponseShallow(domainRoom)
+        });
+    }
+
+    public async updateRoom(req: AuthenticatedRequest<UpdateRoomRequest>, res: Response) {
+        const params = roomUpdateParamsSchema.safeParse(req.params);
+        if (!params.success) throw new BadRequestError("Invalid parameters", params.error);
+
+        const {roomId} = params.data;
+
+        const response = await this.updateRoomUseCase.execute({roomId, data: req.body});
+
+        res.status(HttpStatus.OK).json({
+            success: response
         });
     }
 }
