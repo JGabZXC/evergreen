@@ -104,6 +104,11 @@ export class PrismaSpecializationRepository
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
         throw new NotFoundError(`Specialization with id ${specializationId} not found`);
       }
+
+      if(error instanceof Prisma.PrismaClientKnownRequestError && error.code == "P2025") {
+        throw new NotFoundError(`Specialization with id ${specializationId} not found`);
+      }
+
       throw error;
     }
   }

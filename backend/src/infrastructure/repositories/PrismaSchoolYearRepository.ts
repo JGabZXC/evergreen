@@ -211,6 +211,10 @@ export class PrismaSchoolYearRepository implements ISchoolYearRepository {
         );
       }
 
+      if(error instanceof Prisma.PrismaClientKnownRequestError && error.code == "P2025") {
+        throw new NotFoundError(`School Year with id ${schoolYearId} not found`);
+      }
+
       throw error;
     }
   }
