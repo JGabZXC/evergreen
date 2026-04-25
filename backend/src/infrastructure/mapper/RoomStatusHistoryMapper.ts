@@ -21,4 +21,25 @@ export class RoomStatusHistoryMapper {
             raw.changedBy ? UserMapper.toDomain(raw.changedBy) : null,
         );
     }
+
+    static toResponseShallow(domain: RoomStatusHistory) {
+        return {
+            id: domain.id,
+            roomId: domain.roomId,
+            previousStatus: domain.previousStatus,
+            newStatus: domain.newStatus,
+            remarks: domain.remarks,
+            changedById: domain.changedById,
+            createdAt: domain.createdAt,
+        }
+    }
+
+    static toResponseDeep(domain: RoomStatusHistory) {
+        return {
+            ...RoomStatusHistoryMapper.toResponseShallow(domain),
+
+            // NESTED PROPERTIES
+            changedBy: domain.changedBy ? UserMapper.toResponseDeep(domain.changedBy) : null,
+        }
+    }
 }

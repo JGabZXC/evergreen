@@ -1,6 +1,7 @@
 import {BaseTimestamps} from "../common/BaseTimestamps";
 import {RoomStatus, RoomType} from "../../generated/prisma/enums";
 import {User} from "./User";
+import {RoomStatusHistory} from "./RoomStatusHistory";
 
 export class Room extends BaseTimestamps {
     constructor(
@@ -14,7 +15,8 @@ export class Room extends BaseTimestamps {
         public readonly updatedAt: Date,
 
         // NESTED PROPERTIES
-        public readonly createdBy: User | null
+        public readonly createdBy: User | null,
+        public readonly roomStatusHistories: RoomStatusHistory[] | null
     ) {
         super(id, createdAt, updatedAt);
     }

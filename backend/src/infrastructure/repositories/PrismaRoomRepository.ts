@@ -55,6 +55,9 @@ export class PrismaRoomRepository implements IRoomRepository {
     async findById(roomId: string, nested: boolean = false): Promise<Room | null> {
         const include = {
             createdBy: true,
+            roomStatusHistories: {
+                include: { changedBy: true }
+            },
         }
        const rawRoom =  await prisma.room.findUnique({
             where: {id: roomId},

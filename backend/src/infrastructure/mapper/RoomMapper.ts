@@ -1,9 +1,11 @@
-import {Room as PrismaRoom, User as PrismaUser} from "../../generated/prisma/client";
+import {Room as PrismaRoom, User as PrismaUser, RoomStatusHistory as PrismaRoomStatusHistory} from "../../generated/prisma/client";
 import {Room} from "../../domain/entities/Room";
 import {UserMapper} from "./UserMapper";
+import {RoomStatusHistoryMapper} from "./RoomStatusHistoryMapper";
 
 interface WithRelation extends PrismaRoom {
     createdBy?: PrismaUser | null,
+    roomStatusHistories?: PrismaRoomStatusHistory[] | null,
 }
 
 export class RoomMapper {
@@ -20,6 +22,7 @@ export class RoomMapper {
 
             // NESTED PROPERTIES
             raw.createdBy ? UserMapper.toDomain(raw.createdBy) : null,
+            raw.roomStatusHistories ? raw.roomStatusHistories.map(RoomStatusHistoryMapper.toDomain) : null,
         );
     }
 
@@ -42,6 +45,7 @@ export class RoomMapper {
 
             // NESTED PROPERTIES
             createdBy: domain.createdBy ? UserMapper.toResponseDeep(domain.createdBy) : null,
+            roomStatusHistories: domain.roomStatusHistories ? domain.roomStatusHistories.map(RoomStatusHistoryMapper.toResponseDeep) : null,
         };
     }
 }
