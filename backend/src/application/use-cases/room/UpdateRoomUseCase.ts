@@ -7,8 +7,8 @@ export class UpdateRoomUseCase implements IUpdateRoomUseCase {
     ) {}
 
     async execute(request: UpdateRoomUseCaseRequest): Promise<boolean> {
-        const {data, roomId} = request;
+        const { data, roomId } = request;
 
-        return await this.roomRepository.update(data, roomId)
+        return this.roomRepository.update(data, roomId);
     }
 }

@@ -27,8 +27,8 @@ export type AggregateRoomStatusHistory = {
 export type RoomStatusHistoryMinAggregateOutputType = {
   id: string | null
   roomId: string | null
-  previousStatus: $Enums.RoomType | null
-  newStatus: $Enums.RoomType | null
+  previousStatus: $Enums.RoomStatus | null
+  newStatus: $Enums.RoomStatus | null
   remarks: string | null
   changedById: string | null
   createdAt: Date | null
@@ -37,8 +37,8 @@ export type RoomStatusHistoryMinAggregateOutputType = {
 export type RoomStatusHistoryMaxAggregateOutputType = {
   id: string | null
   roomId: string | null
-  previousStatus: $Enums.RoomType | null
-  newStatus: $Enums.RoomType | null
+  previousStatus: $Enums.RoomStatus | null
+  newStatus: $Enums.RoomStatus | null
   remarks: string | null
   changedById: string | null
   createdAt: Date | null
@@ -162,8 +162,8 @@ export type RoomStatusHistoryGroupByArgs<ExtArgs extends runtime.Types.Extension
 export type RoomStatusHistoryGroupByOutputType = {
   id: string
   roomId: string
-  previousStatus: $Enums.RoomType
-  newStatus: $Enums.RoomType
+  previousStatus: $Enums.RoomStatus
+  newStatus: $Enums.RoomStatus
   remarks: string | null
   changedById: string | null
   createdAt: Date
@@ -193,8 +193,8 @@ export type RoomStatusHistoryWhereInput = {
   NOT?: Prisma.RoomStatusHistoryWhereInput | Prisma.RoomStatusHistoryWhereInput[]
   id?: Prisma.StringFilter<"RoomStatusHistory"> | string
   roomId?: Prisma.StringFilter<"RoomStatusHistory"> | string
-  previousStatus?: Prisma.EnumRoomTypeFilter<"RoomStatusHistory"> | $Enums.RoomType
-  newStatus?: Prisma.EnumRoomTypeFilter<"RoomStatusHistory"> | $Enums.RoomType
+  previousStatus?: Prisma.EnumRoomStatusFilter<"RoomStatusHistory"> | $Enums.RoomStatus
+  newStatus?: Prisma.EnumRoomStatusFilter<"RoomStatusHistory"> | $Enums.RoomStatus
   remarks?: Prisma.StringNullableFilter<"RoomStatusHistory"> | string | null
   changedById?: Prisma.StringNullableFilter<"RoomStatusHistory"> | string | null
   createdAt?: Prisma.DateTimeFilter<"RoomStatusHistory"> | Date | string
@@ -220,8 +220,8 @@ export type RoomStatusHistoryWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.RoomStatusHistoryWhereInput[]
   NOT?: Prisma.RoomStatusHistoryWhereInput | Prisma.RoomStatusHistoryWhereInput[]
   roomId?: Prisma.StringFilter<"RoomStatusHistory"> | string
-  previousStatus?: Prisma.EnumRoomTypeFilter<"RoomStatusHistory"> | $Enums.RoomType
-  newStatus?: Prisma.EnumRoomTypeFilter<"RoomStatusHistory"> | $Enums.RoomType
+  previousStatus?: Prisma.EnumRoomStatusFilter<"RoomStatusHistory"> | $Enums.RoomStatus
+  newStatus?: Prisma.EnumRoomStatusFilter<"RoomStatusHistory"> | $Enums.RoomStatus
   remarks?: Prisma.StringNullableFilter<"RoomStatusHistory"> | string | null
   changedById?: Prisma.StringNullableFilter<"RoomStatusHistory"> | string | null
   createdAt?: Prisma.DateTimeFilter<"RoomStatusHistory"> | Date | string
@@ -248,8 +248,8 @@ export type RoomStatusHistoryScalarWhereWithAggregatesInput = {
   NOT?: Prisma.RoomStatusHistoryScalarWhereWithAggregatesInput | Prisma.RoomStatusHistoryScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"RoomStatusHistory"> | string
   roomId?: Prisma.StringWithAggregatesFilter<"RoomStatusHistory"> | string
-  previousStatus?: Prisma.EnumRoomTypeWithAggregatesFilter<"RoomStatusHistory"> | $Enums.RoomType
-  newStatus?: Prisma.EnumRoomTypeWithAggregatesFilter<"RoomStatusHistory"> | $Enums.RoomType
+  previousStatus?: Prisma.EnumRoomStatusWithAggregatesFilter<"RoomStatusHistory"> | $Enums.RoomStatus
+  newStatus?: Prisma.EnumRoomStatusWithAggregatesFilter<"RoomStatusHistory"> | $Enums.RoomStatus
   remarks?: Prisma.StringNullableWithAggregatesFilter<"RoomStatusHistory"> | string | null
   changedById?: Prisma.StringNullableWithAggregatesFilter<"RoomStatusHistory"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"RoomStatusHistory"> | Date | string
@@ -257,8 +257,8 @@ export type RoomStatusHistoryScalarWhereWithAggregatesInput = {
 
 export type RoomStatusHistoryCreateInput = {
   id?: string
-  previousStatus: $Enums.RoomType
-  newStatus: $Enums.RoomType
+  previousStatus: $Enums.RoomStatus
+  newStatus: $Enums.RoomStatus
   remarks?: string | null
   createdAt?: Date | string
   room: Prisma.RoomCreateNestedOneWithoutRoomStatusHistoriesInput
@@ -268,8 +268,8 @@ export type RoomStatusHistoryCreateInput = {
 export type RoomStatusHistoryUncheckedCreateInput = {
   id?: string
   roomId: string
-  previousStatus: $Enums.RoomType
-  newStatus: $Enums.RoomType
+  previousStatus: $Enums.RoomStatus
+  newStatus: $Enums.RoomStatus
   remarks?: string | null
   changedById?: string | null
   createdAt?: Date | string
@@ -277,8 +277,8 @@ export type RoomStatusHistoryUncheckedCreateInput = {
 
 export type RoomStatusHistoryUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  previousStatus?: Prisma.EnumRoomTypeFieldUpdateOperationsInput | $Enums.RoomType
-  newStatus?: Prisma.EnumRoomTypeFieldUpdateOperationsInput | $Enums.RoomType
+  previousStatus?: Prisma.EnumRoomStatusFieldUpdateOperationsInput | $Enums.RoomStatus
+  newStatus?: Prisma.EnumRoomStatusFieldUpdateOperationsInput | $Enums.RoomStatus
   remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   room?: Prisma.RoomUpdateOneRequiredWithoutRoomStatusHistoriesNestedInput
@@ -288,8 +288,8 @@ export type RoomStatusHistoryUpdateInput = {
 export type RoomStatusHistoryUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   roomId?: Prisma.StringFieldUpdateOperationsInput | string
-  previousStatus?: Prisma.EnumRoomTypeFieldUpdateOperationsInput | $Enums.RoomType
-  newStatus?: Prisma.EnumRoomTypeFieldUpdateOperationsInput | $Enums.RoomType
+  previousStatus?: Prisma.EnumRoomStatusFieldUpdateOperationsInput | $Enums.RoomStatus
+  newStatus?: Prisma.EnumRoomStatusFieldUpdateOperationsInput | $Enums.RoomStatus
   remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   changedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -298,8 +298,8 @@ export type RoomStatusHistoryUncheckedUpdateInput = {
 export type RoomStatusHistoryCreateManyInput = {
   id?: string
   roomId: string
-  previousStatus: $Enums.RoomType
-  newStatus: $Enums.RoomType
+  previousStatus: $Enums.RoomStatus
+  newStatus: $Enums.RoomStatus
   remarks?: string | null
   changedById?: string | null
   createdAt?: Date | string
@@ -307,8 +307,8 @@ export type RoomStatusHistoryCreateManyInput = {
 
 export type RoomStatusHistoryUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  previousStatus?: Prisma.EnumRoomTypeFieldUpdateOperationsInput | $Enums.RoomType
-  newStatus?: Prisma.EnumRoomTypeFieldUpdateOperationsInput | $Enums.RoomType
+  previousStatus?: Prisma.EnumRoomStatusFieldUpdateOperationsInput | $Enums.RoomStatus
+  newStatus?: Prisma.EnumRoomStatusFieldUpdateOperationsInput | $Enums.RoomStatus
   remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -316,8 +316,8 @@ export type RoomStatusHistoryUpdateManyMutationInput = {
 export type RoomStatusHistoryUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   roomId?: Prisma.StringFieldUpdateOperationsInput | string
-  previousStatus?: Prisma.EnumRoomTypeFieldUpdateOperationsInput | $Enums.RoomType
-  newStatus?: Prisma.EnumRoomTypeFieldUpdateOperationsInput | $Enums.RoomType
+  previousStatus?: Prisma.EnumRoomStatusFieldUpdateOperationsInput | $Enums.RoomStatus
+  newStatus?: Prisma.EnumRoomStatusFieldUpdateOperationsInput | $Enums.RoomStatus
   remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   changedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -449,8 +449,8 @@ export type RoomStatusHistoryUncheckedUpdateManyWithoutRoomNestedInput = {
 
 export type RoomStatusHistoryCreateWithoutChangedByInput = {
   id?: string
-  previousStatus: $Enums.RoomType
-  newStatus: $Enums.RoomType
+  previousStatus: $Enums.RoomStatus
+  newStatus: $Enums.RoomStatus
   remarks?: string | null
   createdAt?: Date | string
   room: Prisma.RoomCreateNestedOneWithoutRoomStatusHistoriesInput
@@ -459,8 +459,8 @@ export type RoomStatusHistoryCreateWithoutChangedByInput = {
 export type RoomStatusHistoryUncheckedCreateWithoutChangedByInput = {
   id?: string
   roomId: string
-  previousStatus: $Enums.RoomType
-  newStatus: $Enums.RoomType
+  previousStatus: $Enums.RoomStatus
+  newStatus: $Enums.RoomStatus
   remarks?: string | null
   createdAt?: Date | string
 }
@@ -497,8 +497,8 @@ export type RoomStatusHistoryScalarWhereInput = {
   NOT?: Prisma.RoomStatusHistoryScalarWhereInput | Prisma.RoomStatusHistoryScalarWhereInput[]
   id?: Prisma.StringFilter<"RoomStatusHistory"> | string
   roomId?: Prisma.StringFilter<"RoomStatusHistory"> | string
-  previousStatus?: Prisma.EnumRoomTypeFilter<"RoomStatusHistory"> | $Enums.RoomType
-  newStatus?: Prisma.EnumRoomTypeFilter<"RoomStatusHistory"> | $Enums.RoomType
+  previousStatus?: Prisma.EnumRoomStatusFilter<"RoomStatusHistory"> | $Enums.RoomStatus
+  newStatus?: Prisma.EnumRoomStatusFilter<"RoomStatusHistory"> | $Enums.RoomStatus
   remarks?: Prisma.StringNullableFilter<"RoomStatusHistory"> | string | null
   changedById?: Prisma.StringNullableFilter<"RoomStatusHistory"> | string | null
   createdAt?: Prisma.DateTimeFilter<"RoomStatusHistory"> | Date | string
@@ -506,8 +506,8 @@ export type RoomStatusHistoryScalarWhereInput = {
 
 export type RoomStatusHistoryCreateWithoutRoomInput = {
   id?: string
-  previousStatus: $Enums.RoomType
-  newStatus: $Enums.RoomType
+  previousStatus: $Enums.RoomStatus
+  newStatus: $Enums.RoomStatus
   remarks?: string | null
   createdAt?: Date | string
   changedBy?: Prisma.UserCreateNestedOneWithoutRoomStatusHistoriesInput
@@ -515,8 +515,8 @@ export type RoomStatusHistoryCreateWithoutRoomInput = {
 
 export type RoomStatusHistoryUncheckedCreateWithoutRoomInput = {
   id?: string
-  previousStatus: $Enums.RoomType
-  newStatus: $Enums.RoomType
+  previousStatus: $Enums.RoomStatus
+  newStatus: $Enums.RoomStatus
   remarks?: string | null
   changedById?: string | null
   createdAt?: Date | string
@@ -551,16 +551,16 @@ export type RoomStatusHistoryUpdateManyWithWhereWithoutRoomInput = {
 export type RoomStatusHistoryCreateManyChangedByInput = {
   id?: string
   roomId: string
-  previousStatus: $Enums.RoomType
-  newStatus: $Enums.RoomType
+  previousStatus: $Enums.RoomStatus
+  newStatus: $Enums.RoomStatus
   remarks?: string | null
   createdAt?: Date | string
 }
 
 export type RoomStatusHistoryUpdateWithoutChangedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  previousStatus?: Prisma.EnumRoomTypeFieldUpdateOperationsInput | $Enums.RoomType
-  newStatus?: Prisma.EnumRoomTypeFieldUpdateOperationsInput | $Enums.RoomType
+  previousStatus?: Prisma.EnumRoomStatusFieldUpdateOperationsInput | $Enums.RoomStatus
+  newStatus?: Prisma.EnumRoomStatusFieldUpdateOperationsInput | $Enums.RoomStatus
   remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   room?: Prisma.RoomUpdateOneRequiredWithoutRoomStatusHistoriesNestedInput
@@ -569,8 +569,8 @@ export type RoomStatusHistoryUpdateWithoutChangedByInput = {
 export type RoomStatusHistoryUncheckedUpdateWithoutChangedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   roomId?: Prisma.StringFieldUpdateOperationsInput | string
-  previousStatus?: Prisma.EnumRoomTypeFieldUpdateOperationsInput | $Enums.RoomType
-  newStatus?: Prisma.EnumRoomTypeFieldUpdateOperationsInput | $Enums.RoomType
+  previousStatus?: Prisma.EnumRoomStatusFieldUpdateOperationsInput | $Enums.RoomStatus
+  newStatus?: Prisma.EnumRoomStatusFieldUpdateOperationsInput | $Enums.RoomStatus
   remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -578,16 +578,16 @@ export type RoomStatusHistoryUncheckedUpdateWithoutChangedByInput = {
 export type RoomStatusHistoryUncheckedUpdateManyWithoutChangedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   roomId?: Prisma.StringFieldUpdateOperationsInput | string
-  previousStatus?: Prisma.EnumRoomTypeFieldUpdateOperationsInput | $Enums.RoomType
-  newStatus?: Prisma.EnumRoomTypeFieldUpdateOperationsInput | $Enums.RoomType
+  previousStatus?: Prisma.EnumRoomStatusFieldUpdateOperationsInput | $Enums.RoomStatus
+  newStatus?: Prisma.EnumRoomStatusFieldUpdateOperationsInput | $Enums.RoomStatus
   remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type RoomStatusHistoryCreateManyRoomInput = {
   id?: string
-  previousStatus: $Enums.RoomType
-  newStatus: $Enums.RoomType
+  previousStatus: $Enums.RoomStatus
+  newStatus: $Enums.RoomStatus
   remarks?: string | null
   changedById?: string | null
   createdAt?: Date | string
@@ -595,8 +595,8 @@ export type RoomStatusHistoryCreateManyRoomInput = {
 
 export type RoomStatusHistoryUpdateWithoutRoomInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  previousStatus?: Prisma.EnumRoomTypeFieldUpdateOperationsInput | $Enums.RoomType
-  newStatus?: Prisma.EnumRoomTypeFieldUpdateOperationsInput | $Enums.RoomType
+  previousStatus?: Prisma.EnumRoomStatusFieldUpdateOperationsInput | $Enums.RoomStatus
+  newStatus?: Prisma.EnumRoomStatusFieldUpdateOperationsInput | $Enums.RoomStatus
   remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   changedBy?: Prisma.UserUpdateOneWithoutRoomStatusHistoriesNestedInput
@@ -604,8 +604,8 @@ export type RoomStatusHistoryUpdateWithoutRoomInput = {
 
 export type RoomStatusHistoryUncheckedUpdateWithoutRoomInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  previousStatus?: Prisma.EnumRoomTypeFieldUpdateOperationsInput | $Enums.RoomType
-  newStatus?: Prisma.EnumRoomTypeFieldUpdateOperationsInput | $Enums.RoomType
+  previousStatus?: Prisma.EnumRoomStatusFieldUpdateOperationsInput | $Enums.RoomStatus
+  newStatus?: Prisma.EnumRoomStatusFieldUpdateOperationsInput | $Enums.RoomStatus
   remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   changedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -613,8 +613,8 @@ export type RoomStatusHistoryUncheckedUpdateWithoutRoomInput = {
 
 export type RoomStatusHistoryUncheckedUpdateManyWithoutRoomInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  previousStatus?: Prisma.EnumRoomTypeFieldUpdateOperationsInput | $Enums.RoomType
-  newStatus?: Prisma.EnumRoomTypeFieldUpdateOperationsInput | $Enums.RoomType
+  previousStatus?: Prisma.EnumRoomStatusFieldUpdateOperationsInput | $Enums.RoomStatus
+  newStatus?: Prisma.EnumRoomStatusFieldUpdateOperationsInput | $Enums.RoomStatus
   remarks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   changedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -691,8 +691,8 @@ export type $RoomStatusHistoryPayload<ExtArgs extends runtime.Types.Extensions.I
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     roomId: string
-    previousStatus: $Enums.RoomType
-    newStatus: $Enums.RoomType
+    previousStatus: $Enums.RoomStatus
+    newStatus: $Enums.RoomStatus
     remarks: string | null
     changedById: string | null
     createdAt: Date
@@ -1123,8 +1123,8 @@ export interface Prisma__RoomStatusHistoryClient<T, Null = never, ExtArgs extend
 export interface RoomStatusHistoryFieldRefs {
   readonly id: Prisma.FieldRef<"RoomStatusHistory", 'String'>
   readonly roomId: Prisma.FieldRef<"RoomStatusHistory", 'String'>
-  readonly previousStatus: Prisma.FieldRef<"RoomStatusHistory", 'RoomType'>
-  readonly newStatus: Prisma.FieldRef<"RoomStatusHistory", 'RoomType'>
+  readonly previousStatus: Prisma.FieldRef<"RoomStatusHistory", 'RoomStatus'>
+  readonly newStatus: Prisma.FieldRef<"RoomStatusHistory", 'RoomStatus'>
   readonly remarks: Prisma.FieldRef<"RoomStatusHistory", 'String'>
   readonly changedById: Prisma.FieldRef<"RoomStatusHistory", 'String'>
   readonly createdAt: Prisma.FieldRef<"RoomStatusHistory", 'DateTime'>

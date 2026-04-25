@@ -18,7 +18,9 @@ export const roomCreateSchema = z.object({
     status: z.enum(RoomStatus, {error: "Invalid room status"}),
 });
 
-export const roomUpdateSchema = roomCreateSchema.partial();
+export const roomUpdateSchema = roomCreateSchema.partial().extend({
+    remarks: z.string().trim().optional(),
+});
 
 export const roomUpdateParamsSchema = z.object({
     roomId: z.uuid("Invalid room ID"),

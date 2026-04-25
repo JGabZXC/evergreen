@@ -107,7 +107,7 @@ export class RoomController {
 
         const {roomId} = params.data;
 
-        const response = await this.updateRoomUseCase.execute({roomId, data: req.body});
+        const response = await this.updateRoomUseCase.execute({roomId, data: {...req.body, changedById: req.user!.id}});
 
         res.status(HttpStatus.OK).json({
             success: response

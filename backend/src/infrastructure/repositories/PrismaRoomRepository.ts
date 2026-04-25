@@ -1,11 +1,13 @@
 import {Prisma} from "../../generated/prisma/client";
 import prisma from "../database/prisma/db";
-import {GetAllRoomFilter, IRoomRepository} from "../../domain/interfaces/IRoomRepository";
+import {CreateRoomHistoryRequest, GetAllRoomFilter, IRoomRepository} from "../../domain/interfaces/IRoomRepository";
 import {CreateRoomRequest, UpdateRoomRequest} from "../../application/schemas/roomSchemas";
 import {ConflictError, NotFoundError} from "../../interfaces/http/middleware/HttpErrors";
 import {RoomMapper} from "../mapper/RoomMapper";
 import {Room} from "../../domain/entities/Room";
 import {PaginatedResult} from "../../domain/common/Pagination";
+import {RoomStatusHistory} from "../../domain/entities/RoomStatusHistory";
+import {RoomStatusHistoryMapper} from "../mapper/RoomStatusHistoryMapper";
 
 export class PrismaRoomRepository implements IRoomRepository {
     async getAll(filter: GetAllRoomFilter, page: number, limit: number, nested: boolean = false): Promise<PaginatedResult<Room>> {
@@ -86,7 +88,10 @@ export class PrismaRoomRepository implements IRoomRepository {
         }
     }
 
-    async update(data: UpdateRoomRequest, roomId: string): Promise<boolean> {
+    async update(data: UpdateRoomRequest & {
+        remarks?: string | null;
+        changedById?: string | null;
+    }, roomId: string): Promise<boolean> {
         const updateData: Prisma.RoomUpdateInput = {}
 
         if (data.name !== undefined) {
@@ -106,11 +111,34 @@ export class PrismaRoomRepository implements IRoomRepository {
         }
 
         try {
-            await prisma.room.update({
-                where: {
-                    id: roomId
-                },
-                data: updateData,
+            await prisma.$transaction(async (tx) => {
+                const existingRoom = await tx.room.findUnique({
+                    where: { id: roomId },
+                    select: { status: true },
+                });
+
+                if (!existingRoom) {
+                    throw new NotFoundError(`Room with id ${roomId} not found`);
+                }
+
+                await tx.room.update({
+                    where: {
+                        id: roomId
+                    },
+                    data: updateData,
+                });
+
+                if (data.status !== undefined && data.status !== existingRoom.status) {
+                    await tx.roomStatusHistory.create({
+                        data: {
+                            roomId,
+                            previousStatus: existingRoom.status,
+                            newStatus: data.status,
+                            remarks: data.remarks ?? null,
+                            changedById: data.changedById ?? null,
+                        },
+                    });
+                }
             });
 
             return true;
@@ -125,5 +153,19 @@ export class PrismaRoomRepository implements IRoomRepository {
 
             throw error;
         }
+    }
+
+    async createStatusHistory(request: CreateRoomHistoryRequest): Promise<RoomStatusHistory> {
+        const rawRoomStatusHistory = await prisma.roomStatusHistory.create({
+            data: {
+                roomId: request.roomId,
+                previousStatus: request.previousStatus,
+                newStatus: request.newStatus,
+                remarks: request.remarks ?? null,
+                changedById: request.changedById ?? null,
+            }
+        });
+
+        return RoomStatusHistoryMapper.toDomain(rawRoomStatusHistory);
     }
 }

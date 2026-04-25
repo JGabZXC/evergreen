@@ -3,7 +3,10 @@ import {IUseCase} from "../../../domain/common/IUseCase";
 
 export interface UpdateRoomUseCaseRequest {
     roomId: string;
-    data: UpdateRoomRequest;
+    data: UpdateRoomRequest & {
+        remarks?: string | undefined,
+        changedById?: string | undefined,
+    };
 }
 
 export type IUpdateRoomUseCase = IUseCase<UpdateRoomUseCaseRequest, boolean>;

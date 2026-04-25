@@ -216,8 +216,8 @@ model RoomStatusHistory {
   roomId String
   room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
   
-  previousStatus RoomType
-  newStatus RoomType
+  previousStatus RoomStatus
+  newStatus RoomStatus
 
   remarks String? @db.Text
 
