@@ -3,7 +3,9 @@ import { SchoolYearUpdateRequest } from "../../dto/SchoolYearRequest";
 
 export interface UpdateSchoolYearUseCaseRequest {
   id: string;
-  data: SchoolYearUpdateRequest;
+  data: SchoolYearUpdateRequest & {
+    changedById?: string | undefined;
+  };
   updaterId: string;
 }
 

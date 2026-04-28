@@ -17,10 +17,10 @@ export interface CreateSchoolYearRepositoryRequest {
 }
 
 export interface UpdateSchoolYearRepositoryRequest {
-  startDate?: Date;
-  endDate?: Date;
-  gracePeriod?: number;
-  status?: SchoolYearStatus;
+  startDate?: Date | undefined;
+  endDate?: Date | undefined;
+  gracePeriod?: number | undefined;
+  status?: SchoolYearStatus | undefined;
 }
 
 export interface CreateSchoolYearStatusHistoryRequest {
@@ -50,7 +50,10 @@ export interface ISchoolYearRepository {
   create(data: CreateSchoolYearRepositoryRequest): Promise<SchoolYear>;
 
   update(
-    data: UpdateSchoolYearRepositoryRequest,
+    data: UpdateSchoolYearRepositoryRequest & {
+      remarks?: string | undefined;
+      changedById?: string | undefined;
+    },
     schoolYearId: string,
   ): Promise<boolean>;
 

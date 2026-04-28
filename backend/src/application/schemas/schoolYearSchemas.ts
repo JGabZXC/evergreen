@@ -32,7 +32,6 @@ export const schoolYearUpdateSchema = schoolYearCreateBaseSchema
       .string()
       .trim()
       .max(1000, "Remarks is too long")
-      .nullable()
       .optional(),
   })
   .refine(

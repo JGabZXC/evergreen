@@ -164,7 +164,10 @@ export class PrismaSchoolYearRepository implements ISchoolYearRepository {
   }
 
   async update(
-    data: UpdateSchoolYearRepositoryRequest,
+    data: UpdateSchoolYearRepositoryRequest & {
+      remarks?: string | undefined,
+      changedById?: string | undefined,
+    },
     schoolYearId: string,
   ): Promise<boolean> {
     const updateData: Prisma.SchoolYearUpdateInput = {};
@@ -186,9 +189,38 @@ export class PrismaSchoolYearRepository implements ISchoolYearRepository {
     }
 
     try {
-      await prisma.schoolYear.update({
-        where: { id: schoolYearId },
-        data: updateData,
+      await prisma.$transaction(async (tx) => {
+        const existingSchoolYear = await tx.schoolYear.findUnique({
+          where: {
+            id: schoolYearId,
+          }
+        });
+
+        if (!existingSchoolYear) {
+          throw new NotFoundError(
+            `School Year with id ${schoolYearId} not found`,
+          );
+        }
+
+        await tx.schoolYear.update({
+          where: { id: schoolYearId },
+          data: updateData,
+        });
+
+        if (
+          data.status !== undefined &&
+          data.status !== existingSchoolYear.status
+        ) {
+          await tx.schoolYearStatusHistory.create({
+            data: {
+              schoolYearId,
+              previousStatus: existingSchoolYear.status,
+              newStatus: data.status,
+              remarks: data.remarks ?? null,
+              changedById: data.changedById ?? null,
+            }
+          });
+        }
       });
 
       return true;
@@ -209,10 +241,6 @@ export class PrismaSchoolYearRepository implements ISchoolYearRepository {
         throw new ConflictError(
           "School year with the same start and end date already exists",
         );
-      }
-
-      if(error instanceof Prisma.PrismaClientKnownRequestError && error.code == "P2025") {
-        throw new NotFoundError(`School Year with id ${schoolYearId} not found`);
       }
 
       throw error;
