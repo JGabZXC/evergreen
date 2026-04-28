@@ -7,7 +7,7 @@ export interface UserAdminResponse extends UserResponse {
     updatedAt: string;
 }
 
-export interface UserAdminResponseDeep  {
+export interface UserAdminResponseDeep {
     user: UserAdminResponse,
     userProfile: UserProfile | null;
 }

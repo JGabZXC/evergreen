@@ -10,6 +10,7 @@ import specializationRoutes from "./interfaces/http/routes/SpecializationRoutes"
 import schoolYearRoutes from "./interfaces/http/routes/SchoolYearRoutes";
 import { HttpStatus } from "./domain/enums/HttpStatus";
 import roomRoutes from "./interfaces/http/routes/RoomRoutes";
+import sectionRoutes from "./interfaces/http/routes/SectionRoutes";
 
 dotenv.config({
   path: "../.env",
@@ -33,6 +34,7 @@ app.use("/api/teacher-academic-backgrounds", teacherAcademicBackgroundRoutes);
 app.use("/api/specializations", specializationRoutes);
 app.use("/api/school-years", schoolYearRoutes);
 app.use("/api/rooms", roomRoutes);
+app.use("/api/sections", sectionRoutes);
 
 app.use(errorHandler);
 

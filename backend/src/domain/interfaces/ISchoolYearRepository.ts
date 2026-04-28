@@ -27,8 +27,8 @@ export interface CreateSchoolYearStatusHistoryRequest {
   schoolYearId: string;
   previousStatus: SchoolYearStatus;
   newStatus: SchoolYearStatus;
-  remarks?: string | null;
-  changedById?: string | null;
+  remarks?: string | undefined;
+  changedById?: string | undefined;
 }
 
 export interface ISchoolYearRepository {

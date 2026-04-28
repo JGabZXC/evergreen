@@ -75,10 +75,12 @@ export class UserMapper {
     };
   }
 
-  static toAdminResponseDeep(domainUser: User) {
+    static toAdminResponseDeep(domainUser: User) {
     return {
       user: UserMapper.toAdminResponseShallow(domainUser),
-      userProfile: null, // This will be populated separately in the service layer after fetching the user profile
+      userProfile: domainUser.userProfile
+        ? UserProfileMapper.toResponseDeep(domainUser.userProfile)
+        : null,
     };
   }
 }
