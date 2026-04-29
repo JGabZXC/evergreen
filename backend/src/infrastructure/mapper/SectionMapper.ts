@@ -62,9 +62,9 @@ export class SectionMapper {
       ...SectionMapper.toResponseShallow(domain),
 
       // NESTED PROPERTIES
-      room: domain.room ? RoomMapper.toResponseDeep(domain.room) : null,
+      room: domain.room ? RoomMapper.toResponseShallow(domain.room) : null,
       schoolYear: domain.schoolYear
-        ? SchoolYearMapper.toResponseDeep(domain.schoolYear)
+        ? SchoolYearMapper.toResponseShallow(domain.schoolYear)
         : null,
       adviser: domain.adviser
         ? UserMapper.toAdminResponseDeep(domain.adviser)
