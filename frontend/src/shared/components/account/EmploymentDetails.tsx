@@ -1,6 +1,6 @@
 import { CircleQuestionMark } from "lucide-react";
 import type { UserProfile } from "../../hooks/useMyProfile";
-import { StaffRole } from "../../../features/auth";
+import { Role } from "../../../features/auth";
 
 interface EmploymentDetailsProps {
   profile: UserProfile;
@@ -49,7 +49,7 @@ export default function EmploymentDetails({ profile }: EmploymentDetailsProps) {
           </div>
         </div>
 
-        {role === StaffRole.Teacher && (
+        {role === Role.TEACHER && (
           <div className="mt-8 border-t border-base-200 pt-6">
             <div className="flex gap-2 items-center mb-4">
               <h3 className="text-lg font-semibold">Professional Background</h3>

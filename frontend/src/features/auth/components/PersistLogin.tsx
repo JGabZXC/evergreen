@@ -1,8 +1,8 @@
 import { Outlet, useNavigate } from "react-router";
-import { useAuth } from "../hooks/useAuth";
+import { useAuth } from "../hooks";
 import { apiPrivate } from "../../../config/axiosPrivate";
 import { useEffect, useState } from "react";
-import type { RefreshResponse } from "../types/auth.types";
+import {type RefreshResponse} from "../types";
 import Loading from "../../../shared/components/Loading";
 
 export function PersistLogin() {
@@ -16,14 +16,12 @@ export function PersistLogin() {
     async function verifyRefreshToken() {
       try {
         const response = await apiPrivate.post<RefreshResponse>(
-          "/api/auth/refresh"
+          "/api/auth/refresh-token"
         );
 
-        if (isMounted && response.data.user) {
-          const user =
-            response.data.user.role === "student"
-              ? { ...response.data.user, studentId: response.data.studentId }
-              : { ...response.data.user, employeeId: response.data.employeeId };
+        if (isMounted && response.data) {
+          const user = response.data;
+
           setUser(user);
         }
       } catch (err) {
@@ -37,7 +35,7 @@ export function PersistLogin() {
       }
     }
 
-    if (!user?._id && isAuth) {
+    if (!user?.id && isAuth) {
       verifyRefreshToken();
     } else {
       setLoading(false);

@@ -1,5 +1,5 @@
-import {RoomResponseNested} from "./RoomResponse";
-import {SchoolYearNestedResponse} from "./SchoolYearResponse";
+import {RoomResponse} from "./RoomResponse";
+import {SchoolYearResponse} from "./SchoolYearResponse";
 import {UserAdminResponseDeep} from "./UserAdminResponse";
 
 export interface SectionResponse {
@@ -14,7 +14,7 @@ export interface SectionResponse {
 }
 
 export interface SectionNestedResponse extends SectionResponse {
-    room: RoomResponseNested;
-    schoolYear: SchoolYearNestedResponse;
+    room: RoomResponse;
+    schoolYear: SchoolYearResponse;
     adviser: UserAdminResponseDeep;
 }

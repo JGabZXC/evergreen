@@ -36,7 +36,7 @@ export const AxiosInterceptor = ({ children }: {children: ReactNode}) => {
           if (
               error.response?.status === 401 &&
               !originalRequest._retry &&
-              !originalRequest.url?.includes("/auth/refresh")
+              !originalRequest.url?.includes("/auth/refresh-token")
           ) {
 
             if (isRefreshing) {
@@ -55,7 +55,7 @@ export const AxiosInterceptor = ({ children }: {children: ReactNode}) => {
             isRefreshing = true;
 
             try {
-              await apiPrivate.post("/api/auth/refresh");
+              await apiPrivate.post("/api/auth/refresh-token");
 
               processQueue(null);
               isRefreshing = false;

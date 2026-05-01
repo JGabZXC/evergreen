@@ -29,9 +29,7 @@ export class AuthController {
     );
 
     this.setCookie(res, result.access_token, result.refresh_token);
-    return res.status(HttpStatus.OK).json({
-      user: result.user,
-    });
+    return res.status(HttpStatus.OK).json(result.user);
   }
 
   public async create(req: AuthenticatedRequest<UserCreateRequest>, res: Response) {
@@ -44,9 +42,7 @@ export class AuthController {
       creatorId: req.user.id,
     });
 
-    return res.status(HttpStatus.OK).json({
-      user,
-    });
+    return res.status(HttpStatus.OK).json(user);
   }
 
   public async refreshToken(req: Request, res: Response) {
@@ -59,9 +55,7 @@ export class AuthController {
 
     this.setCookie(res, access_token, refresh_token);
 
-    return res.status(HttpStatus.OK).json({
-      user,
-    });
+    return res.status(HttpStatus.OK).json(user);
   }
 
   public async logout(req: Request, res: Response) {

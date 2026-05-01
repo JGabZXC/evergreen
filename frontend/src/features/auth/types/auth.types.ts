@@ -1,42 +1,23 @@
-export enum StudentRole {
-  Student = "student",
+export enum Role {
+  STUDENT = "STUDENT",
+  TEACHER = "TEACHER",
+  ADMIN = "ADMIN",
+  REGISTRAR = "REGISTRAR"
 }
-
-export enum StaffRole {
-  Teacher = "teacher",
-  Admin = "admin",
-  Staff = "staff",
-  Registrar = "registrar",
-  Approver = "approver",
-}
-
-export type Role = StudentRole | StaffRole;
 
 export interface User {
-  _id: string;
+  id: string;
+  accountNumber: number;
   email: string;
   role: Role;
-  active: boolean;
-  createdAt: string;
-  updatedAt: string;
-
-  employeeId?: string;
-  studentId?: string;
 }
 
 export interface AuthState {
   user: User | null;
 }
 
-export interface AuthResponse {
-  user: User;
-  studentId?: string;
-  employeeId?: string;
-}
-
-export interface RefreshResponse extends AuthResponse {
-  message: string;
-}
+export type AuthResponse = User;
+export type RefreshResponse = User;
 
 export interface AuthContextType extends AuthState {
   setUser: React.Dispatch<React.SetStateAction<User | null>>;

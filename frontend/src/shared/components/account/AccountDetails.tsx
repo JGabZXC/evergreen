@@ -1,4 +1,4 @@
-import { StudentRole } from "../../../features/auth";
+import { Role } from "../../../features/auth";
 import type { UserProfile } from "../../hooks/useMyProfile";
 
 interface AccountDetailsProps {
@@ -27,7 +27,7 @@ export default function AccountDetails({ profile }: AccountDetailsProps) {
               type="text"
               className="input input-bordered w-full bg-base-200 text-base-content"
               disabled
-              value={profile?._id || ""}
+              value={profile?.id || ""}
             />
           </div>
           <div className="form-control w-full">
@@ -46,7 +46,7 @@ export default function AccountDetails({ profile }: AccountDetailsProps) {
           <div className="form-control w-full">
             <label className="label">
               <span className="label-text font-medium text-base-content/70">
-                {profile?.role !== StudentRole.Student
+                {profile?.role !== Role.STUDENT
                   ? "Employee ID"
                   : "Student ID"}
               </span>

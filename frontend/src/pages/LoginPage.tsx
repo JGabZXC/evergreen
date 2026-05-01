@@ -13,9 +13,9 @@ export default function LoginPage() {
     setErrors((prev) => ({ ...prev, [field]: undefined }));
   }
 
-  function submitLogin(e: React.FormEvent) {
+  async function submitLogin(e: React.FormEvent) {
     e.preventDefault();
-    login(formData.email, formData.password);
+    await login(formData.email, formData.password);
   }
 
   const { user } = useAuth();
