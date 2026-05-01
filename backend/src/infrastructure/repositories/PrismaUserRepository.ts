@@ -55,6 +55,10 @@ export class PrismaUserRepository implements IUserRepository {
         where,
         skip,
         take: limit,
+        orderBy: {createdAt: 'desc'},
+        include: {
+          userProfile: true,
+        },
       }),
       prisma.user.count({ where }),
     ]);

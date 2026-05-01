@@ -6,6 +6,7 @@ import { TokenService } from "../../../application/services/TokenService";
 import { PasswordService } from "../../../application/services/PasswordService";
 import { PrismaUserRepository } from "../../../infrastructure/repositories/PrismaUserRepository";
 import { CreateUserUseCase } from "../../../application/use-cases/user";
+import { GetAllUserUseCase } from "../../../application/use-cases/user/GetAllUserUseCase";
 import { UpdateUserPasswordUseCase } from "../../../application/use-cases/user/UpdateUserPasswordUseCase";
 import { AuthGuard } from "../middleware/authGuard";
 import { Permissions } from "../middleware/Permissions";
@@ -40,8 +41,10 @@ const updateUserPasswordUseCase = new UpdateUserPasswordUseCase(
   userRepository,
   passwordService,
 );
+const getAllUserUseCase = new GetAllUserUseCase(userRepository);
 const userController = new UserController(
   updateUserPasswordUseCase,
+  getAllUserUseCase,
 );
 const authController = new AuthController(authService, createUserUseCase);
 const authGuard = new AuthGuard(tokenService, userRepository);
@@ -63,5 +66,6 @@ router
   .route("/set-password")
   .post(authGuard.middleware, validateBody(updatePasswordAdminSchema), Permissions.isAdmin, userController.setPassword);
 router.route("/refresh-token").post(authController.refreshToken);
+// GET /users moved to dedicated UserRoutes.ts
 
 export default router;

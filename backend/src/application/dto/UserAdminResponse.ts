@@ -1,5 +1,5 @@
 import {UserResponse} from "./UserResponse";
-import {UserProfile} from "../../domain/entities/UserProfile";
+import {UserProfileResponse} from "./UserProfileResponse";
 
 export interface UserAdminResponse extends UserResponse {
     isActive: boolean;
@@ -9,5 +9,5 @@ export interface UserAdminResponse extends UserResponse {
 
 export interface UserAdminResponseDeep {
     user: UserAdminResponse,
-    userProfile: UserProfile | null;
+    userProfile: UserProfileResponse | null;
 }

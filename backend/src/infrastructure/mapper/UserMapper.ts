@@ -77,7 +77,7 @@ export class UserMapper {
 
     static toAdminResponseDeep(domainUser: User) {
     return {
-      user: UserMapper.toResponseShallow(domainUser),
+      user: UserMapper.toAdminResponseShallow(domainUser),
       userProfile: domainUser.userProfile
         ? UserProfileMapper.toResponseShallow(domainUser.userProfile)
         : null,
