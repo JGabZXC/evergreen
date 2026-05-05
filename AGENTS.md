@@ -1,33 +1,63 @@
-# Copilot Instructions for my Evergreen School Academy
+# Evergreen School Academy - Agent Instructions
 
-**Architecture Overview**
-This is a full-stack school management system. The key architectural pattern is monorepo with separate build/test outputs:
+## Architecture
 
-- **Backend**: Express.JS API paired with Prisma ORM at http://localhost:3000
-- **Frontend**: React + Vite SPA at http://localhost:5173; uses client-side routing with page-based state
+**Monorepo** with two separate build/test outputs:
 
-**Agents & Workflow**
-This document collects conventions and commands for developers and automation agents (CI, local scripts, Copilot helpers).
+- **Backend**: Express + Prisma + PostgreSQL (port 3000)
+- **Frontend**: React 19 + Vite (port 5173)
 
-**Prisma + Docker (preferred)**
-Use Docker when running migrations or generating the Prisma client to ensure the container environment matches runtime configuration.
+## Commands
 
-Recommended sequence:
+### Backend (from `backend/`)
 
-- Run the migration inside the backend container:
-- Generate the Prisma client inside the container:
-- Run a local generate to sync the generated client with your workspace (so the IDE and local scripts pick up changes): `npx prisma generate`
+```bash
+npm run dev          # Start dev server with hot reload
+npm run build        # Compile TypeScript
+npm run lint         # ESLint check
+npm test             # Run all tests
+npm run test:unit    # Unit tests only (.test.ts)
+npm run test:int     # Integration tests only (.int.test.ts)
+```
 
-**Notes:**
--Ensure the compose service name backend matches docker-compose.yml. If you use a different compose file, add -f <file> (example: docker-compose -f docker-compose.dev.yml exec -it backend ...).
--Run these commands from the repository root where docker-compose.yml lives so relative paths and env files resolve.
--The local npx prisma generate ensures the generated client in your workspace (and your IDE) matches the container state.
+### Frontend (from `frontend/`)
 
-**Quick Tips**
--If migrations fail due to DB connectivity, confirm the DB container is healthy and Prisma environment variables point to the correct host (often db in compose network).
+```bash
+npm run dev          # Start Vite dev server
+npm run build        # Build for production
+npm run lint         # ESLint check
+npm test             # Run tests
+npm run test:ui      # Run tests with UI
+```
 
-- Use descriptive migration names (e.g., add-students-table) for clarity.
-- CI pipelines should perform migrations in a controlled manner (review & backups) rather than migrate dev in production environments.
+### Database (Prisma)
 
-**Do**
-Follow the commands above when running migrations or updating the Prisma schema.
+Run migrations from `backend/` directory:
+
+```bash
+npx prisma migrate dev --name "<migration-name>"
+npx prisma generate
+```
+
+## Docker Development
+
+From repository root:
+
+```bash
+docker-compose up --build
+```
+
+This starts frontend, backend, and postgres containers.
+
+## Important Files
+
+- **Backend details**: See `backend/AGENTS.md` for architecture, testing patterns, and migration rules.
+- **Frontend structure**: Feature-based at `src/features/`, shared components at `src/shared/`.
+
+## Key Conventions
+
+- Clean Architecture in backend: `domain/` → `application/` → `infrastructure/` → `interfaces/`
+- Prisma client generated at `src/generated/prisma/`
+- Tests colocated: `test/unit/` and `test/integration/` in backend
+- Passwords hashed (bcrypt), never stored plaintext
+- JWT minimal claims (sub, email, role); generic auth failure messages

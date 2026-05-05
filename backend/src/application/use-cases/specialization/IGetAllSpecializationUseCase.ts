@@ -1,4 +1,3 @@
-import { IUseCase } from "../../../domain/common/IUseCase";
 import { PaginatedResult } from "../../../domain/common/Pagination";
 import { SpecializationResponse } from "../../dto/SpecializationResponse";
 import { GetAllSpecializationFilter } from "../../../domain/interfaces/ISpecializationRepository";
@@ -9,8 +8,8 @@ export interface GetAllSpecializationRepositoryRequest {
   limit: number;
 }
 
-export type IGetAllSpecializationUseCase = IUseCase<
-  GetAllSpecializationRepositoryRequest,
-  PaginatedResult<SpecializationResponse>
->;
-
+export interface IGetAllSpecializationUseCase {
+  execute(
+    request: GetAllSpecializationRepositoryRequest
+  ): Promise<PaginatedResult<SpecializationResponse>>;
+}

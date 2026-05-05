@@ -1,8 +1,8 @@
-import {IUseCase} from "../../../domain/common/IUseCase";
-
 export interface ApproveSpecializationRequest {
-    specializationId: string;
-    approverId: string;
+  specializationId: string;
+  approverId: string;
 }
 
-export type IApproveSpecializationUseCase = IUseCase<ApproveSpecializationRequest, boolean>
+export interface IApproveSpecializationUseCase {
+  execute(request: ApproveSpecializationRequest): Promise<boolean>;
+}

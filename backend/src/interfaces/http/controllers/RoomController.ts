@@ -1,30 +1,26 @@
-import {Response} from "express";
-import {IUseCase} from "../../../domain/common/IUseCase";
-import {CreateRoomUseCaseRequest} from "../../../application/use-cases/room/ICreateRoomUseCase";
-import {Room} from "../../../domain/entities/Room";
-import {AuthenticatedRequest} from "../middleware/authGuard";
+import { Response } from "express";
+import { AuthenticatedRequest } from "../middleware/authGuard";
 import {
     CreateRoomRequest,
     roomQuerySchema,
     roomUpdateParamsSchema,
     UpdateRoomRequest
 } from "../../../application/schemas/roomSchemas";
-import {HttpStatus} from "../../../domain/enums/HttpStatus";
-import {RoomMapper} from "../../../infrastructure/mapper/RoomMapper";
-import {GetAllRoomFilter} from "../../../domain/interfaces/IRoomRepository";
-import {BadRequestError} from "../middleware/HttpErrors";
-import {GetAllRoomUseCaseRequest} from "../../../application/use-cases/room/IGetAllRoomUseCase";
-import {PaginatedResult} from "../../../domain/common/Pagination";
-import {GetRoomByIdUseCaseRequest} from "../../../application/use-cases/room/IGetRoomByIdUseCase";
-import {RoomResponse, RoomResponseNested} from "../../../application/dto/RoomResponse";
-import {UpdateRoomUseCaseRequest} from "../../../application/use-cases/room/IUpdateRoomUseCase";
+import { HttpStatus } from "../../../domain/enums/HttpStatus";
+import { RoomMapper } from "../../../infrastructure/mapper/RoomMapper";
+import { GetAllRoomFilter } from "../../../domain/interfaces/IRoomRepository";
+import { BadRequestError } from "../middleware/HttpErrors";
+import type { IGetAllRoomUseCase } from "../../../application/use-cases/room/IGetAllRoomUseCase";
+import type { IGetRoomByIdUseCase, GetRoomByIdUseCaseRequest } from "../../../application/use-cases/room/IGetRoomByIdUseCase";
+import type { ICreateRoomUseCase } from "../../../application/use-cases/room/ICreateRoomUseCase";
+import type { IUpdateRoomUseCase } from "../../../application/use-cases/room/IUpdateRoomUseCase";
 
 export class RoomController {
     constructor(
-        private readonly getAllRoomUseCase: IUseCase<GetAllRoomUseCaseRequest, PaginatedResult<RoomResponse | RoomResponseNested>>,
-        private readonly getRoomByIdUseCase: IUseCase<GetRoomByIdUseCaseRequest, RoomResponse | RoomResponseNested>,
-        private readonly createRoomUseCase: IUseCase<CreateRoomUseCaseRequest, Room>,
-        private readonly updateRoomUseCase: IUseCase<UpdateRoomUseCaseRequest, boolean>
+        private readonly getAllRoomUseCase: IGetAllRoomUseCase,
+        private readonly getRoomByIdUseCase: IGetRoomByIdUseCase,
+        private readonly createRoomUseCase: ICreateRoomUseCase,
+        private readonly updateRoomUseCase: IUpdateRoomUseCase
     ) {
         this.getAllRooms = this.getAllRooms.bind(this);
         this.getRoomById = this.getRoomById.bind(this);

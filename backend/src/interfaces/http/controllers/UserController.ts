@@ -1,18 +1,18 @@
 import { Response } from "express";
+import { IGetAllUserUseCase } from "../../../application/use-cases/user/IGetAllUserUseCase";
 import { IUpdateUserPasswordUseCase } from "../../../application/use-cases/user/IUpdateUserPasswordUseCase";
-import { GetAllUserUseCase } from "../../../application/use-cases/user";
+import { BadRequestError } from "../middleware/HttpErrors";
+import { HttpStatus } from "../../../domain/enums/HttpStatus";
 import { GetAllUserFilter } from "../../../domain/interfaces/IUserRepository";
 import { UserMapper } from "../../../infrastructure/mapper/UserMapper";
 import { UserProfileMapper } from "../../../infrastructure/mapper/UserProfileMapper";
 import { AuthenticatedRequest } from "../middleware/authGuard";
 import { UpdatePasswordRequestWithUserId, UpdatePasswordUserRequest } from "../../../application/dto/UpdatePasswordRequest";
-import {BadRequestError} from "../middleware/HttpErrors";
-import { HttpStatus } from "../../../domain/enums/HttpStatus";
 
 export class UserController {
   constructor(
       private readonly updateUserPasswordUseCase: IUpdateUserPasswordUseCase,
-      private readonly getAllUserUseCase: GetAllUserUseCase,
+      private readonly getAllUserUseCase: IGetAllUserUseCase,
   ) {
     this.getAllUsers = this.getAllUsers.bind(this);
     this.changePassword = this.changePassword.bind(this);

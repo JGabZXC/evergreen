@@ -1,10 +1,12 @@
-import {IUseCase} from "../../../domain/common/IUseCase";
-import {TeacherAcademicBackgroundRequest} from "../../dto/TeacherAcademicBackgroundRequest";
+import { TeacherAcademicBackgroundRequest } from "../../dto/TeacherAcademicBackgroundRequest";
 
 export interface UpdateTeacherAcademicBackgroundRequest {
-    id: string;
-    data: Partial<TeacherAcademicBackgroundRequest>;
+  id: string;
+  data: Partial<TeacherAcademicBackgroundRequest>;
 }
 
-export type IUpdateTeacherAcademicBackgroundUseCase = IUseCase<UpdateTeacherAcademicBackgroundRequest, boolean>
-
+export interface IUpdateTeacherAcademicBackgroundUseCase {
+  execute(
+    request: UpdateTeacherAcademicBackgroundRequest
+  ): Promise<boolean>;
+}

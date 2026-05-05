@@ -1,39 +1,23 @@
-import {Response} from "express";
-import {IUserRepository} from "../../../domain/interfaces/IUserRepository";
-import {ITeacherAcademicBackgroundRepository} from '../../../domain/interfaces/ITeacherAcademicBackgroundRepository';
-import {
-    ApproveTeacherAcademicBackgroundRequest,
-    IApproveTeacherAcademicBackgroundUseCase
-} from '../../../application/use-cases/teacher_academic_background/IApproveTeacherAcademicBackgroundUseCase';
-import {AuthenticatedRequest} from "../middleware/authGuard";
-import {IUseCase} from "../../../domain/common/IUseCase";
-import {
-    GetAllTeacherAcademicBackgroundRepositoryRequest
-} from "../../../application/use-cases/teacher_academic_background/IGetAllTeacherAcademicBackgroundUseCase";
-import {
-    TeacherAcademicBackgroundNestedResponse,
-    TeacherAcademicBackgroundResponse
-} from "../../../application/dto/TeacherAcademicBackgroundResponse";
-import {PaginatedResult} from "../../../domain/common/Pagination";
+import { Response } from "express";
+import { IUserRepository } from "../../../domain/interfaces/IUserRepository";
+import { ITeacherAcademicBackgroundRepository } from '../../../domain/interfaces/ITeacherAcademicBackgroundRepository';
+import { IApproveTeacherAcademicBackgroundUseCase } from '../../../application/use-cases/teacher_academic_background/IApproveTeacherAcademicBackgroundUseCase';
+import { AuthenticatedRequest } from "../middleware/authGuard";
+import type { IGetAllTeacherAcademicBackgroundUseCase, GetAllTeacherAcademicBackgroundRepositoryRequest } from "../../../application/use-cases/teacher_academic_background/IGetAllTeacherAcademicBackgroundUseCase";
 import { GetAllTeacherAcademicBackgroundFilter } from '../../../domain/interfaces/ITeacherAcademicBackgroundRepository';
 import { TeacherDetailsType } from '../../../generated/prisma/enums';
-import {BadRequestError, NotFoundError, ForbiddenError} from "../middleware/HttpErrors";
-import {TeacherAcademicBackgroundRequest} from "../../../application/dto/TeacherAcademicBackgroundRequest";
-import {UpdateTeacherAcademicBackgroundRequest} from "../../../application/use-cases/teacher_academic_background/IUpdateTeacherAcademicBackgroundUseCase";
-import {
-    CreateTeacherAcademicBackgroundRequest
-} from "../../../application/use-cases/teacher_academic_background/ICreateTeacherAcademicBackgroundUseCase";
-import {
-    ApproveSpecializationRequest
-} from "../../../application/use-cases/specialization/IApproveSpecializationUseCase";
+import { BadRequestError, NotFoundError, ForbiddenError } from "../middleware/HttpErrors";
+import { TeacherAcademicBackgroundRequest } from "../../../application/dto/TeacherAcademicBackgroundRequest";
+import type { IUpdateTeacherAcademicBackgroundUseCase } from "../../../application/use-cases/teacher_academic_background/IUpdateTeacherAcademicBackgroundUseCase";
+import type { ICreateTeacherAcademicBackgroundUseCase, CreateTeacherAcademicBackgroundRequest } from "../../../application/use-cases/teacher_academic_background/ICreateTeacherAcademicBackgroundUseCase";
 
 export class TeacherAcademicBackgroundController {
     constructor(
         private readonly userRepository: IUserRepository,
-        private readonly getAllTeacherUseCase: IUseCase<GetAllTeacherAcademicBackgroundRepositoryRequest, PaginatedResult<TeacherAcademicBackgroundNestedResponse>>,
-        private readonly createUserUseCase: IUseCase<CreateTeacherAcademicBackgroundRequest, TeacherAcademicBackgroundResponse>,
-        private readonly updateTeacherAcademicBackgroundUseCase: IUseCase<UpdateTeacherAcademicBackgroundRequest, boolean>,
-        private readonly approveTeacherAcademicBackgroundUseCase: IUseCase<ApproveTeacherAcademicBackgroundRequest, boolean>,
+        private readonly getAllTeacherUseCase: IGetAllTeacherAcademicBackgroundUseCase,
+        private readonly createUserUseCase: ICreateTeacherAcademicBackgroundUseCase,
+        private readonly updateTeacherAcademicBackgroundUseCase: IUpdateTeacherAcademicBackgroundUseCase,
+        private readonly approveTeacherAcademicBackgroundUseCase: IApproveTeacherAcademicBackgroundUseCase,
         private readonly teacherRepository: ITeacherAcademicBackgroundRepository,
     ) {
         this.getAllTeacherAcademicBackground = this.getAllTeacherAcademicBackground.bind(this);

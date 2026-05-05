@@ -1,30 +1,25 @@
 import { Response } from "express";
 import { IUserRepository } from "../../../domain/interfaces/IUserRepository";
 import { AuthenticatedRequest } from "../middleware/authGuard";
-import { IUseCase } from "../../../domain/common/IUseCase";
-import { GetAllSpecializationRepositoryRequest } from "../../../application/use-cases/specialization/IGetAllSpecializationUseCase";
-import { CreateSpecializationRequest } from "../../../application/use-cases/specialization/ICreateSpecializationUseCase";
-import { UpdateSpecializationRequest } from "../../../application/use-cases/specialization/IUpdateSpecializationUseCase";
+import type { IGetAllSpecializationUseCase, GetAllSpecializationRepositoryRequest } from "../../../application/use-cases/specialization/IGetAllSpecializationUseCase";
+import type { ICreateSpecializationUseCase, CreateSpecializationRequest } from "../../../application/use-cases/specialization/ICreateSpecializationUseCase";
+import type { IUpdateSpecializationUseCase, UpdateSpecializationRequest } from "../../../application/use-cases/specialization/IUpdateSpecializationUseCase";
+import type { IApproveSpecializationUseCase } from "../../../application/use-cases/specialization/IApproveSpecializationUseCase";
 import { SpecializationCreateRequest } from "../../../application/schemas/specializationSchemas";
-import { PaginatedResult } from "../../../domain/common/Pagination";
-import { SpecializationResponse } from "../../../application/dto/SpecializationResponse";
 import {
   GetAllSpecializationFilter,
   ISpecializationRepository
 } from '../../../domain/interfaces/ISpecializationRepository';
 import { BadRequestError, NotFoundError } from "../middleware/HttpErrors";
-import {
-  ApproveSpecializationRequest
-} from "../../../application/use-cases/specialization/IApproveSpecializationUseCase";
 
 export class SpecializationController {
   constructor(
     private readonly userRepository: IUserRepository,
     private readonly specializationRepo: ISpecializationRepository,
-    private readonly getAllSpecializationUseCase: IUseCase<GetAllSpecializationRepositoryRequest, PaginatedResult<SpecializationResponse>>,
-    private readonly createSpecializationUseCase: IUseCase<CreateSpecializationRequest, SpecializationResponse>,
-    private readonly updateSpecializationUseCase: IUseCase<UpdateSpecializationRequest, boolean>,
-    private readonly approveSpecializationUseCase: IUseCase<ApproveSpecializationRequest, boolean>
+    private readonly getAllSpecializationUseCase: IGetAllSpecializationUseCase,
+    private readonly createSpecializationUseCase: ICreateSpecializationUseCase,
+    private readonly updateSpecializationUseCase: IUpdateSpecializationUseCase,
+    private readonly approveSpecializationUseCase: IApproveSpecializationUseCase
   ) {
     this.getAllSpecializations = this.getAllSpecializations.bind(this);
     this.createSpecialization = this.createSpecialization.bind(this);

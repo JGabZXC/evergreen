@@ -1,4 +1,3 @@
-import { IUseCase } from "../../../domain/common/IUseCase";
 import { SpecializationCreateRequest } from "../../dto/SpecializationCreateRequest";
 
 export interface UpdateSpecializationRequest {
@@ -6,8 +5,6 @@ export interface UpdateSpecializationRequest {
   id: string;
 }
 
-export type IUpdateSpecializationUseCase = IUseCase<
-  UpdateSpecializationRequest,
-  boolean
->;
-
+export interface IUpdateSpecializationUseCase {
+  execute(request: UpdateSpecializationRequest): Promise<boolean>;
+}

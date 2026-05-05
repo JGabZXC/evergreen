@@ -23,5 +23,22 @@ export const getUsers = async (query?: {
   return response.data;
 };
 
+export const createUser = async (payload: unknown) => {
+  // If dateOfBirth is a Date object, convert to ISO string for the API
+  try {
+    const body: any = { ...(payload as any) };
+    if (body?.userProfile?.dateOfBirth instanceof Date) {
+      body.userProfile.dateOfBirth = body.userProfile.dateOfBirth.toISOString();
+    }
+
+    const response = await apiPrivate.post(`/api/users/`, body);
+    return response.data;
+  } catch (err) {
+    throw err;
+  }
+};
+
+
+
 
 

@@ -1,24 +1,10 @@
 import { Response } from "express";
 import { AuthenticatedRequest } from "../middleware/authGuard";
-import { IUseCase } from "../../../domain/common/IUseCase";
-import {
-  CreateSchoolYearUseCaseRequest,
-} from "../../../application/use-cases/school_year/ICreateSchoolYearUseCase";
-import {
-  DeleteSchoolYearUseCaseRequest,
-} from "../../../application/use-cases/school_year/IDeleteSchoolYearUseCase";
-import { GetAllSchoolYearRepositoryRequest } from "../../../application/use-cases/school_year/IGetAllSchoolYearUseCase";
-import {
-  GetSchoolYearByIdUseCaseRequest,
-} from "../../../application/use-cases/school_year/IGetSchoolYearByIdUseCase";
-import {
-  UpdateSchoolYearUseCaseRequest,
-} from "../../../application/use-cases/school_year/IUpdateSchoolYearUseCase";
-import { PaginatedResult } from "../../../domain/common/Pagination";
-import {
-  SchoolYearNestedResponse,
-  SchoolYearResponse,
-} from "../../../application/dto/SchoolYearResponse";
+import { ICreateSchoolYearUseCase, CreateSchoolYearUseCaseRequest } from "../../../application/use-cases/school_year/ICreateSchoolYearUseCase";
+import { IDeleteSchoolYearUseCase, DeleteSchoolYearUseCaseRequest } from "../../../application/use-cases/school_year/IDeleteSchoolYearUseCase";
+import { IGetAllSchoolYearUseCase, GetAllSchoolYearRepositoryRequest } from "../../../application/use-cases/school_year/IGetAllSchoolYearUseCase";
+import { IGetSchoolYearByIdUseCase, GetSchoolYearByIdUseCaseRequest } from "../../../application/use-cases/school_year/IGetSchoolYearByIdUseCase";
+import { IUpdateSchoolYearUseCase, UpdateSchoolYearUseCaseRequest } from "../../../application/use-cases/school_year/IUpdateSchoolYearUseCase";
 import {
   SchoolYearCreateRequest,
   SchoolYearUpdateRequest,
@@ -29,26 +15,11 @@ import { BadRequestError } from "../middleware/HttpErrors";
 
 export class SchoolYearController {
   constructor(
-    private readonly getAllSchoolYearUseCase: IUseCase<
-      GetAllSchoolYearRepositoryRequest,
-      PaginatedResult<SchoolYearResponse | SchoolYearNestedResponse>
-    >,
-    private readonly createSchoolYearUseCase: IUseCase<
-      CreateSchoolYearUseCaseRequest,
-      SchoolYearResponse
-    >,
-    private readonly getSchoolYearByIdUseCase: IUseCase<
-      GetSchoolYearByIdUseCaseRequest,
-      SchoolYearResponse | SchoolYearNestedResponse
-    >,
-    private readonly updateSchoolYearUseCase: IUseCase<
-      UpdateSchoolYearUseCaseRequest,
-      boolean
-    >,
-    private readonly deleteSchoolYearUseCase: IUseCase<
-      DeleteSchoolYearUseCaseRequest,
-      boolean
-    >,
+    private readonly getAllSchoolYearUseCase: IGetAllSchoolYearUseCase,
+    private readonly createSchoolYearUseCase: ICreateSchoolYearUseCase,
+    private readonly getSchoolYearByIdUseCase: IGetSchoolYearByIdUseCase,
+    private readonly updateSchoolYearUseCase: IUpdateSchoolYearUseCase,
+    private readonly deleteSchoolYearUseCase: IDeleteSchoolYearUseCase,
   ) {
     this.getAllSchoolYears = this.getAllSchoolYears.bind(this);
     this.createSchoolYear = this.createSchoolYear.bind(this);

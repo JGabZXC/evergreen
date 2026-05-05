@@ -1,12 +1,13 @@
-import {UpdateRoomRequest} from "../../schemas/roomSchemas";
-import {IUseCase} from "../../../domain/common/IUseCase";
+import { UpdateRoomRequest } from "../../schemas/roomSchemas";
 
 export interface UpdateRoomUseCaseRequest {
-    roomId: string;
-    data: UpdateRoomRequest & {
-        remarks?: string | undefined,
-        changedById?: string | undefined,
-    };
+  roomId: string;
+  data: UpdateRoomRequest & {
+    remarks?: string | undefined;
+    changedById?: string | undefined;
+  };
 }
 
-export type IUpdateRoomUseCase = IUseCase<UpdateRoomUseCaseRequest, boolean>;
+export interface IUpdateRoomUseCase {
+  execute(request: UpdateRoomUseCaseRequest): Promise<boolean>;
+}

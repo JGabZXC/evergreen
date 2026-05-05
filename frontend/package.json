@@ -12,17 +12,19 @@
     "test:ui": "vitest --ui"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
     "@tailwindcss/vite": "^4.1.17",
+    "@tanstack/react-query": "^5.100.6",
     "axios": "^1.13.2",
-    "@tanstack/react-query": "^5.0.0",
-    "framer-motion": "^12.23.24",
     "lucide-react": "^0.554.0",
     "react": "^19.2.0",
     "react-day-picker": "^9.11.2",
     "react-dom": "^19.2.0",
+    "react-hook-form": "^7.74.0",
     "react-router": "^7.9.6",
     "react-toastify": "^11.0.5",
-    "tailwindcss": "^4.1.17"
+    "tailwindcss": "^4.1.17",
+    "zod": "^4.4.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

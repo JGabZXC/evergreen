@@ -1,4 +1,3 @@
-import { IUseCase } from "../../../domain/common/IUseCase";
 import { SchoolYearUpdateRequest } from "../../dto/SchoolYearRequest";
 
 export interface UpdateSchoolYearUseCaseRequest {
@@ -9,7 +8,6 @@ export interface UpdateSchoolYearUseCaseRequest {
   updaterId: string;
 }
 
-export type IUpdateSchoolYearUseCase = IUseCase<
-  UpdateSchoolYearUseCaseRequest,
-  boolean
->;
+export interface IUpdateSchoolYearUseCase {
+  execute(request: UpdateSchoolYearUseCaseRequest): Promise<boolean>;
+}

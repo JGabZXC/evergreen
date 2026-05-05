@@ -1,5 +1,4 @@
 import { GetAllSectionFilter } from "../../../domain/interfaces/ISectionRepository";
-import { IUseCase } from "../../../domain/common/IUseCase";
 import { PaginatedResult } from "../../../domain/common/Pagination";
 import {
   SectionNestedResponse,
@@ -13,8 +12,8 @@ export interface GetAllSectionUseCaseRequest {
   nested: boolean;
 }
 
-export type IGetAllSectionUseCase = IUseCase<
-  GetAllSectionUseCaseRequest,
-  PaginatedResult<SectionResponse | SectionNestedResponse>
->;
-
+export interface IGetAllSectionUseCase {
+  execute(
+    request: GetAllSectionUseCaseRequest
+  ): Promise<PaginatedResult<SectionResponse | SectionNestedResponse>>;
+}

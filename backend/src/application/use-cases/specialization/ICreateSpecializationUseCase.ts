@@ -1,4 +1,3 @@
-import { IUseCase } from "../../../domain/common/IUseCase";
 import { SpecializationCreateRequest } from "../../dto/SpecializationCreateRequest";
 import { SpecializationResponse } from "../../dto/SpecializationResponse";
 
@@ -7,8 +6,6 @@ export interface CreateSpecializationRequest {
   creatorId: string;
 }
 
-export type ICreateSpecializationUseCase = IUseCase<
-  CreateSpecializationRequest,
-  SpecializationResponse
->;
-
+export interface ICreateSpecializationUseCase {
+  execute(request: CreateSpecializationRequest): Promise<SpecializationResponse>;
+}

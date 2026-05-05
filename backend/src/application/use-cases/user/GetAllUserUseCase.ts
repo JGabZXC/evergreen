@@ -1,20 +1,11 @@
 import { User } from "../../../domain/entities/User";
-import {
-  GetAllUserFilter,
-  IUserRepository,
-} from "../../../domain/interfaces/IUserRepository";
+import { IUserRepository } from "../../../domain/interfaces/IUserRepository";
 import { PaginatedResult } from "../../../domain/common/Pagination";
-import { IUseCase } from "../../../domain/common/IUseCase";
+import { IGetAllUserUseCase, GetAllUserUseCaseRequest } from "./IGetAllUserUseCase";
 
-export type { GetAllUserFilter };
+export type { GetAllUserFilter } from "../../../domain/interfaces/IUserRepository";
 
-export interface GetAllUserUseCaseRequest {
-  filter: GetAllUserFilter;
-  page?: number;
-  limit?: number;
-}
-
-export class GetAllUserUseCase implements IUseCase<GetAllUserUseCaseRequest, PaginatedResult<User>> {
+export class GetAllUserUseCase implements IGetAllUserUseCase {
   constructor(private userRepository: IUserRepository) {}
 
   async execute(request: GetAllUserUseCaseRequest): Promise<PaginatedResult<User>> {

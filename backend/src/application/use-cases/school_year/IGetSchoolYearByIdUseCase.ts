@@ -1,4 +1,3 @@
-import { IUseCase } from "../../../domain/common/IUseCase";
 import {
   SchoolYearNestedResponse,
   SchoolYearResponse,
@@ -9,7 +8,8 @@ export interface GetSchoolYearByIdUseCaseRequest {
   nested: boolean;
 }
 
-export type IGetSchoolYearByIdUseCase = IUseCase<
-  GetSchoolYearByIdUseCaseRequest,
-  SchoolYearResponse | SchoolYearNestedResponse
->;
+export interface IGetSchoolYearByIdUseCase {
+  execute(
+    request: GetSchoolYearByIdUseCaseRequest
+  ): Promise<SchoolYearResponse | SchoolYearNestedResponse>;
+}

@@ -1,6 +1,9 @@
 import { useRegistrarUsers } from "../../hooks/useRegistrarUsers";
+import { useState } from "react";
+import UserCreateModal from "./UserCreateModal";
 
 export default function UsersRegistrar() {
+  const [openCreate, setOpenCreate] = useState(false);
   const { data, isLoading, isError, isFetching, params, setParams } = useRegistrarUsers({ page: 1, limit: 10 });
 
   const onPrev = () => {
@@ -14,7 +17,12 @@ export default function UsersRegistrar() {
   return (
 	<div className="w-full">
 	  <div className="card bg-base-100 shadow-sm p-4">
-		<h3 className="text-xl font-bold mb-2">Users</h3>
+		<div className="flex items-center justify-between">
+		  <h3 className="text-xl font-bold mb-2">Users</h3>
+		  <button className="btn btn-primary btn-sm" onClick={() => setOpenCreate(true)}>
+			Create User
+		  </button>
+		</div>
 		<p className="text-sm text-base-content/70 mb-4">A list of users for the registrar.</p>
 
 		<div className="overflow-x-auto">
@@ -71,6 +79,12 @@ export default function UsersRegistrar() {
 		  })()}
 		</div>
 	  </div>
+
+	  <UserCreateModal
+		open={openCreate}
+		onClose={() => setOpenCreate(false)}
+		onSuccess={() => setParams((p) => ({ ...(p ?? {}), page: p?.page ?? 1 }))}
+	  />
 	</div>
   );
 }

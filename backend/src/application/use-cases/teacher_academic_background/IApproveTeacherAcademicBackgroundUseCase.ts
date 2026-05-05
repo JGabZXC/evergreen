@@ -1,8 +1,10 @@
-import {IUseCase} from "../../../domain/common/IUseCase";
-
 export interface ApproveTeacherAcademicBackgroundRequest {
-    teacherAcademicBackgroundId: string;
-    approverId: string;
+  teacherAcademicBackgroundId: string;
+  approverId: string;
 }
 
-export type IApproveTeacherAcademicBackgroundUseCase = IUseCase<ApproveTeacherAcademicBackgroundRequest, boolean>
+export interface IApproveTeacherAcademicBackgroundUseCase {
+  execute(
+    request: ApproveTeacherAcademicBackgroundRequest
+  ): Promise<boolean>;
+}

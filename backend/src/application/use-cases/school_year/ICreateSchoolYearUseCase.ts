@@ -1,4 +1,3 @@
-import { IUseCase } from "../../../domain/common/IUseCase";
 import { SchoolYearCreateRequest } from "../../dto/SchoolYearRequest";
 import { SchoolYearResponse } from "../../dto/SchoolYearResponse";
 
@@ -7,7 +6,6 @@ export interface CreateSchoolYearUseCaseRequest {
   creatorId: string;
 }
 
-export type ICreateSchoolYearUseCase = IUseCase<
-  CreateSchoolYearUseCaseRequest,
-  SchoolYearResponse
->;
+export interface ICreateSchoolYearUseCase {
+  execute(request: CreateSchoolYearUseCaseRequest): Promise<SchoolYearResponse>;
+}

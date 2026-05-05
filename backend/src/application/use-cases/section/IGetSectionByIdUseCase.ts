@@ -1,4 +1,3 @@
-import { IUseCase } from "../../../domain/common/IUseCase";
 import {
   SectionNestedResponse,
   SectionResponse,
@@ -9,8 +8,8 @@ export interface GetSectionByIdUseCaseRequest {
   nested?: boolean;
 }
 
-export type IGetSectionByIdUseCase = IUseCase<
-  GetSectionByIdUseCaseRequest,
-  SectionResponse | SectionNestedResponse
->;
-
+export interface IGetSectionByIdUseCase {
+  execute(
+    request: GetSectionByIdUseCaseRequest
+  ): Promise<SectionResponse | SectionNestedResponse>;
+}

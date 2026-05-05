@@ -1,11 +1,5 @@
 import { Response } from "express";
 import { AuthenticatedRequest } from "../middleware/authGuard";
-import { IUseCase } from "../../../domain/common/IUseCase";
-import { PaginatedResult } from "../../../domain/common/Pagination";
-import {
-  SectionNestedResponse,
-  SectionResponse,
-} from "../../../application/dto/SectionResponse";
 import {
   CreateSectionRequest,
   sectionParamsSchema,
@@ -14,37 +8,21 @@ import {
 } from "../../../application/schemas/sectionSchemas";
 import { GetAllSectionFilter } from "../../../domain/interfaces/ISectionRepository";
 import { BadRequestError } from "../middleware/HttpErrors";
-import { Section } from "../../../domain/entities/Section";
 import { SectionMapper } from "../../../infrastructure/mapper/SectionMapper";
 import { HttpStatus } from "../../../domain/enums/HttpStatus";
-import { GetAllSectionUseCaseRequest } from "../../../application/use-cases/section/IGetAllSectionUseCase";
-import { GetSectionByIdUseCaseRequest } from "../../../application/use-cases/section/IGetSectionByIdUseCase";
-import { UpdateSectionUseCaseRequest } from "../../../application/use-cases/section/IUpdateSectionUseCase";
-import { DeleteSectionUseCaseRequest } from "../../../application/use-cases/section/IDeleteSectionUseCase";
-import { CreateSectionUseCaseRequest } from "../../../application/use-cases/section/ICreateSectionUseCase";
+import type { IGetAllSectionUseCase } from "../../../application/use-cases/section/IGetAllSectionUseCase";
+import type { IGetSectionByIdUseCase, GetSectionByIdUseCaseRequest } from "../../../application/use-cases/section/IGetSectionByIdUseCase";
+import type { IUpdateSectionUseCase } from "../../../application/use-cases/section/IUpdateSectionUseCase";
+import type { IDeleteSectionUseCase } from "../../../application/use-cases/section/IDeleteSectionUseCase";
+import type { ICreateSectionUseCase } from "../../../application/use-cases/section/ICreateSectionUseCase";
 
 export class SectionController {
   constructor(
-    private readonly getAllSectionUseCase: IUseCase<
-      GetAllSectionUseCaseRequest,
-      PaginatedResult<SectionResponse | SectionNestedResponse>
-    >,
-    private readonly getSectionByIdUseCase: IUseCase<
-      GetSectionByIdUseCaseRequest,
-      SectionResponse | SectionNestedResponse
-    >,
-    private readonly createSectionUseCase: IUseCase<
-      CreateSectionUseCaseRequest,
-      Section
-    >,
-    private readonly updateSectionUseCase: IUseCase<
-      UpdateSectionUseCaseRequest,
-      boolean
-    >,
-    private readonly deleteSectionUseCase: IUseCase<
-      DeleteSectionUseCaseRequest,
-      boolean
-    >,
+    private readonly getAllSectionUseCase: IGetAllSectionUseCase,
+    private readonly getSectionByIdUseCase: IGetSectionByIdUseCase,
+    private readonly createSectionUseCase: ICreateSectionUseCase,
+    private readonly updateSectionUseCase: IUpdateSectionUseCase,
+    private readonly deleteSectionUseCase: IDeleteSectionUseCase,
   ) {
     this.getAllSections = this.getAllSections.bind(this);
     this.getSectionById = this.getSectionById.bind(this);

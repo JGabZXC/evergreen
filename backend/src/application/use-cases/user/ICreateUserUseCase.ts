@@ -1,4 +1,3 @@
-import { IUseCase } from "../../../domain/common/IUseCase";
 import { UserCreateRequest } from "../../dto/UserCreateRequest";
 import { UserResponse } from "../../dto/UserResponse";
 
@@ -7,4 +6,6 @@ export interface CreateUserRequest {
   creatorId: string;
 }
 
-export type ICreateUserUseCase = IUseCase<CreateUserRequest, UserResponse>;
+export interface ICreateUserUseCase {
+  execute(request: CreateUserRequest): Promise<UserResponse>;
+}
